@@ -1,2 +1,1 @@
-Folder para el trabajo de tesis de Alex Maas.
-Prueba del Readme
+Folder Trabajo de Graduación- Alex Maas
