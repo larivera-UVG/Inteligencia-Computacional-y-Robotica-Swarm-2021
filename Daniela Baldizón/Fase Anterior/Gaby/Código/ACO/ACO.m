@@ -22,7 +22,7 @@ if strcmp(graph_type, "grid")
     cost_diag = 0.5;
     tau_0 = 0.1;  % Valor de tau inicial
     G = graph_grid(grid_size);
-    nodo_dest = '56';
+    nodo_dest = '10';
     nodo_init = "1";
     plot_obstacles = 0;
 elseif strcmp(graph_type, "visibility")
@@ -39,7 +39,7 @@ elseif strcmp(graph_type, "prm")
     % Está pensado para PRM sin obstáculos
     grid_size = 10;
     load('prm_test_graph'); % prm_generator(grid_size, 50);
-    nodo_dest = '5';
+    nodo_dest = '30';
     nodo_init = "27";
     plot_obstacles = 0;
 elseif strcmp(graph_type, "rrt")
@@ -50,8 +50,8 @@ elseif strcmp(graph_type, "rrt")
     load('rrt_test_graph');
     % save('rrt_test_graph', 'G')
     % G = rrt_generator(grid_size);
-    nodo_dest = '360';
-    nodo_init = "445";
+    nodo_dest = '300';
+    nodo_init = "25";
     plot_obstacles = 0;
 end
 
