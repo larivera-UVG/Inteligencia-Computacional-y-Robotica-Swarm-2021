@@ -1,2 +1,2 @@
-Folder para el trabajo de tesis de Alex Maas.
-Prueba del Readme
+Protocolo 2021- Alex Maas
+Se incluyen copias de ambas entregas del protocolo 
