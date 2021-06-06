@@ -1,4 +1,4 @@
-Folder para el trabajo de tesis de Andrés Sierra.
+Folder para el trabajo de tesis de Andres Sierra.
 
 # Implementación y Validación del Algoritmos de Robótica de Enjambre Ant Colony Optimization y Ant System enSistemas Físicos
 
