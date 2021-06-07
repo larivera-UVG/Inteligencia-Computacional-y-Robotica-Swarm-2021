@@ -1,0 +1,1 @@
+Se realizaron pruebas con el SR_Toolbox cambiando diferentes parametros y se observa el comportamiento del PSO, se modificó las dimensiones de la mesa de trabajo para que concuerden con las dimensiones de la mesa de pruebas UVG .
