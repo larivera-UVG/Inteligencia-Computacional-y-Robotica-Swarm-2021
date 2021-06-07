@@ -1,0 +1,48 @@
+#VRML_SIM R2021a utf8
+WorldInfo {
+  coordinateSystem "NUE"
+}
+Viewpoint {
+  orientation -0.990036091697435 0.13106919986373608 0.05147234192795303 0.6098054079281446
+  position 0.08898987373887829 1.7674948954900507 2.4727276874037174
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+RectangleArena {
+  floorSize 2 2
+}
+E-puck {
+  translation -0.0562057 4.08562e-14 0.413486
+  name "e-puck(3)"
+  controller "Epuck_PSO"
+  turretSlot [
+    GPS {
+    }
+    Compass {
+    }
+  ]
+}
+E-puck {
+  translation 0.621562 1.82077e-14 0.107959
+  name "e-puck(1)"
+  controller "Epuck_PSO"
+  turretSlot [
+    GPS {
+    }
+    Compass {
+    }
+  ]
+}
+E-puck {
+  translation -0.69166 4.15223e-14 -0.161766
+  name "e-puck(2)"
+  controller "Epuck_PSO"
+  turretSlot [
+    GPS {
+    }
+    Compass {
+    }
+  ]
+}
