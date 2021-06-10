@@ -14,7 +14,7 @@ tic  % Para medir el tiempo que se tarda el algoritmo en correr.
 
 %% Graph generation
 % Se elige el tipo de grafo que se va a utilizar
-graph_type = "rrt";
+graph_type = "grid";
 
 if strcmp(graph_type, "grid")
     % Creamos grid cuadrado con la cantidad de nodos indicada:
@@ -100,7 +100,7 @@ leg1 = legend('$\bar{x}$', '$\hat{x}$');
 set(leg1, 'Interpreter', 'latex');
 set(leg1, 'FontSize', 17);
 figure(2); clf;
-h = plot(G, 'XData', G.Nodes.X, 'YData', G.Nodes.Y, 'NodeColor', 'k'); 
+h = plot(G, 'XData', G.Nodes.X-0.5, 'YData', G.Nodes.Y-0.5, 'NodeColor', 'k'); 
 hold on 
 nodos_especiales = [G.Nodes.X(str2double(nodo_init)), G.Nodes.Y(str2double(nodo_init)); G.Nodes.X(str2double(nodo_dest)), G.Nodes.Y(str2double(nodo_dest))];
 scatter(nodos_especiales(1, 1), nodos_especiales(1, 2), 'g','filled')
