@@ -58,12 +58,20 @@ plot(X,Y,'k');          % Dibuja las líneas verticales
 plot(Y,X,'k');          % Dibuja las líneas horizontales
 % axis off
 
-mapa = zeros(grid_size);
+mapa = zeros(grid_size); % Creación del mapa
 mapa(2,2) = 1;
 mapa(5,3) = 1;
-[f,c] = find(mapa);
+mapa(5,4) = 1;
+[c,f] = find(mapa);
 
 for i=1:size(f)
     rectangle('Position',[f(i)-1, c(i)-1, 1, 1], 'FaceColor',...
         [0 0 0], 'LineWidth',1)
 end
+
+% Coordenadas iniciales
+P0 = [G.Nodes.X(str2double(nodo_init)), G.Nodes.Y(str2double(nodo_init))];
+% coordenadas de los alrededores 
+m = [P0(1)-1, P0(1), P0(1)+1; P0(1)-1, P0(1), P0(1)+1; P0(1)-1, P0(1), P0(1)+1];  % Coordenadas en X
+n = [P0(2)+1, P0(2)+1, P0(2)+1; P0(2), P0(2), P0(2); P0(2)-1, P0(2)-1, P0(2)-1];   % Coordenadas en Y
+
