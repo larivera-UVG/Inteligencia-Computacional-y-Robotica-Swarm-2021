@@ -4,12 +4,12 @@
 % Se tomaron partes del código ACO de Gaby Iriarte
 
 % Creamos grid cuadrado con la cantidad de nodos indicada:
-    grid_size = 10;
+    grid_size = 5;
     cost_diag = 0.5;
     tau_0 = 0.1;  % Valor de tau inicial
     G = graph_grid(grid_size);
     nodo_dest = '10';
-    nodo_init = "22";
+    nodo_init = "12";
     plot_obstacles = 0;
     
     %% ACO init
@@ -90,15 +90,6 @@ MAD = [mapa(x0-1,y0-1), mapa(x0-1,y0), mapa(x0-1,y0+1);
     mapa(x0,y0-1), mapa(x0,y0), mapa(x0,y0+1);
     mapa(x0+1,y0-1), mapa(x0+1,y0), mapa(x0+1,y0+1)];
 
-% im = mapa(P0(1)+1, P0(2));
-% jn = mapa(P0(1), P0(2)+1);
-% 
-% if((im+jn)==1) % Obstáculo hacia los lados (Condición 1)
-%     1
-% elseif ((jn==1)&&(im==1)) % Obstáculo en diagonal (Condición 2)
-%     4
-% end
-
 % Matriz de distancia entre casillas
 Dx = [1,0,1;1,0,1;1,0,1];
 Dy = [1,1,1;0,0,0;1,1,1];
@@ -144,4 +135,10 @@ if OD==1
     end
 end
 
-% Matriz peso de adyacencia
+% Matriz peso
+D = zeros(size(mapa)-2);
+for i=2:size(mapa,1)-1
+    for j=2:size(mapa,2)-1
+        D(i-1,j-1)=sqrt((x0-i).^2+(y0-j).^2);
+    end 
+end

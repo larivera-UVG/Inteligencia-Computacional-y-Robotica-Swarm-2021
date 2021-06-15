@@ -9,7 +9,7 @@
     tau_0 = 0.1;  % Valor de tau inicial
     G = graph_grid(grid_size);
     nodo_dest = '10';
-    nodo_init = "12";
+    nodo_init = "22";
     plot_obstacles = 0;
     
     %% ACO init
@@ -113,3 +113,40 @@ for i=1:size(MAD,1)
     end
 end
 
+% Identificación de obstáculos
+for i=1:size(MAD,1)
+    for j=1:size(MAD,1)
+        if(Dx(i,j)+Dy(i,j)==1)% Obstáculo hacia los lados (Condición 1)
+           OL = 1;
+        elseif(Dx(i,j)==1 && Dy(i,j)==1)% Obstáculo en diagonal (Condición 2)
+           OD = 1;
+        else
+            OL = 0;
+            OD = 0;
+        end
+    end
+end
+
+if OD==1
+    if(mapa(x0,y0-1)~=1||mapa(x0-1,y0)~=1)
+        UL = 1; % Narrow aisle upper left direction
+    elseif(mapa(x0,y0-1)~=1||mapa(x0+1,y0)~=1)
+        LL = 1; % Lower left
+    elseif(mapa(x0,y0+1)~=1||mapa(x0+1,y0)~=1)
+        RL = 1; % Rigth lower
+    elseif(mapa(x0,y0+1)~=1||mapa(x0-1,y0)~=1)
+        UR = 1; % Upper right
+    else
+        UL = 0;
+        LL = 0;
+        RL = 0;
+        UR = 0;
+    end
+end
+
+% Matriz peso de adyacencia
+for i=1:size(mapa(1))
+    for j=1:size(mapa(2))
+        D(i,j)=sqrt(()^2);
+    end 
+end
