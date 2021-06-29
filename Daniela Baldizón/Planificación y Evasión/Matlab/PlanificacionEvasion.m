@@ -7,7 +7,7 @@ clc
 clear
 
 % Creamos grid cuadrado con la cantidad de nodos indicada:
-    grid_size = 4;
+    grid_size = 10;
     cost_diag = 0.5;
     tau_0 = 0.1;  % Valor de tau inicial
     G = graph_grid(grid_size);
@@ -74,7 +74,7 @@ for i=1:size(mapa)
     mapa(size(mapa),i) = 1;
     mapa(i,size(mapa)) = 1;
 end
-obstaculos = [5,6,7]'; % Nodos donde se colocan los obstaculos
+obstaculos = [5,6,7,15,13,23,25]'; % Nodos donde se colocan los obstaculos
 
 % Colocación de obstáculos en el grid
 for i=1:size(obstaculos)
@@ -163,6 +163,11 @@ for i=2:size(mapa,1)-1
 end
 D = [H(grid_size+2:size(H,1),grid_size+2:size(H,2))];
 
+%% Quitar los nodos con obstáculos del path
+for k = 1:hormigas
+    ants(k).blocked_nodes = obstaculos;
+end
+
 %%
 
 colormap(map);
@@ -203,9 +208,9 @@ while (t <= t_max && stop)
         
         % Regresamos la hormiga k al inicio
         ants(k).current_node = nodo_init;
-        ants(k).blocked_nodes = [];
+        ants(k).blocked_nodes = obstaculos;
         ants(k).last_node = nodo_init;
-        
+
     end
     
     %% Evaporación de Feromona
