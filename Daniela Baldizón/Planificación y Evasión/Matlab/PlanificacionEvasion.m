@@ -12,13 +12,13 @@ clear
     tau_0 = 0.1;  % Valor de tau inicial
     G = graph_grid(grid_size);
     nodo_dest = '10';
-    nodo_init = "35";
+    nodo_init = "8";
     plot_obstacles = 0;
-    obstaculos = [5,6,7,15,13,25,22,34,18,29]'; % Nodos donde se colocan los obstaculos
+    obstaculos = [9, 19, 29, 39, 59, 69, 79, 38, 37, 47, 67]'; % Nodos donde se colocan los obstaculos
     
     %% ACO init
 t_max = 150; 
-hormigas = 15;
+hormigas = 5;
 
 % Rate de evaporación (puede tomar valores entre 0 y 1)
 rho = 0.6; 
@@ -108,45 +108,7 @@ MAD = [mapa(x0-1,y0-1), mapa(x0-1,y0), mapa(x0-1,y0+1);
 Dx = [1,0,1;1,0,1;1,0,1];
 Dy = [1,1,1;0,0,0;1,1,1];
 
-% % Identificación de obstáculos
-% for i=1:size(MAD,1)
-%     for j=1:size(MAD,1)
-%         if(Dx(i,j)+Dy(i,j)==1)% Obstáculo hacia los lados (Condición 1)
-%            OL = 1;
-%         elseif(Dx(i,j)==1 && Dy(i,j)==1)% Obstáculo en diagonal (Condición 2)
-%            OD = 1;
-%         else
-%             OL = 0;
-%             OD = 0;
-%         end
-%     end
-% end
-% 
-% if OD==1
-%     if(mapa(x0,y0-1)~=1||mapa(x0-1,y0)~=1)
-%         UL = 0; % Narrow aisle upper left direction
-%     else 
-%         UL = 1;
-%     end
-%     
-%     if(mapa(x0,y0-1)~=1||mapa(x0+1,y0)~=1)
-%         LL = 0; % Lower left
-%     else
-%         LL = 1;
-%     end
-%     
-%     if(mapa(x0,y0+1)~=1||mapa(x0+1,y0)~=1)
-%         LR = 0; % Lower Right
-%     else
-%         LR = 1;
-%     end
-%     
-%     if(mapa(x0,y0+1)~=1||mapa(x0-1,y0)~=1)
-%         UR = 0; % Upper right
-%     else
-%         UR = 1;
-%     end
-% end
+
 
 %% Matriz peso
 % D = zeros(size(mapa)-2);
@@ -186,9 +148,14 @@ while (t <= t_max && stop)
             x = G.Nodes.X(double(ants(k).current_node))+1;
             y = G.Nodes.Y(double(ants(k).current_node))+1;
             
+            % Creación del submapa
+            submapa = [mapa(y-1,x-1), mapa(y-1,x), mapa(y-1,x+1); ...
+                mapa(y,x-1), mapa(y,x), mapa(y, x+1); ...
+                mapa(y+1,x-1), mapa(y+1,x), mapa(y+1,x+1)];
+            
             % Identificación de obstáculos
-            for i=1:size(MAD,1)
-                for j=1:size(MAD,1)
+            for i=1:size(submapa,1)
+                for j=1:size(submapa,1)
                     if(Dx(i,j)+Dy(i,j)==1)
                         % Obstáculo hacia los lados (Condición 1)
                        OL = 1;
@@ -201,62 +168,130 @@ while (t <= t_max && stop)
                     end
                 end
             end
-  
+            
+            if(submapa(1,1)==1) % LL Obstacle
+                nodob = findNode(G,x-1,y-1);
+                ants(k).blocked_nodes = [ants(k).blocked_nodes; ...
+                    convertCharsToStrings(nodob)];
+            end
+            
+            if(submapa(1,2)==1) % D Obstacle
+                nodob = findNode(G,x,y-1);
+                ants(k).blocked_nodes = [ants(k).blocked_nodes; ...
+                    convertCharsToStrings(nodob)];
+            end
+            
+            if(submapa(1,3)==1) % LR Obstacle
+                nodob = findNode(G,x+1,y-1);
+                ants(k).blocked_nodes = [ants(k).blocked_nodes; ...
+                    convertCharsToStrings(nodob)];
+            end
+            
+            if(submapa(2,1)==1) % L Obstacle
+                nodob = findNode(G,x-1,y);
+                ants(k).blocked_nodes = [ants(k).blocked_nodes; ...
+                    convertCharsToStrings(nodob)];
+            end
+            
+            if(submapa(2,3)==1) % R Obstacle
+                nodob = findNode(G,x+1,y);
+                ants(k).blocked_nodes = [ants(k).blocked_nodes; ...
+                    convertCharsToStrings(nodob)];
+            end
+            
+            if(submapa(3,1)==1) % UL Obstacle
+                nodob = findNode(G,x-1,y+1);
+                ants(k).blocked_nodes = [ants(k).blocked_nodes; ...
+                    convertCharsToStrings(nodob)];
+            end
+            
+            if(submapa(3,2)==1) % U Obstacle
+                nodob = findNode(G,x,y+1);
+                ants(k).blocked_nodes = [ants(k).blocked_nodes; ...
+                    convertCharsToStrings(nodob)];
+            end
+            
+            if(submapa(3,3)==1) % UR Obstacle
+                nodob = findNode(G,x+1,y+1);
+                ants(k).blocked_nodes = [ants(k).blocked_nodes; ...
+                    convertCharsToStrings(nodob)];
+            end
+            
             % Encuentra en qué dirección está la narrow aisle (Condiciones
             % 3-6)
-            if ((y-1>0)&&(x-1>0)&&(y+1<grid_size+2)&&(x+1<grid_size+2))
-                if(mapa(y-1,x)==1&&mapa(y,x+1)==1)
+%             if ((y-1>0)&&(x-1>0)&&(y+1<grid_size+2)&&(x+1<grid_size+2))
+                if(submapa(1,2)==1&&submapa(2,3)==1)
                     LR = 1; % Narrow aisle lower rigth direction
                 else 
                     LR = 0;
                 end
 
-                if(mapa(y-1,x)==1&&mapa(y,x-1)==1)
+                if(submapa(1,2)==1&&submapa(2,1)==1)
                     LL = 1; % Lower left
                 else
                     LL = 0;
                 end
 
-                if(mapa(y+1,x)==1&&mapa(y,x-1)==1)
+                if(submapa(3,2)==1&&submapa(2,1)==1)
                     UL = 1; % Upper Left
                 else
                     UL = 0;
                 end
 
-                if((mapa(y+1,x)==1&&mapa(y,x+1)==1))
+                if((submapa(3,2)==1&&submapa(2,3)==1))
                     UR = 1; % Upper right
                 else
                     UR = 0;
                 end
-            end
+%             end
             
             % BLoquea el nodo que se encuentra después de la narrow aisle
-            if(UR==1)&&(x+1<grid_size+2)&&(y+1<grid_size+2) 
+            if(UR==1)
                 xf = x+1;
                 yf = y+1;
                 nodob = findNode(G,xf,yf);
-                ants(k).blocked_nodes = [ants(k).blocked_nodes; convertCharsToStrings(nodob)];
+                nodoa = findNode(G,x,yf);
+                nodol = findNode(G,xf,y);
+                ants(k).blocked_nodes = [ants(k).blocked_nodes; ...
+                    convertCharsToStrings(nodob); ...
+                    convertCharsToStrings(nodoa);
+                    convertCharsToStrings(nodol)];
             end
             
-            if(UL==1)&&(x-1>0)&&(y+1<grid_size+2) 
+            if(UL==1)
                 xf = x-1;
                 yf = y+1;
                 nodob = findNode(G,xf,yf);
-                ants(k).blocked_nodes = [ants(k).blocked_nodes; convertCharsToStrings(nodob)];
+                nodoa = findNode(G,x,yf);
+                nodol = findNode(G,xf,y);
+                ants(k).blocked_nodes = [ants(k).blocked_nodes; ...
+                    convertCharsToStrings(nodob); ...
+                    convertCharsToStrings(nodoa);
+                    convertCharsToStrings(nodol)];
             end
             
-            if(LL==1)&&(x-1>0)&&(y-1>0) 
+            if(LL==1)
                 xf = x-1;
                 yf = y-1;
                 nodob = findNode(G,xf,yf);
-                ants(k).blocked_nodes = [ants(k).blocked_nodes; convertCharsToStrings(nodob)];
+                nodoa = findNode(G,x,yf);
+                nodol = findNode(G,xf,y);
+                ants(k).blocked_nodes = [ants(k).blocked_nodes; ...
+                    convertCharsToStrings(nodob); ...
+                    convertCharsToStrings(nodoa);
+                    convertCharsToStrings(nodol)];
             end
             
-            if(LR==1)&&(x+1<grid_size+1)&&(y-1>0)
+            if(LR==1)
                 xf = x+1;
                 yf = y-1;
                 nodob = findNode(G,xf,yf);
-                ants(k).blocked_nodes = [ants(k).blocked_nodes; convertCharsToStrings(nodob)];
+                nodoa = findNode(G,x,yf);
+                nodol = findNode(G,xf,y);
+                ants(k).blocked_nodes = [ants(k).blocked_nodes; ...
+                    convertCharsToStrings(nodob); ...
+                    convertCharsToStrings(nodoa);
+                    convertCharsToStrings(nodol)];
             end
             
             
@@ -281,7 +316,7 @@ while (t <= t_max && stop)
             ants(k).last_node = [ants(k).last_node; ants(k).current_node];
             ants(k).current_node = next_node;
             ants(k).path = [ants(k).path; ants(k).current_node];
-            ants(k).blocked_nodes = obstaculos;
+            ants(k).blocked_nodes = [];
         end
         
         % Le quitamos los loops al path y ahora los índices son números y
@@ -293,7 +328,7 @@ while (t <= t_max && stop)
         
         % Regresamos la hormiga k al inicio
         ants(k).current_node = nodo_init;
-        ants(k).blocked_nodes = obstaculos;
+        ants(k).blocked_nodes = [];
         ants(k).last_node = nodo_init;
         
 
@@ -327,4 +362,8 @@ while (t <= t_max && stop)
     t = t + 1;
     
     
+end
+
+if (t > t_max)
+    disp("No hubo convergencia")
 end
