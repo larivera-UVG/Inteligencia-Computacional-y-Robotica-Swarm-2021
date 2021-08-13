@@ -1,31 +1,34 @@
-% IE Diseño e Innovación 1
-% Ant Colony Optimization - Ant System
-% Gabriela Iriarte Colmenares
-% 16009
-% 5/04/2020 - 12/07/2020
-% Descripción: Código y simulación simple de un Ant System. Se recomienda 
-% primero leer el algoritmo 17.3 del libro Computational Intelligence
+clear
+clc
 
-%% Detectar funciones lentas
-% profile on % El profiler se utiliza para detectar funciones lentas
-% Para que funcione hay que descomentarlo y descomentar el profile viewer
-% de abajo (casi al final del código)
-tic  % Para medir el tiempo que se tarda el algoritmo en correr.
+% Referencia
+Ref = rgb2gray(imread('Lena.jpg'));
+
+% Template
+Temp = rgb2gray(imread('Lena Distorsion.jpg'));
+% Temp = Ref;
+
+SRef = double(Ref(1:10,1:10));
+STemp = double(Temp(1:10,1:10));
+% figure;
+% imshow(SubJ)
+% 
+% figure;
+% imshow(JD)
 
 %% Graph generation
-
+tic
 % Creamos grid cuadrado con la cantidad de nodos indicada:
-grid_size = 10;
+grid_size = size(SRef,1);
 cost_diag = 0.5;
 tau_0 = 0.1;  % Valor de tau inicial
-G = graph_grid(grid_size);
-nodo_dest = '10';
+G = graph_grid(grid_size, tau_0);
+% nodo_dest = '10';
 nodo_init = "1";
-plot_obstacles = 0;
 
 %% ACO init
-t_max = 150; 
-hormigas = 60;
+t_max = 20; 
+hormigas = (size(SRef,1))^2;
 
 % Rate de evaporación (puede tomar valores entre 0 y 1)
 rho = 0.6; 
@@ -37,15 +40,47 @@ beta = 1;
 Q = 2.1; 
 % Porcentaje de hormigas que queremos siguiendo la misma solución
 epsilon = 0.9; 
+% Escala de las distancias de avance
+r = 0.01;
 
 % Preallocation
-path_k = cell(hormigas, 1);
+path_k = cell(hormigas, 1); % Inicializa el path de las hormigas en 0
 L = zeros(hormigas, t_max); % Lenght del path por hormiga e iteración
-all_path = cell(hormigas, t_max);
-ants(1:hormigas) = struct('blocked_nodes', [], 'last_node', nodo_init, 'current_node', nodo_init, 'path', nodo_init, 'L', zeros(1, t_max));
-mode_plot = zeros(t_max, 1);
-mean_plot = zeros(t_max, 1);
+all_path = cell(hormigas, t_max); % El path de todas las hormigas
+% Coloca las hormigas de forma uniforme en el grid
 
+% Si Idiff es negativo, la hormiga debe buscar intensidades más bajas con
+% los vecinos. Si es mayor o igual a cero, va a buscar valores de
+% intensidad más altos con los vecinos.
+% Alimento de las hormigas
+Idiff = double(SRef - STemp);
+
+for i = 1:hormigas
+    
+    proximity = [convertCharsToStrings(neighbors(G, i));
+        i];
+    
+    % Posicion actual por hormiga
+    m = G.Nodes.X(double(proximity));
+    l = abs(-grid_size + G.Nodes.Y(double(proximity))) + 1;
+    
+    weight_int_vec = 0;
+    for j = 1:size(m,1)
+        weight_int_vec(j) = Idiff(l(j),m(j));
+    end
+    
+    weight_dest = min(weight_int_vec);
+    index_dest = find(weight_int_vec == weight_dest);
+    index_dest = index_dest(end);
+    x = m(index_dest(1));
+    y = abs(-grid_size + l(index_dest)) + 1;
+    nodo_dest(i) = double(findNode(G,x,y));
+    
+    % Struct de las hormigas
+    ants(i) = struct('blocked_nodes', [], 'last_node',...
+        int2str(i), 'current_node', int2str(i), 'path', int2str(i), 'L', ...
+        zeros(1, t_max), 'dest_node',int2str(nodo_dest(i)));
+end
 %% ACO loop
 t = 1;
 stop = 1;
@@ -57,36 +92,20 @@ map = [255 255 255
     255 111 150
     255 61 61]/255;
 
+% Figura del grafo
 figure(1); clf;
-h2 = plot((1:t_max)', mean_plot, 'Color', [0.8, 0.05, 0], 'LineWidth', 1.5);
-hold on
-h3 = plot((1:t_max)', mode_plot, 'Color', [0, 0, 0.8], 'LineWidth', 1.5);
-title('Global Cost', 'interpreter', 'latex', 'FontSize', 17)
-xlabel('Generations', 'interpreter', 'latex', 'FontSize', 12)
-ylabel('Path Lenght', 'interpreter', 'latex', 'FontSize', 12)
-leg1 = legend('$\bar{x}$', '$\hat{x}$');
-set(leg1, 'Interpreter', 'latex');
-set(leg1, 'FontSize', 17);
-figure(2); clf;
-h = plot(G, 'XData', G.Nodes.X-0.5, 'YData', G.Nodes.Y-0.5, 'NodeColor', 'k'); 
+h = plot(G, 'XData', G.Nodes.X, 'YData', G.Nodes.Y, 'NodeColor', 'k'); 
 hold on 
-nodos_especiales = [G.Nodes.X(str2double(nodo_init)), G.Nodes.Y(str2double(nodo_init)); G.Nodes.X(str2double(nodo_dest)), G.Nodes.Y(str2double(nodo_dest))];
-scatter(nodos_especiales(1, 1), nodos_especiales(1, 2), 'g','filled')
-scatter(nodos_especiales(2, 1), nodos_especiales(2, 2), 'xr','LineWidth', 5)
-if plot_obstacles
-    hold on
-    axis([1 obstacles(end-3, 1) 1 obstacles(end-3, 1)])
-    for obst = 1:max(obstacles(end-6, 4))
-        xy = obstacles(obstacles(:, 4) == obst, 1:2);
-        plot(polyshape(xy(:, 1), xy(:, 2)), 'FaceAlpha', 0.9, 'FaceColor', 'k');
-    end
-    plot([obstacles(end-5:end-2, 1); 1], [obstacles(end-5:end-2, 2); 1], 'k', 'LineWidth', 5)
-end
+% nodos_especiales = [G.Nodes.X(str2double(nodo_init)), G.Nodes.Y(str2double(nodo_init)); G.Nodes.X(str2double(nodo_dest)), G.Nodes.Y(str2double(nodo_dest))];
+% scatter(nodos_especiales(1, 1), nodos_especiales(1, 2), 'g','filled')
+% scatter(nodos_especiales(2, 1), nodos_especiales(2, 2), 'xr','LineWidth', 5)
+
 colormap(map);
+%%
 while (t <= t_max && stop)
     
     parfor k = 1:hormigas
-        while (not(strcmp(ants(k).current_node, nodo_dest))) % Mientras no se haya llegado al destino
+       % while (not(strcmp(ants(k).current_node, nodo_dest))) % Mientras no se haya llegado al destino
             
             ants(k).blocked_nodes = [ants(k).blocked_nodes; convertCharsToStrings(ants(k).current_node)];
             
@@ -103,11 +122,35 @@ while (t <= t_max && stop)
             
             % La hormiga toma la decisión de a donde ir eq.(17.6)
             next_node = ant_decision(vecinos_updated, alpha, beta, G, ants(k).current_node);
-            ants(k).last_node = [ants(k).last_node; ants(k).current_node];
-            ants(k).current_node = next_node;
-            ants(k).path = [ants(k).path; ants(k).current_node];
-        end
-        
+            
+            % Si Idiff es negativo, la hormiga debe buscar intensidades más bajas con
+            % los vecinos. Si es mayor o igual a cero, va a buscar valores de
+            % intensidad más altos con los vecinos.
+            % Alimento de las hormigas
+            Idiff = double(SRef - STemp);
+            
+            % Gradiente de la imagen
+            [Tx, Ty] = imgradientxy(STemp);
+            
+            % Posicion actual por hormiga
+            m = G.Nodes.X(double(ants(k).current_node));
+            l = G.Nodes.Y(double(ants(k).current_node));
+            l = abs(-grid_size + l(1)) + 1;
+            m = m(1);
+            
+            % Distancia de avance
+            Dx = abs(r*Idiff(l,m)*Tx(l,m));
+            Dy = abs(r*Idiff(l,m)*Ty(l,m));
+            
+            
+            if str2double(ants(k).current_node) ~= str2double(ants(k).dest_node)
+                ants(k).last_node = [ants(k).last_node; ants(k).current_node];
+                ants(k).current_node = next_node;
+                ants(k).path = [ants(k).path; ants(k).current_node];
+            end
+            
+     %   end
+
         % Le quitamos los loops al path y ahora los índices son números y
         % no strings.
         
@@ -116,21 +159,27 @@ while (t <= t_max && stop)
         all_path{k, t} = ants(k).path;  % Equivale a x_k(t)
         
         % Regresamos la hormiga k al inicio
-        ants(k).current_node = nodo_init;
+        ants(k).current_node = int2str(k);
         ants(k).blocked_nodes = [];
-        ants(k).last_node = nodo_init;
+        ants(k).last_node = int2str(k);
         
     end
     
     %% Evaporación de Feromona
-    G.Edges.Weight = G.Edges.Weight * (1 - rho);
+%     G.Edges.Weight = G.Edges.Weight * (1 - rho);
     
     %% Update de Feromona
     for k = 1:hormigas
-        dtau = Q/numel(ants(k).path);
-        edge_index = findedge(G, ants(k).path(1:end - 1), ants(k).path(2:end));
-        G.Edges.Weight(edge_index) = G.Edges.Weight(edge_index) + dtau;
-        ants(k).path = nodo_init;
+%         dtau = Q/numel(ants(k).path);
+%         edge_index = findedge(G, ants(k).path(1:end - 1), ants(k).path(2:end));
+        if size(ants(k).path,1) ~= 1
+            G.Nodes.WeightN((ants(k).path)) = ...
+                exp(-rho)*G.Nodes.WeightN((ants(k).path)) + tau_0;
+        else
+            G.Nodes.WeightN((ants(k).path)) = 0.75*G.Nodes.WeightN((ants(k).path));
+        end
+        all_weight(k) = G.Nodes.WeightN(k);
+        ants(k).path = int2str(k);
     end
     
     [mode_plot(t), F] = mode(L(:,t));
@@ -141,11 +190,12 @@ while (t <= t_max && stop)
     end
     
     % Animación
-    G.Edges.NormWeight = G.Edges.Weight/sum(G.Edges.Weight);
+    G.Nodes.NormWeight = G.Nodes.WeightN/sum(G.Nodes.WeightN);
+    G.Edges.NormWeight = 0*G.Edges.Weight/sum(G.Edges.Weight);
     h2.YData(t) = mean_plot(t);
     h3.YData(t) = mode_plot(t);
-    h.LineWidth = G.Edges.NormWeight * 50;
-    h.EdgeCData = G.Edges.NormWeight;
+    h.MarkerSize = G.Nodes.NormWeight * 300;
+    h.EdgeCData = G.Edges.NormWeight*0;
     drawnow limitrate
     t = t + 1;
     
@@ -175,15 +225,13 @@ else
 
 end
 
+    WeightMatrix =  reshape(all_weight,grid_size,grid_size);
+    Regis = round(STemp.*(WeightMatrix./max(WeightMatrix)));
+    DiffR = SRef-Regis
+%     imtool(Regis)
+    figure;
+    imshow(Regis)
+    figure;
+    imshow(SRef)
 % profile viewer % Es parte del profiler, descomentar para ver
-tiempofinal = toc;
-formatSpec = 'iter: %d - t: %.2f - cost: %.2f \n';
-fprintf(formatSpec, t-1, tiempofinal, moda)
-bpath = [G.Nodes.X(best_path), G.Nodes.Y(best_path)];
-if graph_type == "grid"
-    webots_path = (bpath - grid_size/2).*[1/5 -1/5];
-else
-    webots_path = bpath.*[1/grid_size -1/grid_size];
-end
-wb_pc_path = 'C:\Users\Gaby\Documents\UVG\Tesis\Inteligencia-Computacional-y-Robotica-Swarm\Inteligencia Computacional\Código\Webots\controllers\ACO_controller\';
-% save(strcat(wb_pc_path, 'webots_test.mat'), 'bpath', 'webots_path', 'graph_type')
+tiempofinal = toc; 

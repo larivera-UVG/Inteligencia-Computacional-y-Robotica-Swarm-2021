@@ -3,7 +3,7 @@
 % parámetros:
 % grid es un número entero mayor a 1. Se genera un grafo de grid x grid
 % La salida es el grafo para implementar el ACO.
-function [grafo] = graph_grid(grid)
+function [grafo] = graph_grid(grid, tau0)
 
 diag_cost = 0.5;
 x_lim_pos = grid;
@@ -26,7 +26,7 @@ EndNodes = [];
 Weight = [];
 Eta = [];
 
-
+WeightN = tau0*ones(n,1);
 for nodo = 1:n
     moved_node = repmat(Coords(nodo, :), [4 1]) + simple_move;
     diag_moved_node = repmat(Coords(nodo, :), [4 1]) + diag_move;
@@ -41,10 +41,11 @@ for nodo = 1:n
     EndNodes = [EndNodes; grid_x*(vecino_diag(:, 2) - ones(size(vecino_diag, 1), 1)) + vecino_diag(:, 1), ones(size(vecino_diag, 1), 1)*nodo];
     Weight = [Weight; ones(size(vecino_diag, 1), 1)];
     Eta = [Eta; ones(size(vecino_diag, 1), 1)*1/diag_cost];
+
 end
 X = Coords(:, 1);
 Y = Coords(:, 2);
-G = graph(table(EndNodes, Weight, Eta), table(Name, X, Y));
+G = graph(table(EndNodes, Weight, Eta), table(Name, X, Y, WeightN));
 grafo = simplify(G);
 
 end
