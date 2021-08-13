@@ -20,7 +20,7 @@ tic  % Para medir el tiempo que se tarda el algoritmo en correr.
     nodo_dest = '56';
     nodo_init = "1";
     plot_obstacles = 0;
-    obstaculos = [37,31,25,19,35]';
+    obstaculos = [37,31,25,19,35,44]';
         
     %% ACO init
 t_max = 150; 
@@ -44,13 +44,15 @@ submapa = zeros(3);
 OL = zeros(3);
 OD = zeros(3);
 mapa = zeros(grid_size+2); % Creación del mapa
+mapafinal = zeros(grid_size+2);
 
 % Preallocation
 path_k = cell(hormigas, 1); % Crea un array de celdas de tamaño hormigasx1
 L = zeros(hormigas, t_max); % Length del path por hormiga e iteración
 all_path = cell(hormigas, t_max);
 ants(1:hormigas) = struct('blocked_nodes', [], 'last_node', nodo_init, ...
-    'current_node', nodo_init, 'path', nodo_init, 'L', zeros(1, t_max));
+    'current_node', nodo_init, 'path', nodo_init, 'L', zeros(1, t_max),...
+    'obstacles', []);
 mode_plot = zeros(t_max, 1);
 mean_plot = zeros(t_max, 1);
 
@@ -109,9 +111,10 @@ colormap(map);
 while (t <= t_max && stop)
   
     parfor k = 1:hormigas
-        OL = 0;
-        OD = 0;
-        
+%         OL = 0;
+%         OD = 0;
+        OL = zeros(3);
+        OD = zeros(3);
         while (not(strcmp(ants(k).current_node, nodo_dest))) % Mientras no se haya llegado al destino
             
             % Lista tabú
@@ -142,10 +145,13 @@ while (t <= t_max && stop)
                 end
             end
             
+            % Encontrar obstaculos a los lados
             if isempty(find(OL))==0
                 if(submapa(1,2)==1) % D Obstacle
                     nodob = findNode(G,x,y-1);
                     ants(k).blocked_nodes = [ants(k).blocked_nodes; ...
+                        convertCharsToStrings(nodob)];
+                    ants(k).obstacles = [ants(k).obstacles; ...
                         convertCharsToStrings(nodob)];
                 end 
 
@@ -153,17 +159,23 @@ while (t <= t_max && stop)
                     nodob = findNode(G,x-1,y);
                     ants(k).blocked_nodes = [ants(k).blocked_nodes; ...
                         convertCharsToStrings(nodob)];
+                    ants(k).obstacles = [ants(k).obstacles; ...
+                        convertCharsToStrings(nodob)];
                 end
 
                 if(submapa(2,3)==1) % R Obstacle
                     nodob = findNode(G,x+1,y);
                     ants(k).blocked_nodes = [ants(k).blocked_nodes; ...
                         convertCharsToStrings(nodob)];
+                    ants(k).obstacles = [ants(k).obstacles; ...
+                        convertCharsToStrings(nodob)];
                 end
 
                 if(submapa(3,2)==1) % U Obstacle
                     nodob = findNode(G,x,y+1);
                     ants(k).blocked_nodes = [ants(k).blocked_nodes; ...
+                        convertCharsToStrings(nodob)];
+                    ants(k).obstacles = [ants(k).obstacles; ...
                         convertCharsToStrings(nodob)];
                 end
                 
@@ -243,10 +255,13 @@ while (t <= t_max && stop)
                 end
             end
             
+            % Obstaculos en las diagonales
             if isempty(find(OD))==0
                 if(submapa(1,1)==1) % LL Obstacle
                     nodob = findNode(G,x-1,y-1);
                     ants(k).blocked_nodes = [ants(k).blocked_nodes; ...
+                        convertCharsToStrings(nodob)];
+                    ants(k).obstacles = [ants(k).obstacles; ...
                         convertCharsToStrings(nodob)];
                 end
 
@@ -254,17 +269,23 @@ while (t <= t_max && stop)
                     nodob = findNode(G,x+1,y+1);
                     ants(k).blocked_nodes = [ants(k).blocked_nodes; ...
                         convertCharsToStrings(nodob)];
+                    ants(k).obstacles = [ants(k).obstacles; ...
+                        convertCharsToStrings(nodob)];
                 end
 
                 if(submapa(1,3)==1) % LR Obstacle
                     nodob = findNode(G,x+1,y-1);
                     ants(k).blocked_nodes = [ants(k).blocked_nodes; ...
                         convertCharsToStrings(nodob)];
+                    ants(k).obstacles = [ants(k).obstacles; ...
+                        convertCharsToStrings(nodob)];
                 end
 
                 if(submapa(3,1)==1) % UL Obstacle
                     nodob = findNode(G,x-1,y+1);
                     ants(k).blocked_nodes = [ants(k).blocked_nodes; ...
+                        convertCharsToStrings(nodob)];
+                    ants(k).obstacles = [ants(k).obstacles; ...
                         convertCharsToStrings(nodob)];
                 end
             end
@@ -373,6 +394,41 @@ else
     figure(2);
     hold on;
     plot(G.Nodes.X(best_path), G.Nodes.Y(best_path),'r')
+    
+    mapa_exp = [];
+    for i = 1:hormigas
+        mapa_exp = [mapa_exp; unique(ants(k).obstacles)];
+    end
+    
+    mapa_exp = unique(mapa_exp);
+    
+    figure(3); 
+    % Se crea la imagen animada
+    plot(G, 'XData', G.Nodes.X+0.5, 'YData', G.Nodes.Y+0.5, 'NodeColor', 'k'); 
+    hold on 
+    nodos_especiales = [G.Nodes.X(str2double(nodo_init)), G.Nodes.Y(str2double(nodo_init)); G.Nodes.X(str2double(nodo_dest)), G.Nodes.Y(str2double(nodo_dest))];
+    scatter(nodos_especiales(1, 1)+0.5, nodos_especiales(1, 2)+0.5, 'g','filled')
+    scatter(nodos_especiales(2, 1)+0.5, nodos_especiales(2, 2)+0.5, 'xr','LineWidth', 5)
+
+    [X,Y]=meshgrid(0:grid_size);    % Creación de la cuadrícula
+    plot(X+1,Y+1,'k');          % Dibuja las líneas verticales
+    plot(Y+1,X+1,'k');          % Dibuja las líneas horizontales
+    axis off
+    
+    
+    % Colocación de obstáculos en el grid
+    for i=1:size(mapa_exp,1)
+        % Coordenadas de los obstaculos
+        coor = table2array(G.Nodes(mapa_exp,[3,2]))+1
+        mapafinal(coor(i,1),coor(i,2)) = 1;
+    end
+    [cf,ff] = find(mapafinal);
+
+    % Dibuja los obstaculos
+    for i=1:size(ff,1)
+        rectangle('Position',[ff(i)-1, cf(i)-1, 1, 1], 'FaceColor',...
+            [0 0 0], 'LineWidth',1)
+    end
 
 end
 
