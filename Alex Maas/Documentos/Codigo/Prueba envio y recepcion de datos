@@ -24,6 +24,13 @@ char *token;
 static double best_local[] = {0,0};
 static double fitness_local=0;
 
+// Recepcion de datos de otros robots
+static double recepcion[3];
+
+// Posicion Global
+static double best_global[] = {0,0};
+static double fitness_global=0;
+
 //------------------------------Comunicacion -------------------------------
 void error(const char *msg)
 {
@@ -35,7 +42,7 @@ void error(const char *msg)
 void *receiving(void *ptr)
 {
 	int *sock, n;
-    int i =0;
+        int i =0;
 	sock = (int *)ptr;		// socket identifier
 	unsigned int length = sizeof(struct sockaddr_in);		// size of structure
 	struct sockaddr_in from;
