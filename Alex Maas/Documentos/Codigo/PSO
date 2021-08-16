@@ -1,11 +1,11 @@
 /*  Implementacion del  PSO para su uso en Raspberry 
 Alex Maas #17146  */
 
-#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h> 
+#include <math.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -13,6 +13,7 @@ Alex Maas #17146  */
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <pthread.h>
+#include <ctype.h>
 
 #define MSG_SIZE 40			// message size
 #define IP_LENGTH 15
@@ -34,6 +35,7 @@ Alex Maas #17146  */
 // Variables globales
 #define TIME_STEP 32
 #define MAX_CHANGE 1
+#define PUERTO 2000
 #define COMMUNICATION_CHANNEL 1
 
 // Fitness Funcion
@@ -65,7 +67,7 @@ static double velocidad_nueva[] = {0,0};
 static double theta_g = 0;                  // Orientacion del robot
 
 // Posiciones actuales del robot
-static double posicion_actual[] = {0,0};
+static double posicion_actual[] = {1.1,1.4};
 static double velocidad_actual[] = {0,0};
 static double fitness_actual=0;
 static double theta_o = 0;                  // Orientacion del robot
@@ -79,7 +81,7 @@ static double best_global[] = {0,0};
 static double fitness_global=0;
 
 // Recepcion de datos de otros robots
-static double recepcion[]={0,0};
+static double recepcion[3];
 
 static const double *posicion_robot;        //falta sensor 
 
@@ -87,9 +89,9 @@ static const double *posicion_robot;        //falta sensor
 static double epsilon = CONSTRICTION_FACTOR;
 static double C1 = COGNITIVE_WEIGTH;
 static double C2 = SOCIAL_WEIGTH;
-static double w = 1;
-static double rho1 = 1;
-static double rho2 = 1;
+static double w = 0;
+static double rho1 = 0;
+static double rho2 = 0;
 static double scaler = TIME_DELTA;
 
 // Calculo de Inercia PSO
@@ -132,37 +134,10 @@ static int numero_iter = 0;
 
 //Inicializacion
 int estado = 0;
-// typedef
 
-void error(const char *msg)
-{
-    perror(msg);
-    exit(0);
-}
-//------------------------------Comunicacion -------------------------------
-// Receiving thr: constantly waits for messages. Whatever is received is displayed.
-void *receiving(void *ptr)
-{
-	int *sock, n;
-	sock = (int *)ptr;		// socket identifier
-	unsigned int length = sizeof(struct sockaddr_in);		// size of structure
-	char buffer[MSG_SIZE];	// to store received messages or messages to be sent.
-	struct sockaddr_in from;
-
-	while(1)
-	{
-		memset(buffer, 0, MSG_SIZE);	// "limpia" el buffer
-		// receive message
-		n = recvfrom(*sock, buffer, MSG_SIZE, 0, (struct sockaddr *)&from, &length);
-		if(n < 0)
-			error("Error: recvfrom");
-
-		printf("Esto se recibió: %s\n", buffer);
-	}
-
-	pthread_exit(0);
-}
-//------------------------------------------------------------------------------------------
+// Variable de recibir 
+char buffer_recibir[MSG_SIZE];	// to store received messages or messages to be sent.
+char *token;
 
 // Numeros aleatorios
 double printRandoms(int lower, int upper, int count){
@@ -195,15 +170,120 @@ double funcion(double x, double y){
     return f;
 }
 
+//------------------------------Comunicacion -------------------------------
+void error(const char *msg)
+{
+    perror(msg);
+    exit(0);
+}
+
+// Receiving thr: constantly waits for messages. Whatever is received is displayed.
+void *receiving(void *ptr)
+{
+	int *sock, n;
+    int i =0;
+	sock = (int *)ptr;		// socket identifier
+	unsigned int length = sizeof(struct sockaddr_in);		// size of structure
+	struct sockaddr_in from;
+
+	while(1)
+	{
+		memset(buffer_recibir, 0, MSG_SIZE);	// "limpia" el buffer
+		// receive message
+		n = recvfrom(*sock, buffer_recibir, MSG_SIZE, 0, (struct sockaddr *)&from, &length);
+		if(n < 0){
+			error("Error: recvfrom");
+        }
+
+        // descomponer buffer_recibir, strtok
+        token=strtok(buffer_recibir, ",");
+        recepcion[i] = atof(token);
+
+        while((token = strtok(NULL, ",")) !=NULL){
+            i++;
+            recepcion[i] = atof(token);
+        }
+        // Actualizar global best
+        if (recepcion[2] < fitness_global){
+            best_global[0] = recepcion[0];
+            best_global[1] = recepcion[1];
+            fitness_global = recepcion[2];
+        } 
+	}
+	pthread_exit(0);
+}
+//------------------------------------------------------------------------------------------
+
 // Main function
-int main(){
+int main(int argc, char *argv[]){
+    //------------------------------Comunicacion -------------------------------
+    
+    int sock, n;
+	unsigned int length = sizeof(struct sockaddr_in);	// size of structure
+	char buffer_enviar[MSG_SIZE];		// to store received messages or messages to be sent.
+	struct sockaddr_in anybody;	// for the socket configuration
+	int boolval = 1;			// for a socket option
+	pthread_t thread_rec;		// thread variable
+	char IP_broadcast[IP_LENGTH];  // para la dirección de broadcast
+    FILE *file;
+    
+    strcpy(IP_broadcast, "10.0.0.255");	// Puede que se deba cambiar. Revisar ifconfig
 
+    printf("La dirección de broadcast es: %s\n\n", IP_broadcast);
+
+	anybody.sin_family = AF_INET;		// symbol constant for Internet domain
+	anybody.sin_port = htons(PUERTO);		// port field
+	anybody.sin_addr.s_addr = htonl(INADDR_ANY);	// para recibir de cualquiera
+
+	sock = socket(AF_INET, SOCK_DGRAM, 0); // Creates socket. Connectionless.
+	if(sock < 0)
+		error("Error: socket");
+
+	// Sin el bind, no se reciben los mensajes
+	if(bind(sock, (struct sockaddr *)&anybody, sizeof(struct sockaddr_in)) < 0)
+	{
+		printf("Error binding socket.\n");
+		exit(-1);
+	}
+
+	// change socket permissions to allow broadcast
+	if(setsockopt(sock, SOL_SOCKET, SO_BROADCAST, &boolval, sizeof(boolval)) < 0)
+	{
+		printf("Error setting socket options.\n");
+		exit(-1);
+	}
+
+	anybody.sin_addr.s_addr = inet_addr(IP_broadcast);	// broadcast address
+
+	// Se creae el hilo de recepción.
+	pthread_create(&thread_rec, NULL, receiving, (void *)&sock);	// for receiving
+
+	printf("Este programa despliega lo que sea que reciba.\n");
+	printf("También transmite lo que el usuario ingrese, max. 40 caracteres. (! para salir):\n");
+	do
+	{
+		memset(buffer_enviar, 0, MSG_SIZE);	// "limpia" el buffer
+		fgets(buffer_enviar,MSG_SIZE-1,stdin); // MSG_SIZE-1 'cause a null character is added
+
+		if(buffer_enviar[0] != '!')
+		{
+			// send message to anyone there...
+			n = sendto(sock, buffer_enviar, strlen(buffer_enviar), 0,
+					(const struct sockaddr *)&anybody, length);
+			if(n < 0)
+				error("Error: sendto");
+		}
+	} while(buffer_enviar[0] != '!');
+
+	close(sock);			// close socket.   
+    
+    //------------------------------------------------------------------------------------------
     // Obtener posicion del robot
-
+    
     // Main loop
     while(TIME_STEP !=-1){
         numero_iter++;
-
+        // Configuracion Inicial
         if(estado == 0){
             posicion_robot=0;       //Platicar con luis
             posicion_actual[0]=posicion_robot[2];           // coordenada X
@@ -222,8 +302,10 @@ int main(){
         //------------------Obtener posicion y orientacion del robot-------------------------------
         posicion_robot=0;       //PLaticar con luis
 
-        const double north = 0;
-        double rad = atan2(north[0],north[2]);
+        //const double north = [0,0];
+        //double rad = atan2(north[0],north[2]);
+        double rad = atan2(0,0);
+
 
         // Orientacion como angulo de brujula
         double bearing = ((rad)/M_PI)*180.0;
@@ -247,8 +329,8 @@ int main(){
         }
 
         // Impresion de Posicion y Orientacion 
-        fprintf("P,%s,%lf,%lf,%lf,%lf,\r\n",posicion_robot[2], posicion_robot[0], zero, zero);
-        fprintf("R,%s,%lf,%lf,%lf,%lf,\r\n",theta_o, zero, zero, zero);
+        //fprintf("%s,%lf,%lf,%lf,%lf,\r\n",posicion_robot[2], posicion_robot[0], zero, zero);
+        //fprintf("%s,%lf,%lf,%lf,%lf,\r\n",theta_o, zero, zero, zero);
 
         //--------------------------- Actualizacion de global y local best-------------------------------
 
@@ -263,25 +345,10 @@ int main(){
             best_local[1]=posicion_actual[1];
             fitness_local=fitness_actual;
         }
-
         //Transmitir Local best
-        double transmission[3] = {best_local[0],best_local[1],fitness_local};
-
+        sprintf(buffer_enviar, "%f,%f,%f",best_local[0],best_local[1],fitness_local);
+        printf("\n%s\n",buffer_enviar);
         //Recepcion de local best para conversion a global best
-        while(){
-            const double buffer = 0;       // Platicar con Luis
-            recepcion[0] = buffer[0];
-            recepcion[1] = buffer[1];
-            recepcion[2] = buffer[2];
-
-            // Actualizar global best
-            if (recepcion[2] < fitness_global){
-                best_global[0] = recepcion[0];
-                best_global[1] = recepcion[1];
-                fitness_global = recepcion[2];
-            } 
-
-        }
 
         //Actualizr global best (si local es mejor que global) 
         if (fitness_local< fitness_global){
@@ -290,7 +357,7 @@ int main(){
             fitness_global = fitness_local;
         }
 
-        fprintf("F,%s,%lf,%lf,%lf,%lf,\r\n",fitness_local, fitness_global, best_global[0], best_global[1]);
+        //fprintf("F,%s,%lf,%lf,%lf,%lf,\r\n",fitness_local, fitness_global, best_global[0], best_global[1]);
         
         // ----------------------- MPSO Algorithm --------------
 
@@ -345,7 +412,7 @@ int main(){
             posicion_nueva[1] = posicion_actual[1] + velocidad_nueva[1]*scaler;
         }
 
-        fprintf(fp, "U,%s,%lf,%lf,%lf,%lf,\r\n",posicion_nueva[0], posicion_nueva[1], posicion_actual[0], posicion_actual[1]); 
+        //fprintf(fp, "U,%s,%lf,%lf,%lf,%lf,\r\n",posicion_nueva[0], posicion_nueva[1], posicion_actual[0], posicion_actual[1]); 
         // ------------------ Variables de Controladores ----------------------
 
         // Inicializacion  de velocidad angular y lineal
@@ -469,12 +536,12 @@ int main(){
 
             XI_X = (1-bv_i)*XI_X;
             XI_Y = (1-bv_i)*XI_Y;
-
+            // mapeo de velocidades LQI a velocidades de robot diferencial
             v = u_1*cos((theta_o)*M_PI/180) + u_2*sin((theta_o)*M_PI/180);
             w = (-u_1*sin((theta_o)*M_PI/180) + u_2*cos((theta_o)*M_PI/180));
             // w = (-u_1*sin((theta_o)*M_PI/180) + u_2*cos((theta_o)*M_PI/180))/l; al tener llantas
         }
-        fprintf(fp, "Z,%s,%lf,%lf,%lf,%lf,\r\n",rho_p, alpha, XI_X, XI_Y);
+        //fprintf(fp, "Z,%s,%lf,%lf,%lf,%lf,\r\n",rho_p, alpha, XI_X, XI_Y);
 
         // Terminacion del movimiento cerca de la meta
         if (fabs(e_p)<0.005){
