@@ -13,17 +13,23 @@ clear
 tic  % Para medir el tiempo que se tarda el algoritmo en correr.
 
 %% Creamos grid cuadrado con la cantidad de nodos indicada:
-    grid_size = 10;
+    grid_size = 20;
     cost_diag = 0.5;
     tau_0 = 0.1;  % Valor de tau inicial
     G = graph_grid(grid_size);
     nodo_dest = '56';
     nodo_init = "1";
     plot_obstacles = 0;
-    obstaculos = [37,31,25,19,35,44]';
+%     obstaculos = [37,31,25,19,35,44]';
+    obstaculos = [4,5,6,51,52,58,59,67,68,69,71,72,75,78,79,83,84,87,...
+        88,89,96,97,98,99,103,104,111,112,113,117,118,119,120,131,132,...
+        133,144,145,146,156,157,158,159,168,169,188,189,213,214,215,216,...
+        222,223,224,226,233,234,235,236,242,243,244,247,248,249,253,254,...
+        255,256,262,263,264,267,268,269,282,283,284,293,294,295,307,308,...
+        309,313,314,315,324,325,326,344,315,351,352,353,384,385]';
         
     %% ACO init
-t_max = 150; 
+t_max = 350; 
 hormigas = 50;
 
 % Rate de evaporación (puede tomar valores entre 0 y 1)
@@ -101,6 +107,7 @@ for i=1:size(f,1)
     rectangle('Position',[f(i)-1, c(i)-1, 1, 1], 'FaceColor',...
         [0 0 0], 'LineWidth',1)
 end
+
 
 % Matriz de distancia entre casillas
 Dx = [1,0,1;1,0,1;1,0,1];
@@ -419,7 +426,7 @@ else
     % Colocación de obstáculos en el grid
     for i=1:size(mapa_exp,1)
         % Coordenadas de los obstaculos
-        coor = table2array(G.Nodes(mapa_exp,[3,2]))+1
+        coor = table2array(G.Nodes(mapa_exp,[3,2]))+1;
         mapafinal(coor(i,1),coor(i,2)) = 1;
     end
     [cf,ff] = find(mapafinal);

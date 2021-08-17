@@ -7,25 +7,22 @@ clc
 clear
 
 %% Creamos grid cuadrado con la cantidad de nodos indicada:
-    grid_size = 19;
+    grid_size = 10;
     cost_diag = 0.5;
     tau_0 = 0.1;  % Valor de tau inicial
     G = graph_grid(grid_size);
     G_cpy = G;
-    nodo_dest = '20';
-    nodo_init = "381";
-    obstaculos = [4,5,6, 71, 72, 78, 89, 99, 103, 104, 111, 123, 124, 222, ...
-        223, 224, 242, 243, 244, 268, 269, 282, 283, 309, 313, 315, 385, ...
-        345, 346, 73, 350, 351, 156, 157, 176, 177, 168, 169, 170, 171, ...
-        189, 190, 191]';
+    nodo_dest = '10';
+    nodo_init = "91";
+    obstaculos = [4,5,6, 71, 73, 72, 78, 89, 99, 67,56,18,19,28,29]';
 %     obstaculos = [ 9,13,17]';
         
     %% ACO init
-t_max = 300; 
-hormigas = 50;
+t_max = 150; 
+hormigas = 60;
 
 rho = 0.6; 
-alpha = 0;
+alpha = 1;
 beta = 1; 
 Q = 2.1; 
 epsilon = 0.9; 
@@ -42,37 +39,84 @@ OL = zeros(3);
 OD = zeros(3);
 mapa = zeros(grid_size+2); % Creación del mapa
 
-% Matriz de distancia entre casillas
-Dx = [1,0,1;1,0,1;1,0,1];
-Dy = [1,1,1;0,0,0;1,1,1];
-
 % Preallocation
-path_k = cell(hormigas, 1); % Crea un array de celdas de tamaño hormigasx1
-L = zeros(hormigas, t_max); % Length del path por hormiga e iteración
-all_path = cell(hormigas, t_max);
-ants(1:hormigas) = struct('blocked_nodes', [], 'last_node', nodo_init, ...
+ants(1:hormigas) = struct('blocked_nodes', [], 'last_node', nodo_init,...
     'current_node', nodo_init, 'path', nodo_init, 'L', zeros(1, t_max));
+% alpha_sweep_data = cell(numel(sweep) * repetitions + 1, 5);
+alpha_sweep_data(1, :) = {'tiempo', 'costo', 'iteraciones', 'path', 'alpha'};
+t_acumulado = 0;
 mode_plot = zeros(t_max, 1);
 mean_plot = zeros(t_max, 1);
-t_acumulado = 0;
 
 %% ACO loop
 
-for pruebas = 1:25
-    tic
-    alpha = alpha + 0.9/25;
+for pruebas = 1:5
+    timer = tic
+    alpha = alpha + (pruebas - 1)*0.25;
     all_path = cell(hormigas, t_max);
     L = zeros(hormigas, t_max); % Lenght del path por hormiga e iteración
     t = 1;
     stop = 1;
     G = G_cpy;
-%     pruebas
+    pruebas
+    
+    % Gradient Color para la animación
+    % Solo es para personalizar los colores de la animación
+    map = [255 255 255
+        245 215 250
+        255 166 216
+        255 111 150
+        255 61 61]/255;
+
+    figure(1); clf;
+    % Se crea la imagen animada
+    h = plot(G, 'XData', G.Nodes.X+0.5, 'YData', G.Nodes.Y+0.5, 'NodeColor', 'k'); 
+    hold on 
+    nodos_especiales = [G.Nodes.X(str2double(nodo_init)), G.Nodes.Y(str2double(nodo_init)); G.Nodes.X(str2double(nodo_dest)), G.Nodes.Y(str2double(nodo_dest))];
+    scatter(nodos_especiales(1, 1)+0.5, nodos_especiales(1, 2)+0.5, 'g','filled')
+    scatter(nodos_especiales(2, 1)+0.5, nodos_especiales(2, 2)+0.5, 'xr','LineWidth', 5)
+
+    [X,Y]=meshgrid(0:grid_size+2);    % Creación de la cuadrícula
+    plot(X,Y,'k');          % Dibuja las líneas verticales
+    plot(Y,X,'k');          % Dibuja las líneas horizontales
+    % axis off
+    
+    % Se le hace un borde al mapa para delimitarlo, este borde puede ser tomado
+    % como obstáculo
+    for i=1:size(mapa,1)
+        mapa(1,i) = 1;
+        mapa(i,1) = 1;
+        mapa(size(mapa),i) = 1;
+        mapa(i,size(mapa)) = 1;
+    end
+
+    % Colocación de obstáculos en el grid
+    for i=1:size(obstaculos,1)
+        b = table2array(G.Nodes(obstaculos(i),[3,2]))+1;
+        mapa(b(1),b(2)) = 1;
+    end
+
+    [c,f] = find(mapa);
+
+    % Dibuja los obstaculos
+    for i=1:size(f,1)
+        rectangle('Position',[f(i)-1, c(i)-1, 1, 1], 'FaceColor',...
+            [0 0 0], 'LineWidth',1)
+    end
+    % Matriz de distancia entre casillas
+    Dx = [1,0,1;1,0,1;1,0,1];
+    Dy = [1,1,1;0,0,0;1,1,1];
+
+%%
+colormap(map);
     while (t <= t_max && stop)
 %     t
         for k = 1:hormigas
+            OL = 0;
+            OD = 0;
 
             while (not(strcmp(ants(k).current_node, nodo_dest))) % Mientras no se haya llegado al destino
-
+        
                 % Lista tabú
                 ants(k).blocked_nodes = [ants(k).blocked_nodes; convertCharsToStrings(ants(k).current_node)];
 
@@ -312,6 +356,13 @@ for pruebas = 1:25
         if (F/hormigas >= epsilon) % condición de paro
             stop = 0;
         end
+        % Animación
+        G.Edges.NormWeight = G.Edges.Weight/sum(G.Edges.Weight);
+        h2.YData(t) = mean_plot(t);
+        h3.YData(t) = mode_plot(t);
+        h.LineWidth = G.Edges.NormWeight * 50;
+        h.EdgeCData = G.Edges.NormWeight;
+        drawnow limitrate
         t = t + 1;
 
 
