@@ -3,8 +3,8 @@ WorldInfo {
   coordinateSystem "NUE"
 }
 Viewpoint {
-  orientation -0.990036091697435 0.13106919986373608 0.05147234192795303 0.6098054079281446
-  position 0.08898987373887829 1.7674948954900507 2.4727276874037174
+  orientation 1 0 0 4.71238898038469
+  position 0 3.8856909068771492 -1.9271966532808877e-16
 }
 TexturedBackground {
 }
@@ -45,4 +45,29 @@ E-puck {
     Compass {
     }
   ]
+}
+E-puck {
+  translation 0.15 4.15223e-14 -0.45
+  name "e-puck(4)"
+  controller "Epuck_PSO"
+  turretSlot [
+    GPS {
+    }
+    Compass {
+    }
+  ]
+}
+WoodenBox {
+  translation -0.325 0.125 0.1
+  size 0.25 0.25 0.25
+}
+WoodenBox {
+  translation -0.325 0.125 -0.15
+  name "wooden box(2)"
+  size 0.25 0.25 0.25
+}
+WoodenBox {
+  translation 0.325 0.125 -0.1
+  name "wooden box(1)"
+  size 0.25 0.25 0.25
 }
