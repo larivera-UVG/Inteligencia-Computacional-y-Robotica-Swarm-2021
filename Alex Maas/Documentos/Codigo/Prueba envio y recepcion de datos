@@ -65,7 +65,7 @@ void *receiving(void *ptr)
             recepcion[i] = atof(token);
         }
         // Actualizar global best
-        if (recepcion[2] < fitness_global){
+        if (recepcion[2] < fitness_global){		//Local< Global, asigna el valor local al global 
             best_global[0] = recepcion[0];
             best_global[1] = recepcion[1];
             fitness_global = recepcion[2];
