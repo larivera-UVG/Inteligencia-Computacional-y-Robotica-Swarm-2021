@@ -21,7 +21,7 @@
 #include <string.h>
 
 
-#define TIME_STEP 32
+#define TIME_STEP 64
 #define MAX_SPEED 2
 #define USE_BEARING 0
 #define COMMUNICATION_CHANNEL 1
@@ -52,12 +52,16 @@ static double func_global = 0;
 
 static double reception[] = {0,0};
 
-static double epsilon = 0.8;      
+static double epsilon = 0.8;
+
+      
 static double c1 = 2;             
 static double c2 = 10;                 
 static double w = 0;                             
 static double rho1 = 0;                           
-static double rho2 = 0;                           
+static double rho2 = 0;
+
+                           
 static double V_scaler = TIME_DELTA;              
 
 static double w_min = 0.5;                        
@@ -66,7 +70,7 @@ static int MAXiter = 10000;
 static int iter = 0;                             
 
 // PID
-static double KP = 0.8;               
+static double KP = 0.5;               
 static double KI = 0.1;                   
 static double KD =  0.001; 
 
@@ -77,22 +81,31 @@ static double E_o = 0;
 static double e_D = 0;                            
 
 // LQI
-static double delta_t = TIME_DELTA;               
+static double delta_t = TIME_DELTA;
+
+double Cr[2][2] = {{1,0},{0,1}};
+               
 static double XI_X = 0;                           
 static double XI_Y = 0;                         
 
 static double e_x = 0;                            
 static double e_y = 0;                        
-static double e_p = 0;                            
+static double e_p = 0;   
+
+static int num_sensors = 8; // número de sensores
+char sensors_name[] = "ps0"; // nombre genérico de los sensores
+static WbDeviceTag sensors[8]; 
+double sensors_value[8];                        
 
 // PID = 1 ; LQR = 2 ; LQI = 3
-#define SELECTOR  3
+#define SELECTOR  2
 
 // FUNCION COSTO (0 - Sphere, 1 - Rosenbrock, 2 - Booth, 3 - Himmelblau)
 #define COST_FUNC 0
 
 static double phi_r = 0;                         
-static double phi_l = 0;                         
+static double phi_l = 0;    
+int i;                     
 
 double l = ROBOT_RADIUS/1000;                               
 double r = WHEEL_RADIUS/1000;                               
@@ -100,6 +113,10 @@ double a = ROBOT_RADIUS/1000;
 
 bool state = false;
 static int number_iteration = 0;
+
+double heuristics (double xstart, double ystart,double xgoal,double ygoal){
+   return ((xgoal-xstart)*(xgoal-xstart)) + ((ygoal-ystart)*(ygoal-ystart));
+};
 
 
 double printRandoms(int lower, int upper, int count) { 
@@ -136,6 +153,15 @@ int main() {
 
   // Inicializar WeBots Controlled Library
   wb_robot_init();
+  
+  // Se habilitan los sensores de distancia uno por uno 
+  for (i = 0; i < num_sensors; i++) 
+  {
+    sensors[i] = wb_robot_get_device(sensors_name);
+    wb_distance_sensor_enable(sensors[i], TIME_STEP);
+    sensors_name[2]++;
+  } 
+  
   
   // Obtener handle de GPS de robot
   WbNodeType gps = wb_robot_get_device("gps");
@@ -234,6 +260,14 @@ int main() {
       func_global = func_local;
     }
     
+    // Se obtienen las mediciones de distancia de cada uno de los sensores
+    for (i = 0; i < num_sensors; i++)
+    {
+      sensors_value[i] = wb_distance_sensor_get_value(sensors[i]);
+    }
+    
+    //Definicion de constantes
+    
     rho1 = randfrac();
     rho2 = randfrac();
     w = w_min + (w_max - w_min)*exp((-1*iter)/(MAXiter/10));
@@ -246,9 +280,7 @@ int main() {
     epsilon = 2.0/fabs(2 - phi_T - sqrt(pow(phi_T,2) - 4*phi_T));
     
     V_scaler = 0.25;
-    if (SELECTOR == 1){
-      V_scaler = 7.8125;
-    }
+    
     
     old_velocity[0] = new_velocity[0];
     old_velocity[1] = new_velocity[1];
@@ -266,7 +298,8 @@ int main() {
 
     e_x = new_position[0] - actual_position[0];                 
     e_y = new_position[1] - actual_position[1];                
-    e_p = sqrt(pow(e_y,2) + pow(e_x,2));                        
+    e_p = sqrt(pow(e_y,2) + pow(e_x,2)); 
+    printf("x pos: %2.2f - y pos: %2.2f \n",e_x,e_y);                    
     
                            
     double K = 3.12*(1 - exp(-2*pow(e_p,1)))/e_p;                      
@@ -337,8 +370,10 @@ int main() {
       v = u_1*cos((theta_o)*M_PI/180) + u_2*sin((theta_o)*M_PI/180);
       w = (-u_1*sin((theta_o)*M_PI/180) + u_2*cos((theta_o)*M_PI/180))/l;
     }
+    
+    double dist_a_g = heuristics(actual_position[0],actual_position[1],new_position[0],new_position[1]);
 
-    if (fabs(e_p) < 0.0005){
+    if (fabs(e_p) < 0.001){
       v = 0;
       w = 0;
     }
@@ -365,8 +400,21 @@ int main() {
         phi_l = -MAX_SPEED;
       }
     }
+ 
+    if(sensors_value[6] > 80 ){
+          phi_l = 6.28;
+          phi_r = 0;
+     }
+     if(sensors_value[1] > 80){
+          phi_r = 6.28;
+          phi_l = 0;
+     }        
     
-    
+    if (dist_a_g < 0.005){
+        phi_r = 0;
+        phi_l = 0;
+    }
+       
     wb_motor_set_velocity(left_motor, phi_l);
     wb_motor_set_velocity(right_motor, phi_r);
     
