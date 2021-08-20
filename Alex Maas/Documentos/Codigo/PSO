@@ -67,7 +67,7 @@ static double velocidad_nueva[] = {0,0};
 static double theta_g = 0;                  // Orientacion del robot
 
 // Posiciones actuales del robot
-static double posicion_actual[] = {1.1,1.4};
+static double posicion_actual[] = {0,0};
 static double velocidad_actual[] = {0,0};
 static double fitness_actual=0;
 static double theta_o = 0;                  // Orientacion del robot
@@ -81,7 +81,7 @@ static double best_global[] = {0,0};
 static double fitness_global=0;
 
 // Recepcion de datos de otros robots
-static double recepcion[3];
+static double recepcion[2];
 
 static const double *posicion_robot;        //falta sensor 
 
@@ -154,7 +154,7 @@ double randfrac(void){
     double res = (rand() % RAND_MAX)/ (double)RAND_MAX;
     return res;
 }
-
+/*
 // Funciones costo
 double funcion(double x, double y){
     double f=0;
@@ -168,7 +168,7 @@ double funcion(double x, double y){
         f=pow(x*x+y-11,2)+pow(x+y*y-7,2);           // Himmelblau
     }
     return f;
-}
+}*/
 
 //------------------------------Comunicacion -------------------------------
 void error(const char *msg)
@@ -194,7 +194,8 @@ void *receiving(void *ptr)
 		if(n < 0){
 			error("Error: recvfrom");
         }
-
+        i=0;
+        printf("%s \n ", buffer_recibir);
         // descomponer buffer_recibir, strtok
         token=strtok(buffer_recibir, ",");
         recepcion[i] = atof(token);
@@ -204,11 +205,19 @@ void *receiving(void *ptr)
             recepcion[i] = atof(token);
         }
         // Actualizar global best
-        if (recepcion[2] < fitness_global){
+        printf("%f, %f \n ", recepcion[2], fitness_global);
+        if (recepcion[2] < fitness_global){		//Local< Global, asigna el valor local al global
+            printf("No se actualiza el Global.\n"); 
+            //best_global[0] = recepcion[0];
+            //best_global[1] = recepcion[1];
+            //fitness_global = recepcion[2];
+        } else {
+            printf("Global actualizado.\n");
             best_global[0] = recepcion[0];
             best_global[1] = recepcion[1];
             fitness_global = recepcion[2];
-        } 
+            fitness_local = recepcion[2];
+        }
 	}
 	pthread_exit(0);
 }
@@ -216,8 +225,7 @@ void *receiving(void *ptr)
 
 // Main function
 int main(int argc, char *argv[]){
-    //------------------------------Comunicacion -------------------------------
-    
+    //------------------------------Comunicacion -------------------------------   
     int sock, n;
 	unsigned int length = sizeof(struct sockaddr_in);	// size of structure
 	char buffer_enviar[MSG_SIZE];		// to store received messages or messages to be sent.
@@ -263,8 +271,9 @@ int main(int argc, char *argv[]){
 	do
 	{
 		memset(buffer_enviar, 0, MSG_SIZE);	// "limpia" el buffer
-		fgets(buffer_enviar,MSG_SIZE-1,stdin); // MSG_SIZE-1 'cause a null character is added
-
+		//fgets(buffer_enviar,MSG_SIZE-1,stdin); // MSG_SIZE-1 'cause a null character is added
+        sleep(5);
+        sprintf(buffer_enviar, "%f,%f,%f",best_local[0],best_local[1],fitness_local);
 		if(buffer_enviar[0] != '!')
 		{
 			// send message to anyone there...
