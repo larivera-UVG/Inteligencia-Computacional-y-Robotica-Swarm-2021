@@ -67,7 +67,7 @@ static double velocidad_nueva[] = {0,0};
 static double theta_g = 0;                  // Orientacion del robot
 
 // Posiciones actuales del robot
-static double posicion_actual[] = {1.1,1.4};
+static double posicion_actual[] = {0,0};
 static double velocidad_actual[] = {0,0};
 static double fitness_actual=0;
 static double theta_o = 0;                  // Orientacion del robot
@@ -81,7 +81,7 @@ static double best_global[] = {0,0};
 static double fitness_global=0;
 
 // Recepcion de datos de otros robots
-static double recepcion[3];
+static double recepcion[2];
 
 static const double *posicion_robot;        //falta sensor 
 
@@ -154,7 +154,7 @@ double randfrac(void){
     double res = (rand() % RAND_MAX)/ (double)RAND_MAX;
     return res;
 }
-
+/*
 // Funciones costo
 double funcion(double x, double y){
     double f=0;
@@ -168,7 +168,7 @@ double funcion(double x, double y){
         f=pow(x*x+y-11,2)+pow(x+y*y-7,2);           // Himmelblau
     }
     return f;
-}
+}*/
 
 //------------------------------Comunicacion -------------------------------
 void error(const char *msg)
@@ -194,7 +194,8 @@ void *receiving(void *ptr)
 		if(n < 0){
 			error("Error: recvfrom");
         }
-
+        i=0;
+        printf("%s \n ", buffer_recibir);
         // descomponer buffer_recibir, strtok
         token=strtok(buffer_recibir, ",");
         recepcion[i] = atof(token);
@@ -204,11 +205,16 @@ void *receiving(void *ptr)
             recepcion[i] = atof(token);
         }
         // Actualizar global best
-        if (recepcion[2] < fitness_global){
+        printf("%f, %f \n ", recepcion[2], fitness_global);
+        if (recepcion[2] < fitness_global){		//Local< Global, asigna el valor local al global
+            //Actualizr global best (si local es mejor que global) 
+            printf("Global actualizado.\n");
             best_global[0] = recepcion[0];
             best_global[1] = recepcion[1];
-            fitness_global = recepcion[2];
-        } 
+            fitness_global = recepcion[2]; 
+        } else {
+            printf("No se actualiza el Global.\n");
+        }
 	}
 	pthread_exit(0);
 }
@@ -216,8 +222,7 @@ void *receiving(void *ptr)
 
 // Main function
 int main(int argc, char *argv[]){
-    //------------------------------Comunicacion -------------------------------
-    
+    //------------------------------Comunicacion -------------------------------   
     int sock, n;
 	unsigned int length = sizeof(struct sockaddr_in);	// size of structure
 	char buffer_enviar[MSG_SIZE];		// to store received messages or messages to be sent.
@@ -263,8 +268,9 @@ int main(int argc, char *argv[]){
 	do
 	{
 		memset(buffer_enviar, 0, MSG_SIZE);	// "limpia" el buffer
-		fgets(buffer_enviar,MSG_SIZE-1,stdin); // MSG_SIZE-1 'cause a null character is added
-
+		//fgets(buffer_enviar,MSG_SIZE-1,stdin); // MSG_SIZE-1 'cause a null character is added
+        sleep(5);
+        sprintf(buffer_enviar, "%f,%f,%f",best_local[0],best_local[1],fitness_local);
 		if(buffer_enviar[0] != '!')
 		{
 			// send message to anyone there...
@@ -306,7 +312,6 @@ int main(int argc, char *argv[]){
         //double rad = atan2(north[0],north[2]);
         double rad = atan2(0,0);
 
-
         // Orientacion como angulo de brujula
         double bearing = ((rad)/M_PI)*180.0;
         theta_o = bearing + 180;
@@ -327,11 +332,6 @@ int main(int argc, char *argv[]){
         if (USE_BEARING == 0){
             theta_o = theta_o2;
         }
-
-        // Impresion de Posicion y Orientacion 
-        //fprintf("%s,%lf,%lf,%lf,%lf,\r\n",posicion_robot[2], posicion_robot[0], zero, zero);
-        //fprintf("%s,%lf,%lf,%lf,%lf,\r\n",theta_o, zero, zero, zero);
-
         //--------------------------- Actualizacion de global y local best-------------------------------
 
         // Calcular fitness valor de posicion actual
@@ -345,20 +345,12 @@ int main(int argc, char *argv[]){
             best_local[1]=posicion_actual[1];
             fitness_local=fitness_actual;
         }
-        //Transmitir Local best
-        sprintf(buffer_enviar, "%f,%f,%f",best_local[0],best_local[1],fitness_local);
-        printf("\n%s\n",buffer_enviar);
-        //Recepcion de local best para conversion a global best
-
-        //Actualizr global best (si local es mejor que global) 
-        if (fitness_local< fitness_global){
-            best_global[0] = best_local[0];
-            best_global[1] = best_local[1];
-            fitness_global = fitness_local;
+        // Actualizar global best (propio no el recibido-enviado)
+        if(fitness_local<fitness_global){
+            best_global[0]=best_local[0];
+            best_global[1]=best_local[1];
+            fitness_global=fitness_local;
         }
-
-        //fprintf("F,%s,%lf,%lf,%lf,%lf,\r\n",fitness_local, fitness_global, best_global[0], best_global[1]);
-        
         // ----------------------- MPSO Algorithm --------------
 
         // Parametros de uniformidad 
@@ -411,8 +403,6 @@ int main(int argc, char *argv[]){
             posicion_nueva[0] = posicion_actual[0] + velocidad_nueva[0]*scaler;
             posicion_nueva[1] = posicion_actual[1] + velocidad_nueva[1]*scaler;
         }
-
-        //fprintf(fp, "U,%s,%lf,%lf,%lf,%lf,\r\n",posicion_nueva[0], posicion_nueva[1], posicion_actual[0], posicion_actual[1]); 
         // ------------------ Variables de Controladores ----------------------
 
         // Inicializacion  de velocidad angular y lineal
@@ -551,3 +541,4 @@ int main(int argc, char *argv[]){
     } 
     return 0;  
 }
+
