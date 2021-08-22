@@ -21,11 +21,11 @@ clear
 t_max = 150; 
 hormigas = 60;
 
-rho = 0.8; 
-alpha = 0.7;
+rho = 0; 
+alpha = 1.75;
 beta = 1; 
 Q = 2.1; 
-epsilon = 0.8; 
+epsilon = 0.9; 
 gamma = 1; 
 Sjo =1;
 
@@ -42,17 +42,17 @@ mapa = zeros(grid_size+2); % Creación del mapa
 % Preallocation
 ants(1:hormigas) = struct('blocked_nodes', [], 'last_node', nodo_init,...
     'current_node', nodo_init, 'path', nodo_init, 'L', zeros(1, t_max));
-% alpha_sweep_data = cell(numel(sweep) * repetitions + 1, 5);
-alpha_sweep_data(1, :) = {'tiempo', 'costo', 'iteraciones', 'path', 'alpha'};
+% rho_sweep_data = cell(numel(sweep) * repetitions + 1, 5);
+rho_sweep_data(1, :) = {'tiempo', 'costo', 'iteraciones', 'path', 'rho'};
 t_acumulado = 0;
 mode_plot = zeros(t_max, 1);
 mean_plot = zeros(t_max, 1);
 
 %% ACO loop
 
-for pruebas = 1:6
-    timer = tic
-    alpha = alpha + 0.2;
+for pruebas = 1:9
+    timer = tic;
+    rho = rho + 0.1;
     all_path = cell(hormigas, t_max);
     L = zeros(hormigas, t_max); % Lenght del path por hormiga e iteración
     t = 1;
@@ -371,23 +371,23 @@ colormap(map);
     if (t > t_max)
         disp("No hubo convergencia")
         tiempofinal = toc(timer);
-        alpha_sweep_data(pruebas + 1, :) = {tiempofinal, 0, t - 1, best_path, alpha};
+        rho_sweep_data(pruebas + 1, :) = {tiempofinal, 0, t - 1, best_path, rho};
     else
         moda =  mode(L(:, t-1));
         len_indx = L(:, t-1).*(L(:,t-1) == moda);
         len_prob = rouletteWheel(len_indx);
         best_path = all_path{len_prob, t-1};
         tiempofinal = toc(timer);
-        alpha_sweep_data(pruebas + 1, :) = {tiempofinal, L(len_prob, t-1), t - 1, best_path, alpha};
+        rho_sweep_data(pruebas + 1, :) = {tiempofinal, L(len_prob, t-1), t - 1, best_path, rho};
 
     end
     t_acumulado = t_acumulado + tiempofinal;
     if t_acumulado >= 60
         disp("Guardando...")
-        save('sweep_data', 'alpha_sweep_data', '-append')
+        save('sweep_data', 'rho_sweep_data', '-append')
         t_acumulado = 0;
     end
 end
 % Guardado final
-save('sweep_data', 'alpha_sweep_data', '-append')
+save('sweep_data', 'rho_sweep_data', '-append')
 disp("Done.")
