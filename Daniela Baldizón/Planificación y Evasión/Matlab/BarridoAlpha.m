@@ -22,7 +22,7 @@ t_max = 150;
 hormigas = 60;
 
 rho = 0.8; 
-alpha = 0.7;
+alpha = 0.9;
 beta = 1; 
 Q = 2.1; 
 epsilon = 0.8; 
@@ -50,9 +50,9 @@ mean_plot = zeros(t_max, 1);
 
 %% ACO loop
 
-for pruebas = 1:6
+for pruebas = 1:11
     timer = tic
-    alpha = alpha + 0.2;
+    alpha = alpha + 0.1;
     all_path = cell(hormigas, t_max);
     L = zeros(hormigas, t_max); % Lenght del path por hormiga e iteración
     t = 1;

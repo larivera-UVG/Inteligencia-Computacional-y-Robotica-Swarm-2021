@@ -22,12 +22,6 @@ function next_node = ant_decision(vecinos, alpha, beta, gamma, G, id, S)
 index_edges = findedge(G, repmat(convertCharsToStrings(id), size(vecinos)), vecinos);
 tau = G.Edges.Weight(index_edges);
 eta = G.Edges.Eta(index_edges);
-% if eta == 1
-%     eta = 2;
-% else
-%     eta = 1;
-% end
-% eta = eta.^(-1);
 lambda = 1/S;
 w = tau.^alpha.*eta.^beta*lambda^gamma;
 probabilidad = w/sum(w);
