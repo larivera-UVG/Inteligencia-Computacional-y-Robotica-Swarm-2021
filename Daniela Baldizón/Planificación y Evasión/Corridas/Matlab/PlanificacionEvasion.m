@@ -21,27 +21,15 @@ tic  % Para medir el tiempo que se tarda el algoritmo en correr.
     nodo_init = "381";
     plot_obstacles = 0;
 %     obstaculos = [37,31,25,19]';
-%     obstaculos = []'; % Nodos donde se colocan los obstaculos
+%     obstaculos = [17,13,9]'; % Nodos donde se colocan los obstaculos
 %     obstaculos = [12,19,26,5,2,9,16]';
 %     obstaculos = [9, 19, 39, 59, 69, 38, 37,36,35]';
-
-%     % Mapa A
     obstaculos = [4,5,6,51,52,58,59,67,68,69,71,72,75,78,79,83,84,87,...
         88,89,96,97,98,99,103,104,111,112,113,117,118,119,120,131,132,...
         133,144,145,146,156,157,158,159,168,169,188,189,213,214,215,216,...
         222,223,224,226,233,234,235,236,242,243,244,247,248,249,253,254,...
         255,256,262,263,264,267,268,269,282,283,284,293,294,295,307,308,...
-        309,313,314,315,324,325,326,344,345,315,351,352,353,384,385]';
-    
-    % Mapa B
-%     obstaculos = [4,5,6,51,52,58,59,67,68,69,71,72,78,79,83,84,87,88,89,...
-%         96,97,98,99,103,104,111,112,113,117,118,119,120,131,132,133,144,...
-%         145,146,156,157,158,159,168,169,188,189,213,214,215,216,222,223,...
-%         224,233,234,235,236,242,243,244,247,248,249,253,254,255,256,262,...
-%         263,264,267,268,269,282,283,284,293,294,295,307,308,309,313,314,...
-%         315,324,325,326,344,345,351,352,353,384,385]';
-
-    % Mapa c
+        309,313,314,315,324,325,326,344,315,351,352,353,384,385]';
         
     %% ACO init
 t_max = 1000; 
@@ -367,13 +355,13 @@ while (t <= t_max && stop)
         dtau = Q/numel(ants(k).path);
         edge_index = findedge(G, ants(k).path(1:end - 1), ants(k).path(2:end));
         G.Edges.Weight(edge_index) = G.Edges.Weight(edge_index) + Q*dtau;
-%         if k == lgb_index
-%             G.Edges.Weight(edge_index) = G.Edges.Weight(edge_index)*2.5;
-%         end
-%         
-%         if L(k,t) == Lmin
-%             G.Edges.Weight(edge_index) = G.Edges.Weight(edge_index)*2.5;
-%         end
+        if k == lgb_index
+            G.Edges.Weight(edge_index) = G.Edges.Weight(edge_index)*2.5;
+        end
+        
+        if L(k,t) == Lmin
+            G.Edges.Weight(edge_index) = G.Edges.Weight(edge_index)*2.5;
+        end
         
         ants(k).path = nodo_init;
         
