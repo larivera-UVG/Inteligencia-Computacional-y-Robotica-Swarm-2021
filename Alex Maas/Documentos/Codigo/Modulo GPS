@@ -1,3 +1,4 @@
+----------------- Comprobacion del modulo GPS ------------------
 ls /dev/ttyUSB
 sudo apt-get install gpsd gpsd-clients
 sudo systemctl stop gpsd.socket
@@ -5,3 +6,20 @@ sudo systemctl disable gpsd.socket
 sudo systemctl disable gpsd.socket
 cgps -s
 ----------------------------------------------------------------
+
+--------------- Prueba con serial ----------------------
+import time
+import serial
+
+ser = serial.Serial(
+        port='/dev/ttyUSB0',
+        baudrate = 9600,
+        parity=serial.PARITY_NONE,
+        stopbits=serial.STOPBITS_ONE,
+        bytesize=serial.EIGHTBITS,
+        timeout=1
+)
+
+while 1:
+        x=ser.readline()
+        print x
