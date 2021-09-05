@@ -15,14 +15,13 @@ clear
     nodo_dest = '10';
     nodo_init = "91";
     obstaculos = [4,5,6, 71, 73, 72, 78, 89, 99, 67,56,18,19,28,29]';
-%     obstaculos = [ 9,13,17]';
         
     %% ACO init
 t_max = 150; 
 hormigas = 60;
 
-rho = 0; 
-alpha = 1.75;
+rho = 0.2; 
+alpha = 1;
 beta = 1; 
 Q = 2.1; 
 epsilon = 0.9; 

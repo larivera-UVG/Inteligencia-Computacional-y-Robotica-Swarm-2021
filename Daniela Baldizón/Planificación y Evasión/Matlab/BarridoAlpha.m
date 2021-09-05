@@ -15,17 +15,16 @@ clear
     nodo_dest = '10';
     nodo_init = "91";
     obstaculos = [4,5,6, 71, 73, 72, 78, 89, 99, 67,56,18,19,28,29]';
-%     obstaculos = [ 9,13,17]';
         
     %% ACO init
 t_max = 150; 
 hormigas = 60;
 
-rho = 0.8; 
-alpha = 0.9;
+rho = 0.2; 
+alpha = 1;
 beta = 1; 
 Q = 2.1; 
-epsilon = 0.8; 
+epsilon = 0.9; 
 gamma = 1; 
 Sjo =1;
 
@@ -42,43 +41,46 @@ mapa = zeros(grid_size+2); % Creación del mapa
 % Preallocation
 ants(1:hormigas) = struct('blocked_nodes', [], 'last_node', nodo_init,...
     'current_node', nodo_init, 'path', nodo_init, 'L', zeros(1, t_max));
-% alpha_sweep_data = cell(numel(sweep) * repetitions + 1, 5);
+sweep = 2:0.2:2.4;
+repetitions = 10;
+alpha_sweep_data = cell(numel(sweep) * repetitions + 1, 5);
 alpha_sweep_data(1, :) = {'tiempo', 'costo', 'iteraciones', 'path', 'alpha'};
+sweep_count = 1;
 t_acumulado = 0;
 mode_plot = zeros(t_max, 1);
 mean_plot = zeros(t_max, 1);
 
 %% ACO loop
 
-for pruebas = 1:11
-    timer = tic
-    alpha = alpha + 0.1;
+for rep = 1:1:repetitions
+    rep
+    for alpha = sweep
+    timer = tic;
     all_path = cell(hormigas, t_max);
     L = zeros(hormigas, t_max); % Lenght del path por hormiga e iteración
     t = 1;
     stop = 1;
     G = G_cpy;
-    pruebas
-    
+    alpha
     % Gradient Color para la animación
     % Solo es para personalizar los colores de la animación
-    map = [255 255 255
-        245 215 250
-        255 166 216
-        255 111 150
-        255 61 61]/255;
+%     map = [255 255 255
+%         245 215 250
+%         255 166 216
+%         255 111 150
+%         255 61 61]/255;
 
-    figure(1); clf;
-    % Se crea la imagen animada
-    h = plot(G, 'XData', G.Nodes.X+0.5, 'YData', G.Nodes.Y+0.5, 'NodeColor', 'k'); 
-    hold on 
-    nodos_especiales = [G.Nodes.X(str2double(nodo_init)), G.Nodes.Y(str2double(nodo_init)); G.Nodes.X(str2double(nodo_dest)), G.Nodes.Y(str2double(nodo_dest))];
-    scatter(nodos_especiales(1, 1)+0.5, nodos_especiales(1, 2)+0.5, 'g','filled')
-    scatter(nodos_especiales(2, 1)+0.5, nodos_especiales(2, 2)+0.5, 'xr','LineWidth', 5)
-
-    [X,Y]=meshgrid(0:grid_size+2);    % Creación de la cuadrícula
-    plot(X,Y,'k');          % Dibuja las líneas verticales
-    plot(Y,X,'k');          % Dibuja las líneas horizontales
+%     figure(1); clf;
+%     % Se crea la imagen animada
+%     h = plot(G, 'XData', G.Nodes.X+0.5, 'YData', G.Nodes.Y+0.5, 'NodeColor', 'k'); 
+%     hold on 
+%     nodos_especiales = [G.Nodes.X(str2double(nodo_init)), G.Nodes.Y(str2double(nodo_init)); G.Nodes.X(str2double(nodo_dest)), G.Nodes.Y(str2double(nodo_dest))];
+%     scatter(nodos_especiales(1, 1)+0.5, nodos_especiales(1, 2)+0.5, 'g','filled')
+%     scatter(nodos_especiales(2, 1)+0.5, nodos_especiales(2, 2)+0.5, 'xr','LineWidth', 5)
+% 
+%     [X,Y]=meshgrid(0:grid_size+2);    % Creación de la cuadrícula
+%     plot(X,Y,'k');          % Dibuja las líneas verticales
+%     plot(Y,X,'k');          % Dibuja las líneas horizontales
     % axis off
     
     % Se le hace un borde al mapa para delimitarlo, este borde puede ser tomado
@@ -96,19 +98,19 @@ for pruebas = 1:11
         mapa(b(1),b(2)) = 1;
     end
 
-    [c,f] = find(mapa);
-
-    % Dibuja los obstaculos
-    for i=1:size(f,1)
-        rectangle('Position',[f(i)-1, c(i)-1, 1, 1], 'FaceColor',...
-            [0 0 0], 'LineWidth',1)
-    end
+%     [c,f] = find(mapa);
+% 
+%     % Dibuja los obstaculos
+%     for i=1:size(f,1)
+%         rectangle('Position',[f(i)-1, c(i)-1, 1, 1], 'FaceColor',...
+%             [0 0 0], 'LineWidth',1)
+%     end
     % Matriz de distancia entre casillas
     Dx = [1,0,1;1,0,1;1,0,1];
     Dy = [1,1,1;0,0,0;1,1,1];
 
 %%
-colormap(map);
+% colormap(map);
     while (t <= t_max && stop)
 %     t
         for k = 1:hormigas
@@ -314,7 +316,7 @@ colormap(map);
             % no strings.
 
             ants(k).path = loop_remover(str2double(ants(k).path));
-            L(k, t) = sum(G.Edges.Eta(findedge(G, ants(k).path(1:end-1), ants(k).path(2:end))).^-1);
+            L(k, t) = sum(G.Edges.Eta(findedge(G, ants(k).path(1:end-1), ants(k).path(2:end))));
             all_path{k, t} = ants(k).path;  % Equivale a x_k(t)
 
             % Regresamos la hormiga k al inicio
@@ -323,30 +325,31 @@ colormap(map);
             ants(k).last_node = nodo_init;
 
             % Largo (aristas) de camino de cada hormiga
-            caminos(k) = numel(ants(k).path);
+%             caminos(k) = numel(ants(k).path);
 
         end
 
         %% Evaporación de Feromona
         G.Edges.Weight = G.Edges.Weight * (1 - rho);
 
-        % Global best lenght
-        lgb = min(caminos);
-        lgb_index = find(caminos==lgb);
-        Lmin = min(min(L)); %Costo min
+%         % Global best lenght
+%         lgb = min(caminos);
+%         lgb_index = find(caminos==lgb);
+%         Lmin = min(min(L)); %Costo min
 
         %% Update de Feromona
         for k = 1:hormigas
             dtau = Q/numel(ants(k).path);
             edge_index = findedge(G, ants(k).path(1:end - 1), ants(k).path(2:end));
             G.Edges.Weight(edge_index) = G.Edges.Weight(edge_index) + Q*dtau;
-            if k == lgb_index
-                G.Edges.Weight(edge_index) = G.Edges.Weight(edge_index)*2.5;
-            end
-
-            if L(k,t) == Lmin
-                G.Edges.Weight(edge_index) = G.Edges.Weight(edge_index)*2.5;
-            end
+            
+%             if k == lgb_index
+%                 G.Edges.Weight(edge_index) = G.Edges.Weight(edge_index)*2.5;
+%             end
+% 
+%             if L(k,t) == Lmin
+%                 G.Edges.Weight(edge_index) = G.Edges.Weight(edge_index)*2.5;
+%             end
 
             ants(k).path = nodo_init;
         end
@@ -356,29 +359,29 @@ colormap(map);
         if (F/hormigas >= epsilon) % condición de paro
             stop = 0;
         end
-        % Animación
-        G.Edges.NormWeight = G.Edges.Weight/sum(G.Edges.Weight);
-        h2.YData(t) = mean_plot(t);
-        h3.YData(t) = mode_plot(t);
-        h.LineWidth = G.Edges.NormWeight * 50;
-        h.EdgeCData = G.Edges.NormWeight;
-        drawnow limitrate
+%         % Animación
+%         G.Edges.NormWeight = G.Edges.Weight/sum(G.Edges.Weight);
+%         h2.YData(t) = mean_plot(t);
+%         h3.YData(t) = mode_plot(t);
+%         h.LineWidth = G.Edges.NormWeight * 50;
+%         h.EdgeCData = G.Edges.NormWeight;
+%         drawnow limitrate
         t = t + 1;
 
 
     end
 
     if (t > t_max)
-        disp("No hubo convergencia")
+        best_path = "No hubo convergencia";
         tiempofinal = toc(timer);
-        alpha_sweep_data(pruebas + 1, :) = {tiempofinal, 0, t - 1, best_path, alpha};
+        alpha_sweep_data(sweep_count + 1, :) = {tiempofinal, 0, t - 1, best_path, alpha};
     else
         moda =  mode(L(:, t-1));
         len_indx = L(:, t-1).*(L(:,t-1) == moda);
         len_prob = rouletteWheel(len_indx);
         best_path = all_path{len_prob, t-1};
         tiempofinal = toc(timer);
-        alpha_sweep_data(pruebas + 1, :) = {tiempofinal, L(len_prob, t-1), t - 1, best_path, alpha};
+        alpha_sweep_data(sweep_count + 1, :) = {tiempofinal, L(len_prob, t-1), t - 1, best_path, alpha};
 
     end
     t_acumulado = t_acumulado + tiempofinal;
@@ -386,6 +389,8 @@ colormap(map);
         disp("Guardando...")
         save('sweep_data', 'alpha_sweep_data', '-append')
         t_acumulado = 0;
+    end
+    sweep_count = sweep_count + 1;
     end
 end
 % Guardado final

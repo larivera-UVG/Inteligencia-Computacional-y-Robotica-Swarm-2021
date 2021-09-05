@@ -102,6 +102,17 @@ map = [255 255 255
     255 61 61]/255;
 
 figure(1); clf;
+h2 = plot((1:t_max)', mean_plot, 'Color', [0.8, 0.05, 0], 'LineWidth', 1.5);
+hold on
+h3 = plot((1:t_max)', mode_plot, 'Color', [0, 0, 0.8], 'LineWidth', 1.5);
+title('Global Cost', 'interpreter', 'latex', 'FontSize', 17)
+xlabel('Generations', 'interpreter', 'latex', 'FontSize', 12)
+ylabel('Path Lenght', 'interpreter', 'latex', 'FontSize', 12)
+leg1 = legend('$\bar{x}$', '$\hat{x}$');
+set(leg1, 'Interpreter', 'latex');
+set(leg1, 'FontSize', 17);
+
+figure(2); clf;
 % Se crea la imagen animada
 h = plot(G, 'XData', G.Nodes.X+0.5, 'YData', G.Nodes.Y+0.5, 'NodeColor', 'k'); 
 hold on 
@@ -347,40 +358,24 @@ while (t <= t_max && stop)
         % no strings.
         
         ants(k).path = loop_remover(str2double(ants(k).path));
-        L(k, t) = sum(G.Edges.Eta(findedge(G, ants(k).path(1:end-1), ants(k).path(2:end))).^-1);
+        L(k, t) = sum(G.Edges.Eta(findedge(G, ants(k).path(1:end-1), ants(k).path(2:end))));
         all_path{k, t} = ants(k).path;  % Equivale a x_k(t)
         
         % Regresamos la hormiga k al inicio
         ants(k).current_node = nodo_init;
         ants(k).blocked_nodes = [];
         ants(k).last_node = nodo_init;
-        
-        % Largo (aristas) de camino de cada hormiga
-        caminos(k) = numel(ants(k).path);
 
     end
     
     %% Evaporación de Feromona
     G.Edges.Weight = G.Edges.Weight * (1 - rho);
     
-    % Global best lenght
-    lgb = min(caminos);
-    lgb_index = find(caminos==lgb);
-    Lmin = min(min(L)); %Costo min
-    
     %% Update de Feromona
     for k = 1:hormigas
         dtau = Q/numel(ants(k).path);
         edge_index = findedge(G, ants(k).path(1:end - 1), ants(k).path(2:end));
         G.Edges.Weight(edge_index) = G.Edges.Weight(edge_index) + Q*dtau;
-%         if k == lgb_index
-%             G.Edges.Weight(edge_index) = G.Edges.Weight(edge_index)*2.5;
-%         end
-%         
-%         if L(k,t) == Lmin
-%             G.Edges.Weight(edge_index) = G.Edges.Weight(edge_index)*2.5;
-%         end
-        
         ants(k).path = nodo_init;
         
     end
@@ -422,9 +417,15 @@ else
     % Gráfica
     figure(2);
     hold on;
-    plot(G.Nodes.X(best_path), G.Nodes.Y(best_path),'r')
+    plot(G.Nodes.X(best_path)+0.5, G.Nodes.Y(best_path)+0.5,'r')
 
 end
 
 % profile viewer % Es parte del profiler, descomentar para ver
 tiempofinal = toc;
+formatSpec = 'iter: %d - t: %.2f - cost: %.2f \n';
+fprintf(formatSpec, t-1, tiempofinal, moda)
+bpath = [G.Nodes.X(best_path), G.Nodes.Y(best_path)];
+webots_path = (bpath - grid_size/2).*[1/5 -1/5];
+wb_pc_path = 'C:\Users\Daniela Baldizon\OneDrive - Universidad del Valle de Guatemala\Semestre IX\Diseño e innovación 1\GIT Anterior\Inteligencia-Computacional-y-Robotica-Swarm-Gaby-dev\Inteligencia Computacional\Código\Webots\controllers\ACO_controller\';
+save(strcat(wb_pc_path, 'webots_test.mat'), 'bpath', 'webots_path')
