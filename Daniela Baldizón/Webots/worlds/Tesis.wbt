@@ -3,8 +3,8 @@ WorldInfo {
   coordinateSystem "NUE"
 }
 Viewpoint {
-  orientation -0.9999373428908146 0.004462734813987715 0.010266172141429565 1.534250237419477
-  position 0.3388652056706755 4.957522498183169 -0.021952990894938795
+  orientation 1 0 0 4.71238898038469
+  position 0.03418146109997134 3.709472155828588 0.03189677075653591
 }
 TexturedBackground {
 }
@@ -14,7 +14,61 @@ RectangleArena {
   floorSize 2 2
   floorTileSize 0.4 0.4
 }
+WoodenBox {
+  translation 0.31 0.1 0.5
+  name "wooden box(11)"
+  size 0.2 0.2 0.2
+}
+WoodenBox {
+  translation -0.3 0.1 -0.51
+  name "wooden box(9)"
+  size 0.2 0.2 0.2
+}
+WoodenBox {
+  translation -0.5 0.1 -0.51
+  name "wooden box(8)"
+  size 0.2 0.2 0.2
+}
+WoodenBox {
+  translation -0.3 0.1 0.5
+  name "wooden box(7)"
+  size 0.2 0.2 0.2
+}
+WoodenBox {
+  translation 0.5 0.1 0.5
+  name "wooden box(10)"
+  size 0.2 0.2 0.2
+}
+WoodenBox {
+  translation -0.7 0.1 0.3
+  name "wooden box(5)"
+  size 0.2 0.2 0.2
+}
+WoodenBox {
+  translation -0.5 0.1 0.5
+  name "wooden box(6)"
+  size 0.2 0.2 0.2
+}
+WoodenBox {
+  translation 0.3 0.1 -0.3
+  name "wooden box(4)"
+  size 0.2 0.2 0.2
+}
+WoodenBox {
+  translation 0.5 0.1 -0.5
+  name "wooden box(3)"
+  size 0.2 0.2 0.2
+}
 E-puck {
+  translation -0.89 0 0.89
+  rotation 0 1 0 -5.307179586466759e-06
+  controller "PyE"
+  turretSlot [
+    GPS {
+    }
+    Compass {
+    }
+  ]
 }
 WoodenBox {
   translation -0.7 0.1 -0.31
@@ -23,5 +77,10 @@ WoodenBox {
 WoodenBox {
   translation -0.7 0.1 -0.51
   name "wooden box(1)"
+  size 0.2 0.2 0.2
+}
+WoodenBox {
+  translation 0.7 0.1 -0.5
+  name "wooden box(2)"
   size 0.2 0.2 0.2
 }

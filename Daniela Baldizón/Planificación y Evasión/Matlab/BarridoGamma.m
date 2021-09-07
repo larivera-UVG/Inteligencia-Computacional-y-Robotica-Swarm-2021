@@ -20,9 +20,9 @@ clear
 t_max = 150; 
 hormigas = 60;
 
-rho = 0.2; 
-alpha = 2;
-beta = 1; 
+rho = 0.4; 
+alpha = 2.2;
+beta = 0.5; 
 Q = 2.1; 
 epsilon = 0.9; 
 gamma = 1; 
@@ -41,10 +41,10 @@ mapa = zeros(grid_size+2); % Creación del mapa
 % Preallocation
 ants(1:hormigas) = struct('blocked_nodes', [], 'last_node', nodo_init,...
     'current_node', nodo_init, 'path', nodo_init, 'L', zeros(1, t_max));
-sweep = 0.5:0.25:4.5;
+sweep = 0.5:0.5:4;
 repetitions = 10;
-beta_sweep_data = cell(numel(sweep) * repetitions + 1, 5);
-beta_sweep_data(1, :) = {'tiempo', 'costo', 'iteraciones', 'path', 'beta'};
+gamma_sweep_data = cell(numel(sweep) * repetitions + 1, 5);
+gamma_sweep_data(1, :) = {'tiempo', 'costo', 'iteraciones', 'path', 'gamma'};
 sweep_count = 1;
 t_acumulado = 0;
 mode_plot = zeros(t_max, 1);
@@ -54,14 +54,14 @@ mean_plot = zeros(t_max, 1);
 
 for rep = 1:1:repetitions
     rep
-    for beta = sweep
+    for gamma = sweep
     timer = tic;
     all_path = cell(hormigas, t_max);
     L = zeros(hormigas, t_max); % Lenght del path por hormiga e iteración
     t = 1;
     stop = 1;
     G = G_cpy;
-    beta
+    gamma
     
     % Se le hace un borde al mapa para delimitarlo, este borde puede ser tomado
     % como obstáculo
@@ -327,25 +327,25 @@ for rep = 1:1:repetitions
     if (t > t_max)
         best_path = "No hubo convergencia";
         tiempofinal = toc(timer);
-        beta_sweep_data(sweep_count + 1, :) = {tiempofinal, 0, t - 1, best_path, beta};
+        gamma_sweep_data(sweep_count + 1, :) = {tiempofinal, 0, t - 1, best_path, gamma};
     else
         moda =  mode(L(:, t-1));
         len_indx = L(:, t-1).*(L(:,t-1) == moda);
         len_prob = rouletteWheel(len_indx);
         best_path = all_path{len_prob, t-1};
         tiempofinal = toc(timer);
-        beta_sweep_data(sweep_count + 1, :) = {tiempofinal, L(len_prob, t-1), t - 1, best_path, beta};
+        gamma_sweep_data(sweep_count + 1, :) = {tiempofinal, L(len_prob, t-1), t - 1, best_path, gamma};
 
     end
     t_acumulado = t_acumulado + tiempofinal;
     if t_acumulado >= 60
         disp("Guardando...")
-        save('sweep_data', 'beta_sweep_data', '-append')
+        save('sweep_data', 'gamma_sweep_data', '-append')
         t_acumulado = 0;
     end
     sweep_count = sweep_count + 1;
     end
 end
 % Guardado final
-save('sweep_data', 'beta_sweep_data', '-append')
+save('sweep_data', 'gamma_sweep_data', '-append')
 disp("Done.")

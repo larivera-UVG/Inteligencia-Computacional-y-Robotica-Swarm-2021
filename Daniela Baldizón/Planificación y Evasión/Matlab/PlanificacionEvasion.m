@@ -13,12 +13,12 @@ clear
 tic  % Para medir el tiempo que se tarda el algoritmo en correr.
 
 %% Creamos grid cuadrado con la cantidad de nodos indicada:
-    grid_size = 20;
+    grid_size = 10;
     cost_diag = 0.5;
     tau_0 = 0.1;  % Valor de tau inicial
     G = graph_grid(grid_size);
-    nodo_dest = '20';
-    nodo_init = "381";
+    nodo_dest = '100';
+    nodo_init = "1";
     plot_obstacles = 0;
 %     obstaculos = [37,31,25,19]';
 %     obstaculos = []'; % Nodos donde se colocan los obstaculos
@@ -42,12 +42,15 @@ tic  % Para medir el tiempo que se tarda el algoritmo en correr.
 %         315,324,325,326,344,345,351,352,353,384,385]';
 
     % Mapa c
-    obstaculos = [53,54,55,71,72,73,74,75,77,78,87,88,89,91,92,97,98,...
-        103,104,107,108,109,123,124,132,133,134,136,152,153,154,156,172,...
-        173,174,188,189,208,209,211,212,213,214,231,232,233,234,242,243,...
-        244,247,248,249,251,252,253,254,262,263,264,267,268,269,271,272,...
-        273,274,282,283,284,287,288,289,307,308,309,327,328,329,342,343,...
-        347,348,349,362,363]';
+%     obstaculos = [53,54,55,71,72,73,74,75,77,78,87,88,89,91,92,97,98,...
+%         103,104,107,108,109,123,124,132,133,134,136,152,153,154,156,172,...
+%         173,174,188,189,208,209,211,212,213,214,231,232,233,234,242,243,...
+%         244,247,248,249,251,252,253,254,262,263,264,267,268,269,271,272,...
+%         273,274,282,283,284,287,288,289,307,308,309,327,328,329,342,343,...
+%         347,348,349,362,363]';
+
+    % Mapa Webots
+    obstaculos = [23,24,27,28,32,62,67,72,73,74,78,79]'; 
         
     %% ACO init
 t_max = 1000; 
@@ -358,7 +361,7 @@ while (t <= t_max && stop)
         % no strings.
         
         ants(k).path = loop_remover(str2double(ants(k).path));
-        L(k, t) = sum(G.Edges.Eta(findedge(G, ants(k).path(1:end-1), ants(k).path(2:end))));
+        L(k, t) = sum(G.Edges.Eta(findedge(G, ants(k).path(1:end-1), ants(k).path(2:end))).^-1);
         all_path{k, t} = ants(k).path;  % Equivale a x_k(t)
         
         % Regresamos la hormiga k al inicio
@@ -427,5 +430,5 @@ formatSpec = 'iter: %d - t: %.2f - cost: %.2f \n';
 fprintf(formatSpec, t-1, tiempofinal, moda)
 bpath = [G.Nodes.X(best_path), G.Nodes.Y(best_path)];
 webots_path = (bpath - grid_size/2).*[1/5 -1/5];
-wb_pc_path = 'C:\Users\Daniela Baldizon\OneDrive - Universidad del Valle de Guatemala\Semestre IX\Diseño e innovación 1\GIT Anterior\Inteligencia-Computacional-y-Robotica-Swarm-Gaby-dev\Inteligencia Computacional\Código\Webots\controllers\ACO_controller\';
+wb_pc_path = 'C:\Users\Daniela Baldizon\Documents\GitHub\Inteligencia-Computacional-y-Robotica-Swarm-2021\Daniela Baldizón\Webots\controllers\PyE\';
 save(strcat(wb_pc_path, 'webots_test.mat'), 'bpath', 'webots_path')
