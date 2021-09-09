@@ -21,15 +21,15 @@ char buffer_recibir[MSG_SIZE];	// to store received messages or messages to be s
 char *token;
 
 // Posicion Local de prueba MODIFICAR
-static double best_local[] = {1.4,1.4};
-static double fitness_local=8.0;
+static double best_local[] = {1.0,1.0};
+static double fitness_local= 10.0;
 
 // Recepcion de datos de otros robots
 static double recepcion[2];
 
 // Posicion Global
-static double best_global[] = {1.1,1.1};
-static double fitness_global=4.0;
+static double best_global[] = {1.0,1.0};
+static double fitness_global= 10.0;
 
 //------------------------------Comunicacion -------------------------------
 void error(const char *msg)
@@ -67,7 +67,7 @@ void *receiving(void *ptr)
         }
         // Actualizar global best
         //printf("%f, %f \n ", recepcion[2], fitness_global);
-        if (recepcion[2] < fitness_global){		//Local< Global, asigna el valor local al global
+        if (recepcion[2] <= fitness_global){		//Local< Global, asigna el valor local al global
 			printf("Global actualizado del agente 1.\n"); 
             best_global[0] = recepcion[0];
             best_global[1] = recepcion[1];
