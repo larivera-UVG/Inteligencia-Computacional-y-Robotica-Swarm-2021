@@ -10,6 +10,7 @@ Temp = rgb2gray(imread('Lena Distorsion.jpg'));
 
 SRef = double(Ref(1:10,1:10));
 STemp = double(Temp(1:10,1:10));
+SReg = STemp;
 % figure;
 % imshow(SubJ)
 % 
@@ -41,7 +42,7 @@ Q = 2.1;
 % Porcentaje de hormigas que queremos siguiendo la misma solución
 epsilon = 0.9; 
 % Escala de las distancias de avance
-r = 0.01;
+r = 0.0001;
 
 % Preallocation
 path_k = cell(hormigas, 1); % Inicializa el path de las hormigas en 0
@@ -49,6 +50,7 @@ L = zeros(hormigas, t_max); % Lenght del path por hormiga e iteración
 all_path = cell(hormigas, t_max); % El path de todas las hormigas
 % Coloca las hormigas de forma uniforme en el grid
 
+%% Nuevo
 % Si Idiff es negativo, la hormiga debe buscar intensidades más bajas con
 % los vecinos. Si es mayor o igual a cero, va a buscar valores de
 % intensidad más altos con los vecinos.
@@ -57,29 +59,37 @@ Idiff = double(SRef - STemp);
 
 for i = 1:hormigas
     
-    proximity = [convertCharsToStrings(neighbors(G, i));
-        i];
-    
-    % Posicion actual por hormiga
-    m = G.Nodes.X(double(proximity));
-    l = abs(-grid_size + G.Nodes.Y(double(proximity))) + 1;
-    
-    weight_int_vec = 0;
-    for j = 1:size(m,1)
-        weight_int_vec(j) = Idiff(l(j),m(j));
-    end
-    
-    weight_dest = min(weight_int_vec);
-    index_dest = find(weight_int_vec == weight_dest);
-    index_dest = index_dest(end);
-    x = m(index_dest(1));
-    y = abs(-grid_size + l(index_dest)) + 1;
-    nodo_dest(i) = double(findNode(G,x,y));
+%     % encuentra las coordenadas de los vecinos próximos y la propia por
+%     % cada pixel
+%     proximity = [convertCharsToStrings(neighbors(G, i));
+%         i];
+%     
+%     % Posicion actual por hormiga (columnas y filas). La referencia es el
+%     % origen de la imagen (esquina superior izquierda)
+%     m = G.Nodes.X(double(proximity));
+%     l = abs(-grid_size + G.Nodes.Y(double(proximity))) + 1;
+%     
+%     weight_int_vec = 0;
+%     
+%     % encuentra el peso de los pixeles en proximity. El peso está dado como
+%     % la diferencia ente la imagen de referencia y el template.
+%     for j = 1:size(m,1)
+%         weight_int_vec(j) = Idiff(l(j),m(j));
+%     end
+%     
+%     % Establece como nodo de destino al nodo con menor peso dentro de
+%     % proximity
+%     weight_dest = min(weight_int_vec);
+%     index_dest = find(weight_int_vec == weight_dest);
+%     index_dest = index_dest(end);
+%     x = m(index_dest(1));
+%     y = abs(-grid_size + l(index_dest)) + 1;
+%     nodo_dest(i) = double(findNode(G,x,y));
     
     % Struct de las hormigas
     ants(i) = struct('blocked_nodes', [], 'last_node',...
         int2str(i), 'current_node', int2str(i), 'path', int2str(i), 'L', ...
-        zeros(1, t_max), 'dest_node',int2str(nodo_dest(i)));
+        zeros(1, t_max));
 end
 %% ACO loop
 t = 1;
@@ -101,53 +111,88 @@ hold on
 % scatter(nodos_especiales(2, 1), nodos_especiales(2, 2), 'xr','LineWidth', 5)
 
 colormap(map);
+contador = 0;
 %%
 while (t <= t_max && stop)
     
     parfor k = 1:hormigas
+%         contador = contador + 1;
        % while (not(strcmp(ants(k).current_node, nodo_dest))) % Mientras no se haya llegado al destino
+           
+            % Si Idiff es negativo, la hormiga debe buscar intensidades más bajas con
+            % los vecinos. Si es mayor o igual a cero, va a buscar valores de
+            % intensidad más altos con los vecinos.
+            % Alimento de las hormigas
+            Idiff = double(SRef - SReg);
+            
+            % Posicion actual por hormiga
+            m = G.Nodes.X(double(ants(k).current_node));
+            l = G.Nodes.Y(double(ants(k).current_node));
+            l = abs(-grid_size + l(1)) + 1; % Fila
+            m = m(1); % Columna
+            
+            % encuentra los nodos vecinos y el actual
+            proximity = [convertCharsToStrings(neighbors(G, k))];
+            
+            % Posicion actual por hormiga (columnas y filas). La referencia es el
+            % origen de la imagen (esquina superior izquierda)
+            colum_coor = G.Nodes.X(double(proximity));
+            fila_coor = abs(-grid_size + G.Nodes.Y(double(proximity))) + 1;
+            
+            weight_int_vec = 0;
+            
+            % encuentra el peso de los pixeles en proximity. El peso está dado como
+            % la diferencia ente la imagen de referencia y el template.
+            for j = 1:size(colum_coor,1)
+                weight_int_vec(j) = Idiff(fila_coor(j),colum_coor(j));
+            end
+            
+            if (Idiff(l,m)>=0)
+                % Bloquea los nodos que tengan peso menor a 0 para que solo
+                % busque pesos más grandes
+                nodos_bloqueados_menor = [];
+                index_Idiff_menor = find(weight_int_vec<0);
+                nodos_bloqueados_menor = proximity(index_Idiff_menor);
+                ants(k).blocked_nodes = [ants(k).blocked_nodes; ...
+                    string(nodos_bloqueados_menor)];
+            else
+                % Bloquea los nodos que tengan peso mayor o igual a 0, para
+                % que solo busque pesos pequeños. 
+                nodos_bloqueados_mayor = [];
+                index_Idiff_mayor = find(weight_int_vec>=0);
+                nodos_bloqueados_mayor = proximity(index_Idiff_mayor);
+                ants(k).blocked_nodes = [ants(k).blocked_nodes; ...
+                    string(nodos_bloqueados_mayor)];
+            end
             
             ants(k).blocked_nodes = [ants(k).blocked_nodes; convertCharsToStrings(ants(k).current_node)];
             
             vecinos = setdiff(convertCharsToStrings(neighbors(G, ants(k).current_node)),...
                 ants(k).blocked_nodes, 'rows','stable');
             
-            while (isempty(vecinos))
-                ants(k).path = ants(k).path(1:end-1);
+            if (isempty(vecinos))
+                ants(k).path = ants(k).current_node;
                 ants(k).current_node = ants(k).path(end);
-                vecinos = setdiff(convertCharsToStrings(neighbors(G,ants(k).current_node)),...
-                    ants(k).blocked_nodes, 'rows','stable');
-            end
-            vecinos_updated = vecinos;
-            
-            % La hormiga toma la decisión de a donde ir eq.(17.6)
-            next_node = ant_decision(vecinos_updated, alpha, beta, G, ants(k).current_node);
-            
-            % Si Idiff es negativo, la hormiga debe buscar intensidades más bajas con
-            % los vecinos. Si es mayor o igual a cero, va a buscar valores de
-            % intensidad más altos con los vecinos.
-            % Alimento de las hormigas
-            Idiff = double(SRef - STemp);
-            
-            % Gradiente de la imagen
-            [Tx, Ty] = imgradientxy(STemp);
-            
-            % Posicion actual por hormiga
-            m = G.Nodes.X(double(ants(k).current_node));
-            l = G.Nodes.Y(double(ants(k).current_node));
-            l = abs(-grid_size + l(1)) + 1;
-            m = m(1);
-            
-            % Distancia de avance
-            Dx = abs(r*Idiff(l,m)*Tx(l,m));
-            Dy = abs(r*Idiff(l,m)*Ty(l,m));
-            
-            
-            if str2double(ants(k).current_node) ~= str2double(ants(k).dest_node)
+            else
+                vecinos_updated = vecinos;
+
+                % La hormiga toma la decisión de a donde ir eq.(17.6)
+                next_node = ant_decision(vecinos_updated, alpha, beta, G, ants(k).current_node);
                 ants(k).last_node = [ants(k).last_node; ants(k).current_node];
                 ants(k).current_node = next_node;
                 ants(k).path = [ants(k).path; ants(k).current_node];
             end
+            
+            % Gradiente de la imagen
+            [Tx, Ty] = imgradientxy(STemp);
+            
+            % Distancia de avance eqn (9)
+            Dx = abs(r*Idiff(l,m)*Tx(l,m));
+            Dy = abs(r*Idiff(l,m)*Ty(l,m));
+            
+            SRegX(k) = round(l+Dx);
+            SRegY(k) = round(m+Dy);
+            
             
      %   end
 
@@ -158,11 +203,22 @@ while (t <= t_max && stop)
         L(k, t) = sum(G.Edges.Eta(findedge(G, ants(k).path(1:end-1), ants(k).path(2:end))).^-1);
         all_path{k, t} = ants(k).path;  % Equivale a x_k(t)
         
-        % Regresamos la hormiga k al inicio
+        % Regresamos la hormiga k al inicio (k-esimo nodo)
         ants(k).current_node = int2str(k);
         ants(k).blocked_nodes = [];
         ants(k).last_node = int2str(k);
         
+    end
+    
+    %% Actualización de foto
+    for k = 1:hormigas
+        % Posicion actual por hormiga
+        m = G.Nodes.X(double(ants(k).current_node));
+        l = G.Nodes.Y(double(ants(k).current_node));
+        l = abs(-grid_size + l(1)) + 1; % Fila
+        m = m(1); % Columna
+        SReg(SRegX(k),SRegY(k)) = SRef(l,m);
+%         STemp = SReg
     end
     
     %% Evaporación de Feromona
@@ -225,13 +281,13 @@ else
 
 end
 
-    WeightMatrix =  reshape(all_weight,grid_size,grid_size);
-    Regis = round(STemp.*(WeightMatrix./max(WeightMatrix)));
-    DiffR = SRef-Regis
-%     imtool(Regis)
-    figure;
-    imshow(Regis)
-    figure;
-    imshow(SRef)
+%     WeightMatrix =  reshape(all_weight,grid_size,grid_size);
+%     Regis = round(STemp.*(WeightMatrix./max(WeightMatrix)));
+%     DiffR = SRef-Regis
+% %     imtool(Regis)
+%     figure;
+%     imshow(Regis)
+%     figure;
+%     imshow(SRef)
 % profile viewer % Es parte del profiler, descomentar para ver
 tiempofinal = toc; 

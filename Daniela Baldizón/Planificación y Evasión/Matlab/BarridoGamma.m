@@ -41,8 +41,8 @@ mapa = zeros(grid_size+2); % Creación del mapa
 % Preallocation
 ants(1:hormigas) = struct('blocked_nodes', [], 'last_node', nodo_init,...
     'current_node', nodo_init, 'path', nodo_init, 'L', zeros(1, t_max));
-sweep = 0.5:0.5:4;
-repetitions = 10;
+sweep = 0.2:0.2:4;
+repetitions = 2;
 gamma_sweep_data = cell(numel(sweep) * repetitions + 1, 5);
 gamma_sweep_data(1, :) = {'tiempo', 'costo', 'iteraciones', 'path', 'gamma'};
 sweep_count = 1;
