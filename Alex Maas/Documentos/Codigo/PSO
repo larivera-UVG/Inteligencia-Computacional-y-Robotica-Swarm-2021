@@ -62,6 +62,7 @@ Alex Maas #17146  */
 #define K_BETA 0.05
 
 static const double *posicion_robot; //falta sensor
+static const double rad;
 
 // Nuevas posiciones del robot
 static double new_position[] = {0, 0};
@@ -180,7 +181,7 @@ void error(const char *msg)
     perror(msg);
     exit(0);
 }
-
+//-------------------Hilo para recibir--------------------------------------
 // Receiving thr: constantly waits for messages. Whatever is received is displayed.
 void *receiving(void *ptr)
 {
@@ -212,8 +213,7 @@ void *receiving(void *ptr)
         }
         // Actualizar global best
         printf("%f, %f \n ", recepcion[2], fitness_global);
-        if (recepcion[2] < fitness_global)
-        { //Local< Global, asigna el valor local al global
+        if (recepcion[2] < fitness_global){ //Local< Global, asigna el valor local al global
             //Actualizr global best (si local es mejor que global)
             printf("Global actualizado.\n");
             best_global[0] = recepcion[0];
@@ -228,7 +228,20 @@ void *receiving(void *ptr)
     pthread_exit(0);
 }
 //------------------------------------------------------------------------------------------
-
+void *gps(void){
+    // Open the communication
+    gps_init();
+    loc_t data;
+    while (1) {
+        gps_location(&data);
+        // Visualizacion de la informacion
+        printf("%lf %lf\n", data.latitude, data.longitude);
+        posicion_robot[2]= data.longitude;
+        posicion_robot[0]= data.latitude;
+        rad = data.course;
+    }
+}
+//------------------------------------------------------------------------------------------
 // Main function
 int main(int argc, char *argv[])
 {
@@ -303,7 +316,7 @@ int main(int argc, char *argv[])
         // Configuracion de valores iniciales del PSO
         if (estado == 0)
         {
-            posicion_robot = 0;                     //GPS
+            //posicion_robot = 0;                     //GPS
             actual_position[0] = posicion_robot[2]; // coordenada X
             actual_position[1] = posicion_robot[0]; // coordenada Y
             best_local[0] = actual_position[0];
@@ -320,8 +333,8 @@ int main(int argc, char *argv[])
         //------------------Obtener posicion y orientacion del robot-------------------------------
         posicion_robot = 0; GPS
 
-        const double north = [0,0];   //GPS angulo
-        double rad = atan2(north[0],north[2]);
+        //const double north = [0,0];   //GPS angulo
+        //double rad = atan2(north[0],north[2]);
 
         // Orientacion como angulo de brujula
         double bearing = ((rad) / M_PI) * 180.0;
