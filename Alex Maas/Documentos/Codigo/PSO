@@ -159,7 +159,7 @@ double randfrac(void)
     double res = (rand() % RAND_MAX) / (double)RAND_MAX;
     return res;
 }
-/*
+
 // Funciones costo
 double funcion(double x, double y){
     double f=0;
@@ -173,7 +173,7 @@ double funcion(double x, double y){
         f=pow(x*x+y-11,2)+pow(x+y*y-7,2);           // Himmelblau
     }
     return f;
-}*/
+}
 
 //------------------------------Comunicacion -------------------------------
 void error(const char *msg)
@@ -181,7 +181,7 @@ void error(const char *msg)
     perror(msg);
     exit(0);
 }
-//-------------------Hilo para recibir--------------------------------------
+//------------------------Hilo para recibir--------------------------------------
 // Receiving thr: constantly waits for messages. Whatever is received is displayed.
 void *receiving(void *ptr)
 {
@@ -228,7 +228,7 @@ void *receiving(void *ptr)
     pthread_exit(0);
 }
 //------------------------------------------------------------------------------------------
-void *gps(void){
+void *gps(void *ptr){
     // Open the communication
     gps_init();
     loc_t data;
@@ -251,7 +251,7 @@ int main(int argc, char *argv[])
     char buffer_enviar[MSG_SIZE];                     // to store received messages or messages to be sent.
     struct sockaddr_in anybody;                       // for the socket configuration
     int boolval = 1;                                  // for a socket option
-    pthread_t thread_rec;                             // thread variable
+    pthread_t hilo_envio, hilo_gps;                             // thread variable
     char IP_broadcast[IP_LENGTH];                     // para la dirección de broadcast
     FILE *file;
 
@@ -283,9 +283,10 @@ int main(int argc, char *argv[])
 
     anybody.sin_addr.s_addr = inet_addr(IP_broadcast); // broadcast address
 
-    // Se creae el hilo de recepción.
-    pthread_create(&thread_rec, NULL, receiving, (void *)&sock); // for receiving
-
+    //------ Se creae el hilo de recepción-----------
+    pthread_create(&hilo_envio, NULL, receiving, (void *)&sock);    // para recepcion
+    pthread_create(&hilo_gps, NULL, gps, NULL);                     // para GPS
+    
     printf("Este programa despliega lo que sea que reciba.\n");
     printf("También transmite lo que el usuario ingrese, max. 40 caracteres. (! para salir):\n");
     do
