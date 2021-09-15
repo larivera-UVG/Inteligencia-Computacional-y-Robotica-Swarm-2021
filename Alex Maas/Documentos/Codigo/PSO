@@ -314,7 +314,7 @@ int main(int argc, char *argv[])
     while (TIME_STEP != -1)
     {
         numero_iter++;
-        // Configuracion de valores iniciales del PSO
+        // --------------------Configuracion de valores iniciales del PSO-------------------
         if (estado == 0)
         {
             //posicion_robot = 0;                     //GPS
@@ -331,7 +331,7 @@ int main(int argc, char *argv[])
             estado = 1;
         }
 
-        //------------------Obtener posicion y orientacion del robot-------------------------------
+        //-------------------Obtener posicion y orientacion del robot-------------------------------
         posicion_robot = 0; GPS
 
         //const double north = [0,0];   //GPS angulo
