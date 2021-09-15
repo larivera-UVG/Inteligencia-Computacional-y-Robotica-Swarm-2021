@@ -19,7 +19,6 @@ tic  % Para medir el tiempo que se tarda el algoritmo en correr.
     G = graph_grid(grid_size);
     nodo_dest = '100';
     nodo_init = "1";
-    plot_obstacles = 0;
 %     obstaculos = [37,31,25,19]';
 %     obstaculos = []'; % Nodos donde se colocan los obstaculos
 %     obstaculos = [12,19,26,5,2,9,16]';
