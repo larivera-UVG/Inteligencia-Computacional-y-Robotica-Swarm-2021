@@ -26,14 +26,22 @@ Alex Maas #17146  */
 #define LQR_CONTROLLER 0
 #define LQI_CONTROLLER 1
 
+// Filtro de Picos para TUC-PID
+#define HARDSTOP_FILTER 1
+
+// Filtro PID para velocidad angular de TUC-LQR
+#define LQR_PID_COMBO 0
+
 // Parametro de orientacion
 #define USE_BEARING 0
 
 // Variables globales
 #define TIME_STEP 32
-#define MAX_CHANGE 1
-#define PUERTO 2000
+#define MAX_SPEED 2
 #define COMMUNICATION_CHANNEL 1
+#define ROBOT_RADIUS 35.0               //Modificar
+#define WHEEL_RADIUS 20.5               //Modificar
+#define PUERTO 2000                     // Puerto para comunicacion en red local 
 
 // Fitness Funcion
 #define funcion_costo 0
@@ -61,19 +69,24 @@ Alex Maas #17146  */
 #define K_ALPHA 0.5
 #define K_BETA 0.05
 
-static const double *posicion_robot; //falta sensor
+// HARDSTOP Filter Parameters
+#define MAX_CHANGE 1.00
+
+//static const double *posicion_robot; //falta sensor
+static const double posicion_robot_X; 
+static const double posicion_robot_Y; 
 static const double rad;
 
 // Nuevas posiciones del robot
 static double new_position[] = {0, 0};
 static double new_velocity[] = {0, 0};
-static double theta_g = 0; // Orientacion del robot
+static double theta_g = 0;                      // Orientacion nueva del robot
 
 // Posiciones actuales del robot
 static double actual_position[] = {0, 0};
 static double old_velocity[] = {0, 0};
+static double theta_o = 0;                      // Orientacion actual del robot
 static double fitness_actual = 0;
-static double theta_o = 0; // Orientacion del robot
 
 // Posicion Local
 static double best_local[] = {0, 0};
@@ -94,7 +107,7 @@ static double C2 = SOCIAL_WEIGTH;
 static double w = 0;
 static double rho1 = 0;
 static double rho2 = 0;
-static double scaler = TIME_DELTA;
+static double V_scaler = TIME_DELTA;
 
 // Calculo de Inercia PSO
 static double w_min = 0.5;
@@ -141,6 +154,9 @@ int estado = 0;
 char buffer_recibir[MSG_SIZE]; // to store received messages or messages to be sent.
 char *token;
 
+// Variales tipo thread para creacion de multiples hilos
+pthread_t hilo_envio, hilo_gps;                             // thread variable
+
 // Numeros aleatorios
 double printRandoms(int lower, int upper, int count)
 {
@@ -175,12 +191,14 @@ double funcion(double x, double y){
     return f;
 }
 
-//------------------------------Comunicacion -------------------------------
+//------------------------------Error de Comunicacion -------------------------------
 void error(const char *msg)
 {
     perror(msg);
     exit(0);
 }
+//----------------------------------------------------------------------------------
+
 //------------------------Hilo para recibir--------------------------------------
 // Receiving thr: constantly waits for messages. Whatever is received is displayed.
 void *receiving(void *ptr)
@@ -190,7 +208,7 @@ void *receiving(void *ptr)
     sock = (int *)ptr;                                // socket identifier
     unsigned int length = sizeof(struct sockaddr_in); // size of structure
     struct sockaddr_in from;
-
+    
     while (1)
     {
         memset(buffer_recibir, 0, MSG_SIZE); // "limpia" el buffer
@@ -201,20 +219,18 @@ void *receiving(void *ptr)
             error("Error: recvfrom");
         }
         i = 0;
-        printf("%s \n ", buffer_recibir);
-        // descomponer buffer_recibir, strtok
+        //printf("%s \n ", buffer_recibir);
+        //------ Se descompone el buffer_recibir---------------------
         token = strtok(buffer_recibir, ",");
         recepcion[i] = atof(token);
-
         while ((token = strtok(NULL, ",")) != NULL)
         {
             i++;
             recepcion[i] = atof(token);
         }
-        // Actualizar global best
-        printf("%f, %f \n ", recepcion[2], fitness_global);
-        if (recepcion[2] < fitness_global){ //Local< Global, asigna el valor local al global
-            //Actualizr global best (si local es mejor que global)
+        // ---------------Actualizar global best ----------------------
+        //printf("%f, %f \n ", recepcion[2], fitness_global);
+        if (recepcion[2] < fitness_global){                         //Local< Global, asigna el valor local al global,Actualizr global best (si local es mejor que global)
             printf("Global actualizado.\n");
             best_global[0] = recepcion[0];
             best_global[1] = recepcion[1];
@@ -227,7 +243,8 @@ void *receiving(void *ptr)
     }
     pthread_exit(0);
 }
-//------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------
+//------------------------Hillo para lectura del GPS--------------------------------------
 void *gps(void *ptr){
     // Open the communication
     gps_init();
@@ -242,22 +259,20 @@ void *gps(void *ptr){
     }
     pthread_exit(0);
 }
-//------------------------------------------------------------------------------------------
+//-------------------------------- MAIN ----------------------------------------------------------
 // Main function
 int main(int argc, char *argv[])
 {
-    //------------------------------Comunicacion -------------------------------
+    //------------------------------Proceso de Comunicacion -------------------------------
     int sock, n;
     unsigned int length = sizeof(struct sockaddr_in); // size of structure
     char buffer_enviar[MSG_SIZE];                     // to store received messages or messages to be sent.
     struct sockaddr_in anybody;                       // for the socket configuration
     int boolval = 1;                                  // for a socket option
-    pthread_t hilo_envio, hilo_gps;                             // thread variable
     char IP_broadcast[IP_LENGTH];                     // para la dirección de broadcast
     FILE *file;
 
     strcpy(IP_broadcast, "10.0.0.255"); // Puede que se deba cambiar. Revisar ifconfig
-
     printf("La dirección de broadcast es: %s\n\n", IP_broadcast);
 
     anybody.sin_family = AF_INET;                // symbol constant for Internet domain
@@ -274,20 +289,13 @@ int main(int argc, char *argv[])
         printf("Error binding socket.\n");
         exit(-1);
     }
-
     // change socket permissions to allow broadcast
     if (setsockopt(sock, SOL_SOCKET, SO_BROADCAST, &boolval, sizeof(boolval)) < 0)
     {
         printf("Error setting socket options.\n");
         exit(-1);
     }
-
     anybody.sin_addr.s_addr = inet_addr(IP_broadcast); // broadcast address
-
-    //------ Se creae el hilo de recepción-----------
-    pthread_create(&hilo_envio, NULL, receiving, (void *)&sock);    // para recepcion
-    pthread_create(&hilo_gps, NULL, gps, NULL);                     // para GPS
-    
     printf("Este programa despliega lo que sea que reciba.\n");
     printf("También transmite lo que el usuario ingrese, max. 40 caracteres. (! para salir):\n");
     do
@@ -305,13 +313,15 @@ int main(int argc, char *argv[])
                 error("Error: sendto");
         }
     } while (buffer_enviar[0] != '!');
-
     close(sock); // close socket.
-
     //------------------------------------------------------------------------------------------
-    // Obtener posicion del robot
+    
+    //----------------------- Se creae el hilo de recepción --------------------------------------
+    pthread_create(&hilo_envio, NULL, receiving, (void *)&sock);    // para recepcion
+    pthread_create(&hilo_gps, NULL, gps, NULL);                     // para GPS
+    -----------------------------------------------------------------------------------------------
 
-    // Main loop
+    //-------------------------------- Main loop -----------------------------------------------
     while (TIME_STEP != -1)
     {
         numero_iter++;
@@ -375,6 +385,8 @@ int main(int argc, char *argv[])
             best_local[1] = actual_position[1];
             fitness_local = fitness_actual;
         }
+        // Se deben enviar los valores a otros agentes. 
+        
         // Actualizar global best (propio no el recibido-enviado)
         if (fitness_local < fitness_global)
         {
@@ -424,14 +436,14 @@ int main(int argc, char *argv[])
             epsilon = 2.0 / fabs(2 - phi_T - sqrt(pow(phi_T, 2) - 4 * phi_T));
 
             // Configuracion de PSO Velocity Scaler
-            scaler = 0.25;
+            V_scaler = 0.25;
             if (TUC_CONTROLLER == 1)
             {
-                scaler = 0.625;
+                V_scaler = 0.625;
             }
             if (PID_CONTROLLER == 1)
             {
-                scaler = 7.8125;
+                V_scaler = 7.8125;
             }
         }
 
@@ -444,8 +456,8 @@ int main(int argc, char *argv[])
         // Ecuacion de posicion PSO para calcular nueva posicion
         if (numero_iter % PSO_STEP == 0 || numero_iter == 1)
         {
-            new_position[0] = actual_position[0] + new_velocity[0] * scaler;
-            new_position[1] = actual_position[1] + new_velocity[1] * scaler;
+            new_position[0] = actual_position[0] + new_velocity[0] * V_scaler;
+            new_position[1] = actual_position[1] + new_velocity[1] * V_scaler;
         }
         // ------------------ Variables de Controladores ----------------------
 
@@ -457,35 +469,54 @@ int main(int argc, char *argv[])
         e_x = new_position[0] - actual_position[0];
         e_y = new_position[1] - actual_position[1];
         e_p = sqrt(pow(e_y, 2) + pow(e_x, 2));
+        
+        // Dimensiones para el Robot, modificarlas (actualmente dimensiones del E-Puck)
+        double l = ROBOT_RADIUS/1000;                               // Distancia de centro a llantas en metros
+        double r = WHEEL_RADIUS/1000;                               // Radio de llantas en metros
+        double a = ROBOT_RADIUS/1000;                               // Distancia entre centro y punto de disomorfismo (E-puck front)
 
         // -------------------- Control de ecuaciones cinematicas ---------------
 
         // Constante de ponderacion
         double K = 3.12 * (1 - exp(-2 * pow(e_p, 1))) / e_p;
+        
+        // Si Bearing angle desactivado (desde vertical +X), utilizar orientacion normal (desde horizontal +Z) 
+        if (USE_BEARING == 0){
+            // Velocidad Lineal (aplicada con matriz de disomorfismo y 2*tanh(x) para acotar velocidades a MAX_SPEED de E-Puck (6.28 rad/s)
+            v = (2*tanh((K/MAX_SPEED)*e_x)) * cos((theta_o)*M_PI/180) + 
+                (2*tanh((K/MAX_SPEED)*e_y)) * sin((theta_o)*M_PI/180);
+              
+            // Velocidad Angular (aplicada con matriz de disomorfismo y 2*tanh(x) para acotar velocidades a MAX_SPEED de E-Puck (6.28 rad/s)
+            w = (2*tanh((K/MAX_SPEED)*e_x)) * (-sin((theta_o)*M_PI/180)/a) +
+                (2*tanh((K/MAX_SPEED)*e_y)) * (cos((theta_o)*M_PI/180)/a);
+        } else {
+            // Velocidad Lineal (aplicada con matriz de disomorfismo y 2*tanh(x) para acotar velocidades a MAX_SPEED de E-Puck (6.28 rad/s)
+            v = (2*tanh((K/MAX_SPEED)*e_x)) * cos((90 - theta_o)*M_PI/180) + 
+                (2*tanh((K/MAX_SPEED)*e_y)) * sin((90 - theta_o)*M_PI/180);
+                  
+            // Velocidad Angular (aplicada con matriz de disomorfismo y 2*tanh(x) para acotar velocidades a MAX_SPEED de E-Puck (6.28 rad/s)
+            w  = (2*tanh((K/MAX_SPEED)*e_x)) * (-sin((90 - theta_o)*M_PI/180)/a) +
+                (2*tanh((K/MAX_SPEED)*e_y)) * (cos((90 - theta_o)*M_PI/180)/a);
+        }
 
         // -------------------- Control PID de velocidad angular ---------------
         if (USE_BEARING == 0)
         {
             // Angulo de meta calculado en orientacion normal desde la horizontal
             theta_g = atan2(new_position[1] - actual_position[1], new_position[0] - actual_position[0]);
-        }
-        else
-        {
+        } else {
             // Angulo de meta calculado en orientacion de brujula desde la vertical
             theta_g = atan2(new_position[0] - actual_position[0], new_position[1] - actual_position[1]);
         }
 
         // Mnatener angulo de orinetacion entre -pi y pi
         double orientation_angle = 0;
-        if (theta_o > 180)
-        {
+        if (theta_o > 180){
             orientation_angle = theta_o - 360;
-        }
-        else
-        {
+        } else {
             orientation_angle = theta_o;
         }
-
+        
         // error de distancia angular
         e_o = atan2(sin(theta_g - (orientation_angle * M_PI / 180)), cos(theta_g - (orientation_angle * M_PI / 180)));
 
@@ -496,66 +527,57 @@ int main(int argc, char *argv[])
         {
             w = KP * e_o + KI * E_o + KD * e_D;
         }
-
+        // Si no se esta utilizando PID de LQR, ejecutar actualizacion de errores en este bloque
+        if (LQR_PID_COMBO == 0){
+            e_old = e_o;
+            E_old = E_o;
+        }
         // ----------- Controles no lineales de robot --------------------------------
-
         rho_p = e_p;
 
         // LImitar angulo entre eje frontal del robot
         alpha = -(theta_o * M_PI / 180) + atan2(e_y, e_x);
-        if (alpha < -M_PI)
-        {
+        if (alpha < -M_PI){
             alpha = alpha + (2 * M_PI);
-        }
-        else if (alpha > M_PI)
-        {
+        } else if (alpha > M_PI){
             alpha = alpha - (2 * M_PI);
         }
 
         // Limitar angulo de orientacion de meta entre -pi y pi
         beta = -(theta_o * M_PI / 180) - alpha;
-        if (beta < -M_PI)
-        {
+        if (beta < -M_PI){
             beta = beta + (2 * M_PI);
-        }
-        else if (beta > M_PI)
-        {
+        } else if (beta > M_PI){
             beta = beta - (2 * M_PI);
         }
 
         // Controlador simple de pose de robot
-        if (NKC_CONTROLLER_1)
-        {
+        if (NKC_CONTROLLER_1){
             v = K_RHO * rho_p;
             w = K_A * alpha + K_B * beta;
-            if ((alpha <= -M_PI / 2) || (alpha > M_PI / 2))
-            {
+            if ((alpha <= -M_PI / 2) || (alpha > M_PI / 2)){
                 v = -v;
             }
         }
 
         // Controlador Lyapunov de pose de robot
-        if (NKC_CONTROLLER_2)
-        {
+        if (NKC_CONTROLLER_2){
             v = K_RHO * rho_p * cos(alpha);
             w = K_RHO * sin(alpha) * cos(alpha) + K_A * alpha;
-            if ((alpha <= -M_PI / 2) || (alpha > M_PI / 2))
-            {
+            if ((alpha <= -M_PI / 2) || (alpha > M_PI / 2)){
                 v = -v;
             }
         }
 
         // Controlador Closed-loop steering
-        if (NKC_CONTROLLER_3)
-        {
+        if (NKC_CONTROLLER_3){
             double k_1 = 1;
             double k_2 = 10;
             w = -(2.0 / 5) * (v / rho_p) * (k_2 * (-alpha - atan(-k_1 * beta)) + (1 + k_1 / (1 + pow(k_1 * beta, 2))) * sin(-alpha));
         }
 
         // Controlador LQR
-        if (LQR_CONTROLLER)
-        {
+        if (LQR_CONTROLLER){
             double K_x = 0.1;
             double K_y = 0.1;
             double u_1 = K_x * e_x;
@@ -565,19 +587,24 @@ int main(int argc, char *argv[])
             u_2 = -K_y * (actual_position[1] - new_position[1]);
 
             v = u_1 * cos((theta_o)*M_PI / 180) + u_2 * sin((theta_o)*M_PI / 180);
-            w = (-u_1 * sin((theta_o)*M_PI / 180) + u_2 * cos((theta_o)*M_PI / 180));
-            // w = (-u_1*sin((theta_o)*M_PI/180) + u_2*cos((theta_o)*M_PI/180))/l; al tener llantas
+            w = (-u_1*sin((theta_o)*M_PI/180) + u_2*cos((theta_o)*M_PI/180))/l;
+            
+            if (LQR_PID_COMBO){
+                double Ti = 3;               // Constante de reduccion de oscilaciones para PID+LQR
+                w = KP*e_o + (KI/Ti)*E_o + KD*e_D;
+                e_old = e_o;
+                E_old = E_o;
+            }
         }
 
         // Controlador LQI
-        if (LQI_CONTROLLER)
-        {
+        if (LQI_CONTROLLER){
             double Klqr_x = 0.2127;
             double Klqr_y = 0.2127;
             double Klqi_x = -0.0224;
             double Klqi_y = -0.0224;
 
-            // Damperos control LQI
+            // Dampers control LQI
             double bv_p = 0.95;
             double bv_i = 0.01;
 
@@ -585,26 +612,62 @@ int main(int argc, char *argv[])
             double u_1 = -Klqr_x * (1 - bv_p) * (actual_position[0] - new_position[0]) - Klqi_x * XI_X;
             double u_2 = -Klqr_y * (1 - bv_p) * (actual_position[1] - new_position[1]) - Klqi_y * XI_Y;
 
+            // Integracion numerica de error entre posicion actual y Global Best de enjambre
             XI_X = XI_X + (best_global[0] - actual_position[0]) * delta_t;
             XI_Y = XI_Y + (best_global[1] - actual_position[1]) * delta_t;
-
+            
+            // Frenado de integrador para evitar oscilaciones en posiciones de robots
             XI_X = (1 - bv_i) * XI_X;
             XI_Y = (1 - bv_i) * XI_Y;
+            
             // mapeo de velocidades LQI a velocidades de robot diferencial
             v = u_1 * cos((theta_o)*M_PI / 180) + u_2 * sin((theta_o)*M_PI / 180);
-            w = (-u_1 * sin((theta_o)*M_PI / 180) + u_2 * cos((theta_o)*M_PI / 180));
-            // w = (-u_1*sin((theta_o)*M_PI/180) + u_2*cos((theta_o)*M_PI/180))/l; al tener llantas
+            w = (-u_1*sin((theta_o)*M_PI/180) + u_2*cos((theta_o)*M_PI/180))/l; 
         }
-        //fprintf(fp, "Z,%s,%lf,%lf,%lf,%lf,\r\n",rho_p, alpha, XI_X, XI_Y);
 
         // Terminacion del movimiento cerca de la meta
-        if (fabs(e_p) < 0.005)
-        {
+        if (fabs(e_p) < 0.005){
             v = 0;
             w = 0;
         }
-
-        // ---------------- Transformacion de velocidades con modelo diferencial
+        // ---------------- Transformacion de velocidades con modelo diferencial -------------------------------
+        phi_r = (v + w*l)/r;
+        phi_l = (v - w*l)/r;
+        
+        if (phi_r > 0){
+            if (phi_r > MAX_SPEED){
+                phi_r = MAX_SPEED;
+            }
+        } else {
+            if (phi_r < -MAX_SPEED){
+                phi_r = -MAX_SPEED;
+            }     
+        }
+        
+        // Truncar velocidades de rotacion de motor izquierdo a [-6.28, 6.28]
+        if (phi_l > 0){
+            if (phi_l > MAX_SPEED){
+                phi_l = MAX_SPEED;
+            }
+        } else {
+            if (phi_l < -MAX_SPEED){
+                phi_l = -MAX_SPEED;
+            }
+        }
+        
+        // Limpieza de Picos
+        if (HARDSTOP_FILTER){
+            if(sqrt(pow(phi_r - PhiR_old,2)) > MAX_CHANGE){
+                phi_r = (phi_r + 2*PhiR_old)/3;
+            }
+            PhiR_old = phi_r;
+            if(sqrt(pow(phi_l - PhiL_old,2)) > MAX_CHANGE){
+                phi_l = (phi_l + 2*PhiL_old)/3;
+            }
+            PhiL_old = phi_l;
+        }
+        
+        // Envio de velocidads a motores
     }
     return 0;
 }
