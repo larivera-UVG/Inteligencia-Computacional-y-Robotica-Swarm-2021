@@ -240,6 +240,7 @@ void *gps(void *ptr){
         posicion_robot[0]= data.latitude;
         rad = data.course;
     }
+    pthread_exit(0);
 }
 //------------------------------------------------------------------------------------------
 // Main function
