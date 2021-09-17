@@ -48,10 +48,16 @@ Cr = eye(2);
 Dr = zeros(2);
 AA = [A, zeros(size(Cr')); Cr, zeros(size(Cr,1))];
 BB = [B; Dr];
-QQ = eye(size(A,1) + size(Cr,1)); QQ(3,3) = 2; QQ(4,4) = 0.002; 
+QQ = eye(size(A,1) + size(Cr,1)); QQ(3,3) = 5; QQ(4,4) = 0.0002; 
 klqi = lqr(AA, BB, QQ, R);
-
 sigma = [0,0];
+
+% Modificaciones de Aldo para el LQI:
+bv_p = 0.95;          % Reducir velocidad de control proporcional en 95% evitando aceleracion brusca por actualizacion PSO
+bv_i = 0.01;          % Reducir velocidad de control integrador en 1% cada iteracion para frenado al acercarse a Meta PSO
+yn_1 = [0, 0];
+yn = [0, 0];
+x_n = [0, 0];
 
 % Contador para moverse en el path
 cont = 1;
@@ -97,14 +103,16 @@ while wb_robot_step(TIME_STEP) ~= -1
     elqi = [xi-xg, zi-zg];
     % Error de posición
     eP = sqrt(elqi(1)^2+elqi(2)^2);
+    e = [xi - xg; zi - zg];
     thetag = atan2(elqi(2),elqi(1));
     theta = thetag - rad;
 
-    sigma = [sigma(1) + (xi-xg)*TIME_STEP/1000, ...
+    sigma = [sigma(1) + (xi-xg)*TIME_STEP/1000; ...
     sigma(2) + (zi-zg)*TIME_STEP/1000];
 
-    mu = [-(klqi(1,1)*xi+klqi(1,2)*zi+klqi(1,3)*sigma(1)+klqi(1,4)*sigma(2)), ...
-    -(klqi(2,1)*xi+klqi(2,2)*zi+klqi(2,3)*sigma(1)+klqi(2,4)*sigma(2))];
+   % mu = [-(klqi(1,1)*xi+klqi(1,2)*zi+klqi(1,3)*sigma(1)+klqi(1,4)*sigma(2)), ...
+    %-(klqi(2,1)*xi+klqi(2,2)*zi+klqi(2,3)*sigma(1)+klqi(2,4)*sigma(2))];
+    mu = -klqi*[e*(1-bv_p); sigma];
     v = 0.5*(mu(1)*cos(theta)+mu(2)*sin(theta));
     w = 0.5*(-mu(1)*sin(theta)+mu(2)*cos(theta))/ell;
 

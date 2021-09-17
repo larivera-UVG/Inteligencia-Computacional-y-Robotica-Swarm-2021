@@ -4,7 +4,7 @@ WorldInfo {
 }
 Viewpoint {
   orientation 1 0 0 4.71238898038469
-  position 0.03418146109997134 3.709472155828588 0.03189677075653591
+  position -5.746320740424012e-17 3.6763984805176704 -7.65304170143936e-16
 }
 TexturedBackground {
 }
@@ -60,7 +60,7 @@ WoodenBox {
   size 0.2 0.2 0.2
 }
 E-puck {
-  translation -0.89 0 0.89
+  translation -0.95 0 0.94
   rotation 0 1 0 -5.307179586466759e-06
   controller "PyE"
   turretSlot [
