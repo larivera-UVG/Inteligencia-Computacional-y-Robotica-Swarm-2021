@@ -159,8 +159,7 @@ char *token;
 pthread_t hilo_envio, hilo_gps;                             // thread variable
 
 // Numeros aleatorios
-double printRandoms(int lower, int upper, int count)
-{
+double printRandoms(int lower, int upper, int count){
     int i;
     double num = 0;
     for (i = 0; i < count; i++)
@@ -171,8 +170,7 @@ double printRandoms(int lower, int upper, int count)
 }
 
 // Numeros random
-double randfrac(void)
-{
+double randfrac(void){
     double res = (rand() % RAND_MAX) / (double)RAND_MAX;
     return res;
 }
@@ -210,35 +208,29 @@ void *receiving(void *ptr)
     unsigned int length = sizeof(struct sockaddr_in); // size of structure
     struct sockaddr_in from;
     
-    while (1)
-    {
+    while (1){
         memset(buffer_recibir, 0, MSG_SIZE); // "limpia" el buffer
         // receive message
         n = recvfrom(*sock, buffer_recibir, MSG_SIZE, 0, (struct sockaddr *)&from, &length);
-        if (n < 0)
-        {
+        if (n < 0){
             error("Error: recvfrom");
         }
         i = 0;
-        //printf("%s \n ", buffer_recibir);
         //------ Se descompone el buffer_recibir---------------------
         token = strtok(buffer_recibir, ",");
         recepcion[i] = atof(token);
-        while ((token = strtok(NULL, ",")) != NULL)
-        {
+        while ((token = strtok(NULL, ",")) != NULL){
             i++;
             recepcion[i] = atof(token);
         }
         // ---------------Actualizar global best ----------------------
-        //printf("%f, %f \n ", recepcion[2], fitness_global);
-        if (recepcion[2] < fitness_global){                         //Local< Global, asigna el valor local al global,Actualizr global best (si local es mejor que global)
+        if (recepcion[2] < fitness_global){                      //Local< Global, asigna el valor local al global,Actualizr global best (si local es mejor que global)
             printf("Global actualizado.\n");
             best_global[0] = recepcion[0];
             best_global[1] = recepcion[1];
             fitness_global = recepcion[2];
         }
-        else
-        {
+        else{
             printf("No se actualiza el Global.\n");
         }
     }
@@ -285,14 +277,12 @@ int main(int argc, char *argv[])
         error("Error: socket");
 
     // Sin el bind, no se reciben los mensajes
-    if (bind(sock, (struct sockaddr *)&anybody, sizeof(struct sockaddr_in)) < 0)
-    {
+    if (bind(sock, (struct sockaddr *)&anybody, sizeof(struct sockaddr_in)) < 0){
         printf("Error binding socket.\n");
         exit(-1);
     }
     // change socket permissions to allow broadcast
-    if (setsockopt(sock, SOL_SOCKET, SO_BROADCAST, &boolval, sizeof(boolval)) < 0)
-    {
+    if (setsockopt(sock, SOL_SOCKET, SO_BROADCAST, &boolval, sizeof(boolval)) < 0){
         printf("Error setting socket options.\n");
         exit(-1);
     }
@@ -305,8 +295,7 @@ int main(int argc, char *argv[])
                                             //fgets(buffer_enviar,MSG_SIZE-1,stdin); // MSG_SIZE-1 'cause a null character is added
         sleep(5);
         sprintf(buffer_enviar, "%f,%f,%f", best_local[0], best_local[1], fitness_local);
-        if (buffer_enviar[0] != '!')
-        {
+        if (buffer_enviar[0] != '!'){
             // send message to anyone there...
             n = sendto(sock, buffer_enviar, strlen(buffer_enviar), 0,
                        (const struct sockaddr *)&anybody, length);
