@@ -346,19 +346,16 @@ int main(int argc, char *argv[])
         double bearing2 = ((rad) / M_PI) * 180.0;
 
         // Convertir numero negativo entre 0 y 360
-        if (bearing2 < 0)
-        {
+        if (bearing2 < 0){
             bearing2 = 360 + bearing2;  // asegurar angulp entre 0 y 2pi
         }
 
         double theta_o2 = 270 - bearing2;
-        if (theta_o2 < 0)
-        {
+        if (theta_o2 < 0){
             theta_o2 = theta_o2 + 360;  // asegurar angulp entre 0 y 2pi
         }
 
-        if (USE_BEARING == 0)
-        {
+        if (USE_BEARING == 0){
             theta_o = theta_o2;
         }
         //--------------------------- Actualizacion de global y local best-------------------------------
@@ -391,33 +388,27 @@ int main(int argc, char *argv[])
         rho2 = randfrac();
 
         // Calculo de Inercia invariante en el tiempo
-        if (INERTIA_TYPE == 0)
-        {
+        if (INERTIA_TYPE == 0){
             w = 0.8;
         }
-        else if (INERTIA_TYPE == 1)
-        {
+        else if (INERTIA_TYPE == 1){
             w = w_max - (w_max - w_min) * iter / Maxiter;
         }
-        else if (INERTIA_TYPE == 2)
-        {
+        else if (INERTIA_TYPE == 2){
             double zi = 0.2;
             double zii = 4 * zi * (1 - zi);
             w = (w_max - w_min) * ((Maxiter - iter) / Maxiter) * w_max * zii;
             iter = iter + 1;
         }
-        else if (INERTIA_TYPE == 3)
-        {
+        else if (INERTIA_TYPE == 3){
             w = 0.5 + printRandoms(0, 1, 1) / 2;
         }
-        else if (INERTIA_TYPE == 4)
-        {
+        else if (INERTIA_TYPE == 4){
             w = w_min + (w_max - w_min) * exp((-1 * iter) / (Maxiter / 10));
         }
 
         // Configuracion estandar del PSO
-        if (USE_STANDART_PSO == 1)
-        {
+        if (USE_STANDART_PSO == 1){
             C1 = 2.05;
             C2 = 2.05;
 
@@ -427,12 +418,10 @@ int main(int argc, char *argv[])
 
             // Configuracion de PSO Velocity Scaler
             V_scaler = 0.25;
-            if (TUC_CONTROLLER == 1)
-            {
+            if (TUC_CONTROLLER == 1){
                 V_scaler = 0.625;
             }
-            if (PID_CONTROLLER == 1)
-            {
+            if (PID_CONTROLLER == 1){
                 V_scaler = 7.8125;
             }
         }
@@ -490,8 +479,7 @@ int main(int argc, char *argv[])
         }
 
         // -------------------- Control PID de velocidad angular ---------------
-        if (USE_BEARING == 0)
-        {
+        if (USE_BEARING == 0){
             // Angulo de meta calculado en orientacion normal desde la horizontal
             theta_g = atan2(new_position[1] - actual_position[1], new_position[0] - actual_position[0]);
         } else {
@@ -513,8 +501,7 @@ int main(int argc, char *argv[])
         // PID velocidad angular
         e_D = e_o - e_old;
         E_o = E_old + e_o;
-        if (PID_CONTROLLER)
-        {
+        if (PID_CONTROLLER){
             w = KP * e_o + KI * E_o + KD * e_D;
         }
         // Si no se esta utilizando PID de LQR, ejecutar actualizacion de errores en este bloque
