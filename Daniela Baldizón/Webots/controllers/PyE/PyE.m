@@ -18,6 +18,8 @@ MAX_SPEED = 6.28;
 MAX_CHANGE = 0.001;  % rad/s
 goal_points = webots_path;
 
+controlador = 1;
+
 %% Sensores del e-Puck
 
 % Pose
@@ -41,7 +43,7 @@ B = eye(2);
 
 % LQR 
 Q = eye(2);
-R = 1000*eye(2);
+R = 2000*eye(2);
 
 % LQR + Integradores (LQI)
 Cr = eye(2);
@@ -59,6 +61,18 @@ yn_1 = [0, 0];
 yn = [0, 0];
 x_n = [0, 0];
 
+% Control de pose
+k_rho = 0.8;
+k_alpha = 20;
+k_beta = -0.05; 
+
+%Control de pose de Lyapunov
+k_rho2 = 0.8;
+k_alpha2 = 20;
+
+stop_counter = 0;
+path_node = 1;
+
 % Contador para moverse en el path
 cont = 1;
 
@@ -70,6 +84,10 @@ pos = wb_gps_get_values(position_sensor);
 xi = pos(1);  zi = pos(3);
 
 trajectory = [xi, zi];
+v_hist = [];
+w_hist = [];
+rwheel_hist = [];
+lwheel_hist = [];
 
 %% main loop:
 % perform simulation steps of TIME_STEP milliseconds
@@ -87,6 +105,20 @@ while wb_robot_step(TIME_STEP) ~= -1
     rad = rad + 2*pi; 
     end
     
+    theta = pi - rad;  % Se corrige el �ngulo para que est� igual que theta_g
+    
+%     if sqrt((xg - xi)^2 + (zg - zi)^2) <= epsilon
+%         controlador = 0;
+%     end
+% 
+%     % ------------- OFF -------------
+%     if controlador == 0
+%         if xg == goals(length(goals), 1) && zg == goals(length(goals), 2)
+%             v = 0;
+%             w = 0;
+%         end
+%     end
+    
     xg = goal_points(cont,1);
     zg = goal_points(cont,2);
 
@@ -99,24 +131,81 @@ while wb_robot_step(TIME_STEP) ~= -1
     %  wb_motor_set_postion(motor, 10.0);
 
     % if your code plots some graphics, it needs to flushed like this:
-    % Controlador LQI
-    elqi = [xi-xg, zi-zg];
-    % Error de posición
-    eP = sqrt(elqi(1)^2+elqi(2)^2);
-    e = [xi - xg; zi - zg];
-    thetag = atan2(elqi(2),elqi(1));
-    theta = thetag - rad;
+    if controlador == 1
+        % Controlador LQI
+        elqi = [xi-xg, zi-zg];
+        % Error de posición
+        eP = sqrt(elqi(1)^2+elqi(2)^2);
+        e = [xi - xg; zi - zg];
+        thetag = atan2(elqi(2),elqi(1));
+        theta = thetag - rad;
 
-    sigma = [sigma(1) + (xi-xg)*TIME_STEP/1000; ...
-    sigma(2) + (zi-zg)*TIME_STEP/1000];
+        sigma = [sigma(1) + (xi-xg)*TIME_STEP/1000; ...
+        sigma(2) + (zi-zg)*TIME_STEP/1000];
 
-   % mu = [-(klqi(1,1)*xi+klqi(1,2)*zi+klqi(1,3)*sigma(1)+klqi(1,4)*sigma(2)), ...
-    %-(klqi(2,1)*xi+klqi(2,2)*zi+klqi(2,3)*sigma(1)+klqi(2,4)*sigma(2))];
-    mu = -klqi*[e*(1-bv_p); sigma];
-    v = 0.5*(mu(1)*cos(theta)+mu(2)*sin(theta));
-    w = 0.5*(-mu(1)*sin(theta)+mu(2)*cos(theta))/ell;
+       % mu = [-(klqi(1,1)*xi+klqi(1,2)*zi+klqi(1,3)*sigma(1)+klqi(1,4)*sigma(2)), ...
+        %-(klqi(2,1)*xi+klqi(2,2)*zi+klqi(2,3)*sigma(1)+klqi(2,4)*sigma(2))];
+        mu = -klqi*[e*(1-bv_p); sigma];
+        v = 0.5*(mu(1)*cos(theta)+mu(2)*sin(theta));
+        w = 0.5*(-mu(1)*sin(theta)+mu(2)*cos(theta))/ell;
+    elseif controlador == 2
+        % Controlador de pose
+        % Error total de posicion
+        rho = sqrt((xg - xi)^2 + (zg - zi)^2);
+        eP = rho; % Error de posición para los puntos
+        
+        % Error de orientacion
+        theta_g = -atan2((zg - zi), (xg - xi));
+        alpha = -theta + theta_g;
+        beta = -theta - alpha;
+        % disp(theta_g*180/pi)
+        
+        theta_g = -atan2((zg - zi), (xg - xi));
+        eO = atan2(sin(theta_g - theta), cos(theta_g - theta));
 
+        %formatSpec = 'xi: %.2f, zi: %.2f  | theta: %.2f theta g: %.2f eO:%.2f sin: %.2f cos: %.2f \n';
+        %fprintf(formatSpec, xi, zi, theta*180/pi, theta_g*180/pi, eO, sin(theta_g - theta), cos(theta_g - theta));
+        
+        
+        if (alpha < -pi)
+            alpha = alpha + (2*pi);
+        elseif (alpha > pi)
+            alpha = alpha - (2*pi);
+        end
+        
+        if (beta < -pi)
+            beta = beta + (2*pi);
+        elseif (beta > pi)
+            beta = beta - (2*pi);
+        end
+        
+        v = k_rho*rho;
+        w = k_alpha*alpha + k_beta*beta;
+    elseif controlador == 3
+        % Controlador de pose de Lyapunov
+        % Error total de posicion
+        rho = sqrt((xg - xi)^2 + (zg - zi)^2);
+        eP = rho; % Error de posición para los puntos
+        
+        % Error de orientacion
+        theta_g = -atan2((zg - zi), (xg - xi));
+        alpha = -theta + theta_g;
+        
+        if (alpha < -pi)
+            alpha = alpha + (2*pi);
+        elseif (alpha > pi)
+            alpha = alpha - (2*pi);
+        end
+               
+        v = k_rho2 * rho * cos(alpha);
+        w = k_rho2 * sin(alpha) * cos(alpha) + k_alpha2*alpha;
+        
+        if alpha <= -pi/2 || alpha > pi/2
+            v = -v;
+        end
+    end
 
+    [controlador xi zi xg zg]
     % mapeo de velocidades
     rd = (v+w*ell)/r;
     ri = (v-w*ell)/r;
@@ -124,6 +213,17 @@ while wb_robot_step(TIME_STEP) ~= -1
     
     % Se trunca la velocidad
     for i = 1:2
+        
+%         if controlador == 2
+%             if (abs(speed(i)) < 1) && (controlador ~= 0)
+%                 if path_node >= length(goals)-1
+%                     speed(k) = (speed(i)+ MAX_SPEED/2)*exp(-stop_counter);
+%                     stop_counter = stop_counter + 0.0375;
+%                 else
+%                     speed(i) = speed(i) + MAX_SPEED/2;
+%                 end
+%             end
+            
         if speed(i) < -MAX_SPEED
             speed(i) = -MAX_SPEED;
         elseif speed(i) > MAX_SPEED
@@ -140,12 +240,13 @@ while wb_robot_step(TIME_STEP) ~= -1
     end
     
     trajectory = [trajectory; [xi, zi]];
-    save('analysis.mat', 'trajectory','-append')
-    plot(trajectory(:,1), -trajectory(:,2))
-    xlabel('x')
-    ylabel('z')
-    xlim([-1 1])
-    ylim([-1 1])
+    v_hist = [v_hist; v];
+    w_hist = [w_hist; w];
+    rwheel_hist = [rwheel_hist; speed(2)];
+    lwheel_hist = [lwheel_hist; speed(1)];
+    goal = [xg, zg];
+    save('analysis.mat', 'trajectory', 'v_hist', 'w_hist', 'rwheel_hist', 'lwheel_hist', 'goal','-append')
+    
     drawnow;
   
 end

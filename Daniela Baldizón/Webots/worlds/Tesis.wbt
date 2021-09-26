@@ -3,8 +3,8 @@ WorldInfo {
   coordinateSystem "NUE"
 }
 Viewpoint {
-  orientation 1 0 0 4.71238898038469
-  position -5.746320740424012e-17 3.6763984805176704 -7.65304170143936e-16
+  orientation 1 0 0 4.7223889803846895
+  position -5.551115123125783e-17 3.678044480540444 0.03677232554471169
 }
 TexturedBackground {
 }

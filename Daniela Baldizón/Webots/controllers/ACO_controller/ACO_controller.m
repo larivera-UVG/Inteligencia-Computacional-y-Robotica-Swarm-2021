@@ -7,10 +7,10 @@
 
 % uncomment the next two lines if you want to use
 % MATLAB's desktop to interact with the controller:
-desktop;
+% desktop;
 % keyboard;
 load('webots_test.mat');
-controlador = 4;
+controlador = 3;
 % get and enable devices, e.g.:
 %  camera = wb_robot_get_device('camera');
 %  wb_camera_enable(camera, TIME_STEP);

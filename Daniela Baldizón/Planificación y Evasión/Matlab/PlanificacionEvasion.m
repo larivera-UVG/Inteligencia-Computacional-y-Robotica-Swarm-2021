@@ -13,14 +13,14 @@ clear
 tic  % Para medir el tiempo que se tarda el algoritmo en correr.
 
 %% Creamos grid cuadrado con la cantidad de nodos indicada:
-    grid_size = 10;
+    grid_size = 20;
     cost_diag = 0.5;
     tau_0 = 0.1;  % Valor de tau inicial
     G = graph_grid(grid_size);
     nodo_dest = '100';
     nodo_init = "1";
 %     obstaculos = [37,31,25,19]';
-%     obstaculos = []'; % Nodos donde se colocan los obstaculos
+    obstaculos = []'; % Nodos donde se colocan los obstaculos
 %     obstaculos = [12,19,26,5,2,9,16]';
 %     obstaculos = [9, 19, 39, 59, 69, 38, 37,36,35]';
 
@@ -49,7 +49,7 @@ tic  % Para medir el tiempo que se tarda el algoritmo en correr.
 %         347,348,349,362,363]';
 
     % Mapa Webots
-    obstaculos = [23,24,27,28,32,62,67,72,73,74,78,79]'; 
+%     obstaculos = [23,24,27,28,32,62,67,72,73,74,78,79]'; 
         
     %% ACO init
 t_max = 1000; 
@@ -113,10 +113,11 @@ ylabel('Path Lenght', 'interpreter', 'latex', 'FontSize', 12)
 leg1 = legend('$\bar{x}$', '$\hat{x}$');
 set(leg1, 'Interpreter', 'latex');
 set(leg1, 'FontSize', 17);
-
+%%
 figure(2); clf;
 % Se crea la imagen animada
-h = plot(G, 'XData', G.Nodes.X+0.5, 'YData', G.Nodes.Y+0.5, 'NodeColor', 'k'); 
+h = plot(G, 'XData', G.Nodes.X+0.5, 'YData', G.Nodes.Y+0.5, 'NodeColor', 'k' ); 
+% labelnode(h, str2double(G.Nodes.Name'), G.Nodes.Name'); % Colocar nombres a los nodos
 hold on 
 nodos_especiales = [G.Nodes.X(str2double(nodo_init)), G.Nodes.Y(str2double(nodo_init)); G.Nodes.X(str2double(nodo_dest)), G.Nodes.Y(str2double(nodo_dest))];
 scatter(nodos_especiales(1, 1)+0.5, nodos_especiales(1, 2)+0.5, 'g','filled')
@@ -428,6 +429,6 @@ tiempofinal = toc;
 formatSpec = 'iter: %d - t: %.2f - cost: %.2f \n';
 fprintf(formatSpec, t-1, tiempofinal, moda)
 bpath = [G.Nodes.X(best_path), G.Nodes.Y(best_path)];
-webots_path = (bpath - grid_size/2).*[1/5 -1/5];
+webots_path = (bpath - grid_size/2).*[1/10 -1/10];
 wb_pc_path = 'C:\Users\Daniela Baldizon\Documents\GitHub\Inteligencia-Computacional-y-Robotica-Swarm-2021\Daniela Baldizón\Webots\controllers\PyE\';
 save(strcat(wb_pc_path, 'webots_test.mat'), 'bpath', 'webots_path')
