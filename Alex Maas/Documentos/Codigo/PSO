@@ -294,7 +294,7 @@ int main(int argc, char *argv[])
         memset(buffer_enviar, 0, MSG_SIZE); // "limpia" el buffer
                                             //fgets(buffer_enviar,MSG_SIZE-1,stdin); // MSG_SIZE-1 'cause a null character is added
         sleep(5);
-        sprintf(buffer_enviar, "%f,%f,%f", best_local[0], best_local[1], fitness_local);
+        sprintf(buffer_enviar, "%f,%f,%f", best_local[0], best_local[1], fitness_local);    // Envio de informacion 
         if (buffer_enviar[0] != '!'){
             // send message to anyone there...
             n = sendto(sock, buffer_enviar, strlen(buffer_enviar), 0,
