@@ -13,16 +13,16 @@ clear
 tic  % Para medir el tiempo que se tarda el algoritmo en correr.
 
 %% Creamos grid cuadrado con la cantidad de nodos indicada:
-    grid_size = 20;
+    grid_size = 10;
     cost_diag = 0.5;
     tau_0 = 0.1;  % Valor de tau inicial
     G = graph_grid(grid_size);
     nodo_dest = '100';
     nodo_init = "1";
 %     obstaculos = [37,31,25,19]';
-    obstaculos = []'; % Nodos donde se colocan los obstaculos
+%     obstaculos = []'; % Nodos donde se colocan los obstaculos
 %     obstaculos = [12,19,26,5,2,9,16]';
-%     obstaculos = [9, 19, 39, 59, 69, 38, 37,36,35]';
+    obstaculos = [9, 19, 39, 59, 69, 38, 37,36,35]';
 
 %     % Mapa A
 %     obstaculos = [4,5,6,51,52,58,59,67,68,69,71,72,75,78,79,83,84,87,...
@@ -52,25 +52,30 @@ tic  % Para medir el tiempo que se tarda el algoritmo en correr.
 %     obstaculos = [23,24,27,28,32,62,67,72,73,74,78,79]'; 
         
     %% ACO init
-t_max = 1000; 
-hormigas = 50;
+t_max = 200; 
+hormigas = 30;
 
 % Rate de evaporación (puede tomar valores entre 0 y 1)
-rho = 0.6; % Gaby
+% rho = 0.6; % Gaby
 % rho = 0.43;
+rho = 0.4;
 % Le da más peso a la feromona en la probabilidad
-alpha = 1;
+% alpha = 1;
+alpha = 2.2;
 % Le da más peso al costo del link en la probabilidad
-beta = 1; % Gaby
+% beta = 1; % Gaby
 % beta = 7;
+beta = 0.5;
 % cte. positiva que regula el depósito de feromona
-Q = 2.1; % Gaby
+% Q = 2.1; % Gaby
 % Q = 100;
+Q = 45;
 % Porcentaje de hormigas que queremos siguiendo la misma solución
 epsilon = 0.9; 
 % Factor de guía
-gamma = 1; % Gaby
+% gamma = 1; % Gaby
 % gamma = 3;
+gamma = 3.6;
 Sjo =1;
 
 % Matriz peso

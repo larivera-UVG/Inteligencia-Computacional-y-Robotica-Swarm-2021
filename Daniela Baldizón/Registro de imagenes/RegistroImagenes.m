@@ -2,14 +2,28 @@ clear
 clc
 
 % Referencia
-Ref = rgb2gray(imread('Lena.jpg'));
+% Ref = rgb2gray(imread('Lena.jpg'));
 
 % Template
-Temp = rgb2gray(imread('Lena Distorsion.jpg'));
+% Temp = rgb2gray(imread('Lena Distorsion.jpg'));
 % Temp = Ref;
 
-SRef = double(Ref(1:10,1:10));
-STemp = double(Temp(1:10,1:10));
+% SRef = double(Ref(1:10,1:10));
+% STemp = double(Temp(1:10,1:10));
+% SReg = STemp;
+
+Im = zeros(10);
+Im(4:7,4) = 155;
+Im(4:7,5) = 168;
+Im(4:7,6) = 161;
+
+Im2 = zeros(10);
+Im2(4:7,3) = 155;
+Im2(4:7,4) = 168;
+Im2(4:7,7) = 161;
+
+SRef = Im;
+STemp = Im2;
 SReg = STemp;
 % figure;
 % imshow(SubJ)
@@ -103,19 +117,20 @@ map = [255 255 255
     255 61 61]/255;
 
 % Figura del grafo
-figure(1); clf;
-h = plot(G, 'XData', G.Nodes.X, 'YData', G.Nodes.Y, 'NodeColor', 'k'); 
-hold on 
+% figure(1); clf;
+% h = plot(G, 'XData', G.Nodes.X, 'YData', G.Nodes.Y, 'NodeColor', 'k'); 
+% hold on 
 % nodos_especiales = [G.Nodes.X(str2double(nodo_init)), G.Nodes.Y(str2double(nodo_init)); G.Nodes.X(str2double(nodo_dest)), G.Nodes.Y(str2double(nodo_dest))];
 % scatter(nodos_especiales(1, 1), nodos_especiales(1, 2), 'g','filled')
 % scatter(nodos_especiales(2, 1), nodos_especiales(2, 2), 'xr','LineWidth', 5)
 
-colormap(map);
+% colormap(map);
 contador = 0;
 %%
 while (t <= t_max && stop)
     
-    parfor k = 1:hormigas
+    for k = 1:hormigas
+        %% Inicio debug
 %         contador = contador + 1;
        % while (not(strcmp(ants(k).current_node, nodo_dest))) % Mientras no se haya llegado al destino
            
@@ -125,13 +140,14 @@ while (t <= t_max && stop)
             % Alimento de las hormigas
             Idiff = double(SRef - SReg);
             
-            % Posicion actual por hormiga
-            m = G.Nodes.X(double(ants(k).current_node));
-            l = G.Nodes.Y(double(ants(k).current_node));
+            % Posicion actual por hormiga (Se hace esto para que las
+            % posiciones en la imagen coincidan con el grafo)
+            m = G.Nodes.X(str2num(ants(k).current_node));
+            l = G.Nodes.Y(str2num(ants(k).current_node));
             l = abs(-grid_size + l(1)) + 1; % Fila
             m = m(1); % Columna
             
-            % encuentra los nodos vecinos y el actual
+            % encuentra los nodos vecinos
             proximity = [convertCharsToStrings(neighbors(G, k))];
             
             % Posicion actual por hormiga (columnas y filas). La referencia es el
@@ -178,23 +194,38 @@ while (t <= t_max && stop)
 
                 % La hormiga toma la decisión de a donde ir eq.(17.6)
                 next_node = ant_decision(vecinos_updated, alpha, beta, G, ants(k).current_node);
+                
+                dirx = G.Nodes.X(str2num(next_node)) - G.Nodes.X(str2num(ants(k).current_node));
+                diry = G.Nodes.Y(str2num(next_node)) - G.Nodes.Y(str2num(ants(k).current_node));
+            
+                % Gradiente de la imagen
+                [Tx, Ty] = imgradientxy(SReg);
+
+                % Distancia de avance eqn (9) 
+                Dx = sign(dirx)*abs(r*Idiff(l,m)*Tx(l,m));
+                Dy = sign(diry)*abs(r*Idiff(l,m)*Ty(l,m));
+
+                % (Agregar signo del gradiente a las magnitudes de las
+                % distancias)
+                SRegX(k) = round(l+Dx);
+                SRegY(k) = round(m+Dy);
+                
+                if SRegX(k)<1
+                    SRegX(k) = 1;
+                elseif SRegX(k)>10
+                    SRegX(k) = 10;
+                end
+                
+                if SRegY(k)<1
+                    SRegY(k) = 1;
+                elseif SRegY(k)>10
+                    SRegY(k) = 10;
+                end
+                
                 ants(k).last_node = [ants(k).last_node; ants(k).current_node];
                 ants(k).current_node = next_node;
                 ants(k).path = [ants(k).path; ants(k).current_node];
             end
-            
-            % Gradiente de la imagen
-            [Tx, Ty] = imgradientxy(STemp);
-            
-            % Distancia de avance eqn (9) 
-            Dx = abs(r*Idiff(l,m)*Tx(l,m));
-            Dy = abs(r*Idiff(l,m)*Ty(l,m));
-            
-            % (Agregar signo del gradiente a las magnitudes de las
-            % distancias)
-            SRegX(k) = round(l+Dx);
-            SRegY(k) = round(m+Dy);
-            
             
      %   end
 
@@ -209,7 +240,7 @@ while (t <= t_max && stop)
         ants(k).current_node = int2str(k);
         ants(k).blocked_nodes = [];
         ants(k).last_node = int2str(k);
-        
+    %% Fin debug    
     end
     
     %% Actualización de foto
@@ -247,14 +278,14 @@ while (t <= t_max && stop)
         stop = 0;
     end
     
-    % Animación
-    G.Nodes.NormWeight = G.Nodes.WeightN/sum(G.Nodes.WeightN);
-    G.Edges.NormWeight = 0*G.Edges.Weight/sum(G.Edges.Weight);
-    h2.YData(t) = mean_plot(t);
-    h3.YData(t) = mode_plot(t);
-    h.MarkerSize = G.Nodes.NormWeight * 300;
-    h.EdgeCData = G.Edges.NormWeight*0;
-    drawnow limitrate
+%     % Animación
+%     G.Nodes.NormWeight = G.Nodes.WeightN/sum(G.Nodes.WeightN);
+%     G.Edges.NormWeight = 0*G.Edges.Weight/sum(G.Edges.Weight);
+%     h2.YData(t) = mean_plot(t);
+%     h3.YData(t) = mode_plot(t);
+%     h.MarkerSize = G.Nodes.NormWeight * 300;
+%     h.EdgeCData = G.Edges.NormWeight*0;
+%     drawnow limitrate
     t = t + 1;
     
     
@@ -262,7 +293,7 @@ end
 %% Best Path Calculation
 
 if (t > t_max)
-    disp("No hubo convergencia")
+    disp("Final")
 else
     
     % Con la MODA vemos qué largo es el que más se repite
@@ -276,10 +307,10 @@ else
     len_prob = rouletteWheel(len_indx);
     best_path = all_path{len_prob, t-1};
     
-    % Gráfica
-    figure(2);
-    hold on;
-    plot(G.Nodes.X(best_path), G.Nodes.Y(best_path),'r')
+%     % Gráfica
+%     figure(2);
+%     hold on;
+%     plot(G.Nodes.X(best_path), G.Nodes.Y(best_path),'r')
 
 end
 
