@@ -64,13 +64,13 @@ void *receiving(void *ptr){
         }
         // Actualizar global best
         if (recepcion[2] <= fitness_global){		//Local< Global, asigna el valor local al global
-			printf("Global actualizado del agente 1.\n"); 
+			printf("Agente X, Best Global actualizado.\n"); 
             best_global[0] = recepcion[0];
             best_global[1] = recepcion[1];
             fitness_global = recepcion[2];
 			fitness_local = recepcion[2];
         } else {
-            printf("No se actualiza el Global agente 1.\n");
+            printf("Agente X, no se actualiza el Best Global.\n");
         }
 	}
 	pthread_exit(0);
@@ -119,7 +119,7 @@ int main(int argc, char *argv[]){
 	pthread_create(&thread_rec, NULL, receiving, (void *)&sock);	// for receiving
 
 	printf("Este programa despliega lo que sea que reciba.\n");
-	printf("También transmite lo que el usuario ingrese, max. 40 caracteres. (! para salir):\n");
+	printf("Agente X conectado\n");
 	do{
 		memset(buffer_enviar, 0, MSG_SIZE);	// "limpia" el buffer
 		//fgets(buffer_enviar,MSG_SIZE-1,stdin); // MSG_SIZE-1 'cause a null character is added
