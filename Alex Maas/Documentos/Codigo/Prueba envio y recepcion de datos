@@ -67,12 +67,12 @@ void *receiving(void *ptr)
         }
         // Actualizar global best
         //printf("%f, %f \n ", recepcion[2], fitness_global);
-        if (recepcion[2] <= fitness_global){		//Local< Global, asigna el valor local al global
-			printf("Global actualizado del agente 1.\n"); 
-            best_global[0] = recepcion[0];
-            best_global[1] = recepcion[1];
-            fitness_global = recepcion[2];
-			fitness_local = recepcion[2];
+        if (recepcion[2] <= fitness_global){		//Local< Global, asigna el valor local al global	
+		printf("Global actualizado del agente 1.\n"); 
+            	best_global[0] = recepcion[0];
+            	best_global[1] = recepcion[1];
+            	fitness_global = recepcion[2];
+		fitness_local = recepcion[2];
         } else {
             printf("No se actualiza el Global agente 1.\n");
         }
