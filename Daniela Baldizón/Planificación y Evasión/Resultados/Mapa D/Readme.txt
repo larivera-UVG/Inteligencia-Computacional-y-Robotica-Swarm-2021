@@ -1,0 +1,1 @@
+Constantes con rho = 0.4, utilizando mi compu

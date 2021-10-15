@@ -129,7 +129,7 @@ contador = 0;
 %%
 while (t <= t_max && stop)
     
-    for k = 1:hormigas
+    parfor k = 1:hormigas
         %% Inicio debug
 %         contador = contador + 1;
        % while (not(strcmp(ants(k).current_node, nodo_dest))) % Mientras no se haya llegado al destino
@@ -210,6 +210,9 @@ while (t <= t_max && stop)
                 SRegX(k) = round(l+Dx);
                 SRegY(k) = round(m+Dy);
                 
+                
+                % Truncar los resultados para que no sean menores a 1 o
+                % mayores a 10
                 if SRegX(k)<1
                     SRegX(k) = 1;
                 elseif SRegX(k)>10

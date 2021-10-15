@@ -63,36 +63,44 @@ hormigas = 30;
 
 constantes = 3;
 switch constantes
-    case 1
+    case 1:
         % Constantes Gaby
         rho = 0.6;
         alpha = 1;
         beta = 1;
         Q = 2.1;
         gamma = 1;
-    case 2
+    case 2:
         % Artículo
         rho = 0.43;
         alpha = 1;
         beta = 7;
         Q = 100;
         gamma = 3;
-    case 3
-        % Barrido 1
-        % Rate de evaporación (puede tomar valores entre 0 y 1)
-        rho = 0.4;
-        % Le da más peso a la feromona en la probabilidad
-        alpha = 2.2;
-        % Le da más peso al costo del link en la probabilidad
-        beta = 0.5;
-        % cte. positiva que regula el depósito de feromona
-        Q = 45;
-        % Factor de guía
-        gamma = 3.6;
-end
-
+    case 3:
+        
+% Rate de evaporación (puede tomar valores entre 0 y 1)
+% rho = 0.6; % Gaby
+% rho = 0.43;
+rho = 0.4;
+% Le da más peso a la feromona en la probabilidad
+% alpha = 1;
+alpha = 2.2;
+% Le da más peso al costo del link en la probabilidad
+% beta = 1; % Gaby
+% beta = 7;
+beta = 0.5;
+% cte. positiva que regula el depósito de feromona
+% Q = 2.1; % Gaby
+% Q = 100;
+Q = 45;
 % Porcentaje de hormigas que queremos siguiendo la misma solución
 epsilon = 0.9; 
+% Factor de guía
+% gamma = 1; % Gaby
+% gamma = 3;
+gamma = 3.6;
+Sjo =1;
 
 % Matriz peso
 D = zeros(grid_size^2);
@@ -459,5 +467,3 @@ bpath = [G.Nodes.X(best_path), G.Nodes.Y(best_path)];
 webots_path = (bpath - grid_size/2).*[1/10 -1/10];
 wb_pc_path = 'C:\Users\Daniela Baldizon\Documents\GitHub\Inteligencia-Computacional-y-Robotica-Swarm-2021\Daniela Baldizón\Webots\controllers\PyE\';
 save(strcat(wb_pc_path, 'webots_test.mat'), 'bpath', 'webots_path')
-
-

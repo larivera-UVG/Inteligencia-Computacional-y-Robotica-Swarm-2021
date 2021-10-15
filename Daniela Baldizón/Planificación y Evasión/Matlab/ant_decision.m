@@ -15,7 +15,7 @@
 % Output:
 % String con el id del siguiente nodo del trayecto. ejemplo:
 % "3"
-% S es la distancia más corta sana entre la casilla actual y la casilla
+% S es la distancia más corta entre la casilla actual y la casilla
 % objetivo
 
 function next_node = ant_decision(vecinos, alpha, beta, gamma, G, id, S)
