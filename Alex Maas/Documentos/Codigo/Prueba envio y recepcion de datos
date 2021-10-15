@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h> 
+#include <time.h>
 #include <math.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -12,136 +12,139 @@
 #include <pthread.h>
 #include <ctype.h>
 
-#define MSG_SIZE 40			// message size
+#define MSG_SIZE 40 // message size
 #define IP_LENGTH 15
 #define PUERTO 2001
 
-// Variable de recibir 
-char buffer_recibir[MSG_SIZE];	// to store received messages or messages to be sent.
+// Variable de recibir
+char buffer_recibir[MSG_SIZE]; // to store received messages or messages to be sent.
 char *token;
 
 // Posicion Local de prueba MODIFICAR
-static double best_local[] = {1.0,1.0};
-static double fitness_local= 10.0;
+static double best_local[] = {1.0, 1.0};
+static double fitness_local = 10.0;
 
 // Recepcion de datos de otros robots
 static double recepcion[2];
 
 // Posicion Global
-static double best_global[] = {1.0,1.0};
-static double fitness_global= 10.0;
-
+static double best_global[] = {1.0, 1.0};
+static double fitness_global = 10.0;
+int num_agente = 0;
 //------------------------------Comunicacion -------------------------------
 void error(const char *msg)
 {
-    perror(msg);
-    exit(0);
+	perror(msg);
+	exit(0);
 }
 
 // Receiving thr: constantly waits for messages. Whatever is received is displayed.
 void *receiving(void *ptr)
 {
 	int *sock, n;
-    int i =0;
-	sock = (int *)ptr;		// socket identifier
-	unsigned int length = sizeof(struct sockaddr_in);		// size of structure
+	int i = 0;
+	sock = (int *)ptr;								  // socket identifier
+	unsigned int length = sizeof(struct sockaddr_in); // size of structure
 	struct sockaddr_in from;
 
-	while(1)
+	while (1)
 	{
-		memset(buffer_recibir, 0, MSG_SIZE);	// "limpia" el buffer
+		memset(buffer_recibir, 0, MSG_SIZE); // "limpia" el buffer
 		// receive message
 		n = recvfrom(*sock, buffer_recibir, MSG_SIZE, 0, (struct sockaddr *)&from, &length);
-		if(n < 0){
+		if (n < 0){
 			error("Error: recvfrom");
-        }
-        i=0;
-        printf("Valores enviados agente 1: %s \n ", buffer_recibir);
-        // descomponer buffer_recibir, strtok
-        token=strtok(buffer_recibir, ",");
-        recepcion[i] = atof(token);
+		}
+		i = 0;
+		// descomponer buffer_recibir, strtok
+		token = strtok(buffer_recibir, ",");
+		recepcion[i] = atof(token);
 
-        while((token = strtok(NULL, ",")) !=NULL){
-            i++;
-            recepcion[i] = atof(token);
-        }
-        // Actualizar global best
-        //printf("%f, %f \n ", recepcion[2], fitness_global);
-        if (recepcion[2] <= fitness_global){		//Local< Global, asigna el valor local al global
-			printf("Global actualizado del agente 1.\n"); 
-            best_global[0] = recepcion[0];
-            best_global[1] = recepcion[1];
-            fitness_global = recepcion[2];
+		while ((token = strtok(NULL, ",")) != NULL){
+			i++;
+			recepcion[i] = atof(token);
+		}
+		// Actualizar global best
+		if (recepcion[2] <= fitness_global){ //Local< Global, asigna el valor local al global
+			best_global[0] = recepcion[0];
+			best_global[1] = recepcion[1];
+			fitness_global = recepcion[2];
 			fitness_local = recepcion[2];
-        } else {
-            printf("No se actualiza el Global agente 1.\n");
-        }
+			printf("Agente %d actualiza su Best Global a %d.\n", num_agente, fitness_global);
+		}
+		else{
+			printf("Agente %d no actualiza su Best Global %d.\n", num_agente, fitness_global);
+		}
 	}
 	pthread_exit(0);
 }
 //------------------------------------------------------------------------------------------
 
 // Main function
-int main(int argc, char *argv[]){
-    //------------------------------Comunicacion -------------------------------
-    
-    int sock, n;
-	unsigned int length = sizeof(struct sockaddr_in);	// size of structure
-	char buffer_enviar[MSG_SIZE];		// to store received messages or messages to be sent.
-	struct sockaddr_in anybody;	// for the socket configuration
-	int boolval = 1;			// for a socket option
-	pthread_t thread_rec;		// thread variable
-	char IP_broadcast[IP_LENGTH];  // para la dirección de broadcast
-    FILE *file;
-    strcpy(IP_broadcast, "10.0.0.255");	// Puede que se deba cambiar. Revisar ifconfig
+int main(int argc, char *argv[])
+{
+	//------------------------------Comunicacion -------------------------------
 
-    printf("La dirección de broadcast es: %s\n\n", IP_broadcast);
+	int sock, n;
+	unsigned int length = sizeof(struct sockaddr_in); // size of structure
+	char buffer_enviar[MSG_SIZE];					  // to store received messages or messages to be sent.
+	struct sockaddr_in anybody;						  // for the socket configuration
+	int boolval = 1;								  // for a socket option
+	pthread_t thread_rec;							  // thread variable
+	char IP_broadcast[IP_LENGTH];					  // para la dirección de broadcast
+	FILE *file;
+	strcpy(IP_broadcast, "10.0.0.255"); // Puede que se deba cambiar. Revisar ifconfig
 
-	anybody.sin_family = AF_INET;		// symbol constant for Internet domain
-	anybody.sin_port = htons(PUERTO);		// port field
-	anybody.sin_addr.s_addr = htonl(INADDR_ANY);	// para recibir de cualquiera
+	printf("La dirección de broadcast es: %s\n\n", IP_broadcast);
+
+	if (argc == 4){
+		fitness_local = atof(argv[1]);
+		fitness_global = atof(argv[2]);
+		num_agente = atoi(argv[3]);
+	}
+	anybody.sin_family = AF_INET;				 // symbol constant for Internet domain
+	anybody.sin_port = htons(PUERTO);			 // port field
+	anybody.sin_addr.s_addr = htonl(INADDR_ANY); // para recibir de cualquiera
 
 	sock = socket(AF_INET, SOCK_DGRAM, 0); // Creates socket. Connectionless.
-	if(sock < 0)
+	if (sock < 0)
 		error("Error: socket");
 
 	// Sin el bind, no se reciben los mensajes
-	if(bind(sock, (struct sockaddr *)&anybody, sizeof(struct sockaddr_in)) < 0)
-	{
+	if (bind(sock, (struct sockaddr *)&anybody, sizeof(struct sockaddr_in)) < 0){
 		printf("Error binding socket.\n");
 		exit(-1);
 	}
 
 	// change socket permissions to allow broadcast
-	if(setsockopt(sock, SOL_SOCKET, SO_BROADCAST, &boolval, sizeof(boolval)) < 0)
-	{
+	if (setsockopt(sock, SOL_SOCKET, SO_BROADCAST, &boolval, sizeof(boolval)) < 0){
 		printf("Error setting socket options.\n");
 		exit(-1);
 	}
 
-	anybody.sin_addr.s_addr = inet_addr(IP_broadcast);	// broadcast address
+	anybody.sin_addr.s_addr = inet_addr(IP_broadcast); // broadcast address
 
 	// Se creae el hilo de recepción.
-	pthread_create(&thread_rec, NULL, receiving, (void *)&sock);	// for receiving
+	pthread_create(&thread_rec, NULL, receiving, (void *)&sock); // for receiving
 
 	printf("Este programa despliega lo que sea que reciba.\n");
-	printf("También transmite lo que el usuario ingrese, max. 40 caracteres. (! para salir):\n");
+	printf("Agente %d conectado\n", num_agente);
 	do
 	{
-		memset(buffer_enviar, 0, MSG_SIZE);	// "limpia" el buffer
-		//fgets(buffer_enviar,MSG_SIZE-1,stdin); // MSG_SIZE-1 'cause a null character is added
-        sleep(5);
-        sprintf(buffer_enviar, "%f,%f,%f",best_local[0],best_local[1],fitness_local);
-		if(buffer_enviar[0] != '!')
+		memset(buffer_enviar, 0, MSG_SIZE); // "limpia" el buffer
+											//fgets(buffer_enviar,MSG_SIZE-1,stdin); // MSG_SIZE-1 'cause a null character is added
+		sleep(5);
+		sprintf(buffer_enviar, "%f,%f,%f", best_local[0], best_local[1], fitness_local);
+		if (buffer_enviar[0] != '!')
 		{
 			// send message to anyone there...
 			n = sendto(sock, buffer_enviar, strlen(buffer_enviar), 0,
-					(const struct sockaddr *)&anybody, length);
-			if(n < 0)
+					   (const struct sockaddr *)&anybody, length);
+			if (n < 0)
 				error("Error: sendto");
 		}
-	} while(buffer_enviar[0] != '!');
-  
-    close(sock);			// close socket.
-    return 0;  
-}   
+	} while (buffer_enviar[0] != '!');
+
+	close(sock); // close socket.
+	return 0;
+}
