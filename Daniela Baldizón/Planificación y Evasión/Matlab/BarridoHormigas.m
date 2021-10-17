@@ -18,7 +18,7 @@ clear
         
     %% ACO init
 t_max = 150; 
-hormigas = 60;
+hormigas = 30;
 
 rho = 0.4; 
 alpha = 2.2;
@@ -26,7 +26,6 @@ beta = 0.5;
 gamma = 3.6; 
 Q = 45; 
 epsilon = 0.9; 
-Sjo =1;
 
 % Matriz peso
 D = zeros(grid_size^2);
@@ -307,9 +306,22 @@ for rep = 1:1:repetitions
 
         %% Update de Feromona
         for k = 1:hormigas
-            dtau = Q/numel(ants(k).path);
+            dtau = Q/(L(k,t)*numel(ants(k).path));
             edge_index = findedge(G, ants(k).path(1:end - 1), ants(k).path(2:end));
-            G.Edges.Weight(edge_index) = G.Edges.Weight(edge_index) + Q*dtau;
+
+            largos = find(L~=0);
+            largos = L(largos);
+            min_cost = min(largos);
+
+
+            [mode_plot(t), F] = mode(L(:,t));
+            if (F/hormigas >= epsilon*0.4) % condición de paro
+                if(L(k,t)<=min_cost)
+                    G.Edges.Weight(edge_index) = G.Edges.Weight(edge_index) + Q*dtau;
+                end
+            else
+                G.Edges.Weight(edge_index) = G.Edges.Weight(edge_index) + dtau;
+            end
 
             ants(k).path = nodo_init;
         end
