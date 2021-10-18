@@ -1,0 +1,1 @@
+Folder en el cual se encuentra todo lo relacionado a algoritmos de evasiòn de obstàculos.
