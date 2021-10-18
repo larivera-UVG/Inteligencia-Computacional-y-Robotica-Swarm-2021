@@ -20,9 +20,10 @@ tic  % Para medir el tiempo que se tarda el algoritmo en correr.
     nodo_dest = '100';
     nodo_init = "1";
     % Mapa E
-%     obstaculos = [57,66,75,44,35,26,17]';
+    obstaculos = [57,66,75,44,35,26,17]';
+    
     % Mapa D
-    obstaculos = [12,13,22,23,37,38,47,48,75,76,85,86]'; % Nodos donde se colocan los obstaculos
+%     obstaculos = [12,13,22,23,37,38,47,48,75,76,85,86]'; % Nodos donde se colocan los obstaculos
 %     obstaculos = [12,19,26,5,2,9,16]';
 %     obstaculos = [9, 19, 39, 59, 69, 38, 37,36,35]';
 
@@ -52,16 +53,11 @@ tic  % Para medir el tiempo que se tarda el algoritmo en correr.
 
     % Mapa Webots
 %     obstaculos = [23,24,27,28,32,62,67,72,73,74,78,79]'; 
-
-%     nodo_dest = '10';
-%     nodo_init = "91";
-%     obstaculos = [4,5,6, 71, 73, 72, 78, 89, 99, 67,56,18,19,28,29]';
         
     %% ACO init
-t_max = 200; 
-hormigas = 30;
+t_max = 1000; 
 
-constantes = 3;
+constantes = 2;
 switch constantes
     case 1
         % Constantes Gaby
@@ -70,6 +66,7 @@ switch constantes
         beta = 1;
         Q = 2.1;
         gamma = 1;
+        hormigas = 60;
     case 2
         % Artículo
         rho = 0.43;
@@ -77,8 +74,9 @@ switch constantes
         beta = 7;
         Q = 100;
         gamma = 3;
+        hormigas = 30;
     case 3
-        % Barrido 1
+        % Barrido 2
         % Rate de evaporación (puede tomar valores entre 0 y 1)
         rho = 0.4;
         % Le da más peso a la feromona en la probabilidad
@@ -89,6 +87,15 @@ switch constantes
         Q = 45;
         % Factor de guía
         gamma = 3.6;
+        hormigas = 30;
+    case 4
+        % Barrido 1
+        rho = 0.2;
+        alpha = 2;
+        beta = 0.5;
+        Q = 50;
+        gamma = 0.2;
+        hormigas = 30;
 end
 
 % Porcentaje de hormigas que queremos siguiendo la misma solución

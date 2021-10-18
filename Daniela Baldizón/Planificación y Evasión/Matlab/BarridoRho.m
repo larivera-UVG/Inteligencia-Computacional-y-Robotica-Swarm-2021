@@ -18,15 +18,15 @@ clear
         
     %% ACO init
 t_max = 150; 
-hormigas = 60;
+hormigas = 30;
 
-rho = 0.2; 
-alpha = 1;
-beta = 1; 
-Q = 2.1; 
+rho = 0.4; 
+alpha = 2.2;
+beta = 0.5; 
+gamma = 3.6; 
+Q = 45; 
+
 epsilon = 0.9; 
-gamma = 1; 
-Sjo =1;
 
 % Matriz peso
 D = zeros(grid_size^2);
@@ -42,7 +42,7 @@ mapa = zeros(grid_size+2); % Creación del mapa
 ants(1:hormigas) = struct('blocked_nodes', [], 'last_node', nodo_init,...
     'current_node', nodo_init, 'path', nodo_init, 'L', zeros(1, t_max));
 sweep = 0.1:0.1:0.9;
-repetitions = 10;
+repetitions = 15;
 rho_sweep_data = cell(numel(sweep) * repetitions + 1, 5);
 rho_sweep_data(1, :) = {'tiempo', 'costo', 'iteraciones', 'path', 'rho'};
 sweep_count = 1;
@@ -61,27 +61,7 @@ for rep = 1:1:repetitions
     t = 1;
     stop = 1;
     G = G_cpy;
-    
-    % Gradient Color para la animación
-    % Solo es para personalizar los colores de la animación
-%     map = [255 255 255
-%         245 215 250
-%         255 166 216
-%         255 111 150
-%         255 61 61]/255;
-
-%     figure(1); clf;
-%     % Se crea la imagen animada
-%     h = plot(G, 'XData', G.Nodes.X+0.5, 'YData', G.Nodes.Y+0.5, 'NodeColor', 'k'); 
-%     hold on 
-%     nodos_especiales = [G.Nodes.X(str2double(nodo_init)), G.Nodes.Y(str2double(nodo_init)); G.Nodes.X(str2double(nodo_dest)), G.Nodes.Y(str2double(nodo_dest))];
-%     scatter(nodos_especiales(1, 1)+0.5, nodos_especiales(1, 2)+0.5, 'g','filled')
-%     scatter(nodos_especiales(2, 1)+0.5, nodos_especiales(2, 2)+0.5, 'xr','LineWidth', 5)
-% 
-%     [X,Y]=meshgrid(0:grid_size+2);    % Creación de la cuadrícula
-%     plot(X,Y,'k');          % Dibuja las líneas verticales
-%     plot(Y,X,'k');          % Dibuja las líneas horizontales
-    % axis off
+    rho
     
     % Se le hace un borde al mapa para delimitarlo, este borde puede ser tomado
     % como obstáculo
@@ -98,13 +78,6 @@ for rep = 1:1:repetitions
         mapa(b(1),b(2)) = 1;
     end
 
-%     [c,f] = find(mapa);
-% 
-%     % Dibuja los obstaculos
-%     for i=1:size(f,1)
-%         rectangle('Position',[f(i)-1, c(i)-1, 1, 1], 'FaceColor',...
-%             [0 0 0], 'LineWidth',1)
-%     end
     % Matriz de distancia entre casillas
     Dx = [1,0,1;1,0,1;1,0,1];
     Dy = [1,1,1;0,0,0;1,1,1];
@@ -317,6 +290,7 @@ for rep = 1:1:repetitions
 
             ants(k).path = loop_remover(str2double(ants(k).path));
             L(k, t) = sum(G.Edges.Eta(findedge(G, ants(k).path(1:end-1), ants(k).path(2:end))));
+            Largo(k,t) = sum(G.Edges.Eta(findedge(G, ants(k).path(1:end-1), ants(k).path(2:end))));
             all_path{k, t} = ants(k).path;  % Equivale a x_k(t)
 
             % Regresamos la hormiga k al inicio
@@ -332,24 +306,24 @@ for rep = 1:1:repetitions
         %% Evaporación de Feromona
         G.Edges.Weight = G.Edges.Weight * (1 - rho);
 
-%         % Global best lenght
-%         lgb = min(caminos);
-%         lgb_index = find(caminos==lgb);
-%         Lmin = min(min(L)); %Costo min
-
         %% Update de Feromona
         for k = 1:hormigas
-            dtau = Q/numel(ants(k).path);
+            dtau = Q/(L(k,t)*numel(ants(k).path));
             edge_index = findedge(G, ants(k).path(1:end - 1), ants(k).path(2:end));
-            G.Edges.Weight(edge_index) = G.Edges.Weight(edge_index) + Q*dtau;
-            
-%             if k == lgb_index
-%                 G.Edges.Weight(edge_index) = G.Edges.Weight(edge_index)*2.5;
-%             end
-% 
-%             if L(k,t) == Lmin
-%                 G.Edges.Weight(edge_index) = G.Edges.Weight(edge_index)*2.5;
-%             end
+
+            largos = find(L~=0);
+            largos = L(largos);
+            min_cost = min(largos);
+
+
+            [mode_plot(t), F] = mode(L(:,t));
+            if (F/hormigas >= epsilon*0.4) % condición de paro
+                if(L(k,t)<=min_cost)
+                    G.Edges.Weight(edge_index) = G.Edges.Weight(edge_index) + Q*dtau;
+                end
+            else
+                G.Edges.Weight(edge_index) = G.Edges.Weight(edge_index) + dtau;
+            end
 
             ants(k).path = nodo_init;
         end
@@ -359,13 +333,6 @@ for rep = 1:1:repetitions
         if (F/hormigas >= epsilon) % condición de paro
             stop = 0;
         end
-%         % Animación
-%         G.Edges.NormWeight = G.Edges.Weight/sum(G.Edges.Weight);
-%         h2.YData(t) = mean_plot(t);
-%         h3.YData(t) = mode_plot(t);
-%         h.LineWidth = G.Edges.NormWeight * 50;
-%         h.EdgeCData = G.Edges.NormWeight;
-%         drawnow limitrate
         t = t + 1;
 
 
