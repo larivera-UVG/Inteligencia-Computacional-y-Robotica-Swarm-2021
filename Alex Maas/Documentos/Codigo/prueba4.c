@@ -18,16 +18,14 @@
 
 // Variable de recibir
 char buffer_recibir[MSG_SIZE]; // to store received messages or messages to be sent.
-char *token1;
-char *token2;
+char *token;
 
 // Posicion Local de prueba MODIFICAR
 static double best_local[] = {1.0, 1.0};
 static double fitness_local = 10.0;
 
 // Recepcion de datos de otros robots
-static double recepcion1[1];
-static double recepcion2[1];
+static double recepcion[2];
 
 // Posicion Global
 static double best_global[] = {1.0, 1.0};
@@ -67,19 +65,19 @@ void *receiving(void *ptr)
 
 		if(ret != 0){
 			// descomponer buffer_recibir, strtok
-			token1 = strtok(buffer_recibir, ",");
-			recepcion1[i] = atof(token1);
-			while ((token1 = strtok(NULL, ",")) != NULL){
+			token = strtok(buffer_recibir, ",");
+			recepcion[i] = atof(token);
+			while ((token = strtok(NULL, ",")) != NULL){
 				i++;
-				recepcion1[i] = atof(token1);
+				recepcion[i] = atof(token);
 			}
-			printf("recepcion %f,%f, %f.\n",recepcion1[1],recepcion1[2],recepcion1[3]);
+			printf("recepcion %f,%f, %f.\n",recepcion[1],recepcion[2],recepcion[3]);
 			// Actualizar global best
-			if (recepcion1[3] <= fitness_global){ //Local< Global, asigna el valor local al global
-				best_global[0] = recepcion1[1];
-				best_global[1] = recepcion1[2];
-				fitness_global = recepcion1[3];
-				fitness_local = recepcion1[3];
+			if (recepcion[3] <= fitness_global){ //Local< Global, asigna el valor local al global
+				best_global[0] = recepcion[1];
+				best_global[1] = recepcion[2];
+				fitness_global = recepcion[3];
+				fitness_local = recepcion[3];
 				printf("Agente %d actualiza su Best Global a %f.\n", num_agente, fitness_global);
 			}else{
 				printf("Agente %d no actualiza su Best Global %f.\n", num_agente, fitness_global);
@@ -87,16 +85,16 @@ void *receiving(void *ptr)
 
 		}else{
 			// descomponer buffer_recibir, strtok
-			token2 = strtok(buffer_recibir, ",");
-			recepcion2[i] = atof(token2);
-			while ((token2 = strtok(NULL, ",")) != NULL){
+			token = strtok(buffer_recibir, ",");
+			recepcion[i] = atof(token);
+			while ((token = strtok(NULL, ",")) != NULL){
 				i++;
-				recepcion2[i] = atof(token2);
+				recepcion[i] = atof(token);
 			}
-			printf("recepcion %f, %f, %f.\n",recepcion2[1],recepcion2[2],recepcion2[3]);
-			posicion_robot_X = recepcion2[1];
-            posicion_robot_Y = recepcion2[2];
-            rad = recepcion2[3];
+			printf("recepcion %f, %f, %f.\n",recepcion[1],recepcion[2],recepcion[3]);
+			posicion_robot_X = recepcion[1];
+            posicion_robot_Y = recepcion[2];
+            rad = recepcion[3];
             printf("Coordenadas recibidas del agente %d son: %f, %f, %f.\n", num_agente, posicion_robot_X, posicion_robot_Y, rad);
 		}	
 	}
@@ -117,7 +115,8 @@ int main(int argc, char *argv[])
 	pthread_t thread_rec;							  // thread variable
 	char IP_broadcast[IP_LENGTH];					  // para la dirección de broadcast
 	FILE *file;
-	strcpy(IP_broadcast, "10.0.0.255"); 		// Puede que se deba cambiar. Revisar ifconfig
+	//strcpy(IP_broadcast, "10.0.0.255"); 		// Puede que se deba cambiar. Revisar ifconfig
+	strcpy(IP_broadcast, "192.168.0.255");
 
 	printf("La dirección de broadcast es: %s\n\n", IP_broadcast);
 
