@@ -11,7 +11,7 @@ El algoritmo de planificación de trayectorias y evasión de obstáculos se util
 ## Tabla de contenido
 
 1. [Prerrequisitos](#desc)
-2. [ Uso del código ](#usage)
+2. [ Carpetas ](#usage)
    1. [ Documentos ](#docs)
    2. [Exploración de terrenos](#exp)
    3. [Fase anterior](#fant)
@@ -24,7 +24,7 @@ El algoritmo de planificación de trayectorias y evasión de obstáculos se util
 Para correr los programas es necesario tener instalado Matlab. Para la elaboración del código se utilizó la versión 2020a y para realizar algunas pruebas se utilizó la versión 2021a. En el caso de la validación de las trayectorias, se utilzó Webots versión 2021a. Los controladores se implementaron en Matlab, por lo que es necesario realizar la conexión entre Matlab y Webots. Para la conexión visitar el siguiente link: [Matlab+Webots].
 
 <a name="usage"></a>
-## Uso del código 
+## Carpetas
 A continuación se presenta un resumen de lo que contienen las carpetas dentro de este repositorio. 
 
 <a name="docs"></a>
