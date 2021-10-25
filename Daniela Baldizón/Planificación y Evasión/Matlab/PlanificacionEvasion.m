@@ -19,45 +19,50 @@ tic  % Para medir el tiempo que se tarda el algoritmo en correr.
     G = graph_grid(grid_size);
     nodo_dest = '100';
     nodo_init = "1";
-    % Mapa E
-    obstaculos = [57,66,75,44,35,26,17]';
     
-    % Mapa D
-%     obstaculos = [12,13,22,23,37,38,47,48,75,76,85,86]'; % Nodos donde se colocan los obstaculos
-%     obstaculos = [12,19,26,5,2,9,16]';
-%     obstaculos = [9, 19, 39, 59, 69, 38, 37,36,35]';
-
-% %     % Mapa A
-%     obstaculos = [4,5,6,51,52,58,59,67,68,69,71,72,75,78,79,83,84,87,...
-%         88,89,96,97,98,99,103,104,111,112,113,117,118,119,120,131,132,...
-%         133,144,145,146,156,157,158,159,168,169,188,189,213,214,215,216,...
-%         222,223,224,226,233,234,235,236,242,243,244,247,248,249,253,254,...
-%         255,256,262,263,264,267,268,269,282,283,284,293,294,295,307,308,...
-%         309,313,314,315,324,325,326,344,345,315,351,352,353,384,385]';
     
-    % Mapa B
-%     obstaculos = [4,5,6,51,52,58,59,67,68,69,71,72,78,79,83,84,87,88,89,...
-%         96,97,98,99,103,104,111,112,113,117,118,119,120,131,132,133,144,...
-%         145,146,156,157,158,159,168,169,188,189,213,214,215,216,222,223,...
-%         224,233,234,235,236,242,243,244,247,248,249,253,254,255,256,262,...
-%         263,264,267,268,269,282,283,284,293,294,295,307,308,309,313,314,...
-%         315,324,325,326,344,345,351,352,353,384,385]';
-
-    % Mapa c
-%     obstaculos = [53,54,55,71,72,73,74,75,77,78,87,88,89,91,92,97,98,...
-%         103,104,107,108,109,123,124,132,133,134,136,152,153,154,156,172,...
-%         173,174,188,189,208,209,211,212,213,214,231,232,233,234,242,243,...
-%         244,247,248,249,251,252,253,254,262,263,264,267,268,269,271,272,...
-%         273,274,282,283,284,287,288,289,307,308,309,327,328,329,342,343,...
-%         347,348,349,362,363]';
-
-    % Mapa Webots
-%     obstaculos = [23,24,27,28,32,62,67,72,73,74,78,79]'; 
+    escenario = 2;
+   
+    switch escenario
+        case 1
+            % Mapa A
+            obstaculos = [12,13,22,23,37,38,47,48,75,76,85,86]'; % Nodos donde se colocan los obstaculos
+        case 2
+            % Mapa B
+            obstaculos = [57,66,75,44,35,26,17]';
+        case 3
+            % Mapa C
+            obstaculos = [4,5,6,51,52,58,59,67,68,69,71,72,75,78,79,83,84,87,...
+                88,89,96,97,98,99,103,104,111,112,113,117,118,119,120,131,132,...
+                133,144,145,146,156,157,158,159,168,169,188,189,213,214,215,216,...
+                222,223,224,226,233,234,235,236,242,243,244,247,248,249,253,254,...
+                255,256,262,263,264,267,268,269,282,283,284,293,294,295,307,308,...
+                309,313,314,315,324,325,326,344,345,315,351,352,353,384,385]';
+        case 4
+            % Mapa D
+            obstaculos = [4,5,6,51,52,58,59,67,68,69,71,72,78,79,83,84,87,88,89,...
+                96,97,98,99,103,104,111,112,113,117,118,119,120,131,132,133,144,...
+                145,146,156,157,158,159,168,169,188,189,213,214,215,216,222,223,...
+                224,233,234,235,236,242,243,244,247,248,249,253,254,255,256,262,...
+                263,264,267,268,269,282,283,284,293,294,295,307,308,309,313,314,...
+                315,324,325,326,344,345,351,352,353,384,385]';
+        case 5
+            % Mapa E
+            obstaculos = [53,54,55,71,72,73,74,75,77,78,87,88,89,91,92,97,98,...
+                103,104,107,108,109,123,124,132,133,134,136,152,153,154,156,172,...
+                173,174,188,189,208,209,211,212,213,214,231,232,233,234,242,243,...
+                244,247,248,249,251,252,253,254,262,263,264,267,268,269,271,272,...
+                273,274,282,283,284,287,288,289,307,308,309,327,328,329,342,343,...
+                347,348,349,362,363]';
+        case 6
+            % Mapa Webots
+            obstaculos = [23,24,27,28,32,62,67,72,73,74,78,79]'; 
+    end
         
     %% ACO init
 t_max = 1000; 
 
-constantes = 2;
+constantes = 4;
 switch constantes
     case 1
         % Constantes Gaby
@@ -76,26 +81,26 @@ switch constantes
         gamma = 3;
         hormigas = 30;
     case 3
+        % Barrido 1
+        rho = 0.8;
+        alpha = 2.2;
+        beta = 0.5;
+        gamma = 3.4;
+        Q = 65;
+        hormigas = 25;
+    case 4
         % Barrido 2
         % Rate de evaporación (puede tomar valores entre 0 y 1)
-        rho = 0.4;
+        rho = 0.9;
         % Le da más peso a la feromona en la probabilidad
-        alpha = 2.2;
+        alpha = 2;
         % Le da más peso al costo del link en la probabilidad
         beta = 0.5;
-        % cte. positiva que regula el depósito de feromona
-        Q = 45;
         % Factor de guía
-        gamma = 3.6;
-        hormigas = 30;
-    case 4
-        % Barrido 1
-        rho = 0.2;
-        alpha = 2;
-        beta = 0.5;
-        Q = 50;
-        gamma = 0.2;
-        hormigas = 30;
+        gamma = 2.2;
+        % cte. positiva que regula el depósito de feromona
+        Q = 40;
+        hormigas = 20;
 end
 
 % Porcentaje de hormigas que queremos siguiendo la misma solución
@@ -395,7 +400,7 @@ while (t <= t_max && stop)
     
     %% Update de Feromona
     for k = 1:hormigas
-        dtau = Q/(L(k,t)*numel(ants(k).path));
+        dtau = 1.5*Q/(L(k,t)*numel(ants(k).path));
         edge_index = findedge(G, ants(k).path(1:end - 1), ants(k).path(2:end));
         
         largos = find(L~=0);
@@ -463,7 +468,7 @@ tiempofinal = toc;
 formatSpec = 'iter: %d - t: %.2f - cost: %.2f \n';
 fprintf(formatSpec, t-1, tiempofinal, moda)
 bpath = [G.Nodes.X(best_path), G.Nodes.Y(best_path)];
-webots_path = (bpath - grid_size/2).*[1/10 -1/10];
+webots_path = (bpath - (grid_size/2+0.5)).*[1/5 -1/5];
 wb_pc_path = 'C:\Users\Daniela Baldizon\Documents\GitHub\Inteligencia-Computacional-y-Robotica-Swarm-2021\Daniela Baldizón\Webots\controllers\PyE\';
 save(strcat(wb_pc_path, 'webots_test.mat'), 'bpath', 'webots_path')
 

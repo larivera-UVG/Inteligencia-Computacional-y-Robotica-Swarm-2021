@@ -20,7 +20,7 @@ clear
 t_max = 150; 
 hormigas = 30;
 
-rho = 0.4; 
+rho = 0.8; 
 alpha = 2.2;
 beta = 0.5; 
 gamma = 3.6; 
@@ -40,8 +40,8 @@ mapa = zeros(grid_size+2); % Creación del mapa
 % Preallocation
 ants(1:hormigas) = struct('blocked_nodes', [], 'last_node', nodo_init,...
     'current_node', nodo_init, 'path', nodo_init, 'L', zeros(1, t_max));
-sweep = 0.5:0.25:4.5;
-repetitions = 10;
+sweep = 1:0.5:7;
+repetitions = 1;
 beta_sweep_data = cell(numel(sweep) * repetitions + 1, 5);
 beta_sweep_data(1, :) = {'tiempo', 'costo', 'iteraciones', 'path', 'beta'};
 sweep_count = 1;
