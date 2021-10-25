@@ -1,0 +1,86 @@
+#VRML_SIM R2021b utf8
+WorldInfo {
+  coordinateSystem "NUE"
+}
+Viewpoint {
+  orientation 0.9999996137169218 0.0006180139214913184 0.0006249998399532832 4.701148421044029
+  position -0.2732254886479117 5.89437764785441 0.005076351475950203
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+RectangleArena {
+  floorSize 2 2
+}
+E-puck {
+  translation 0.50575 0 -0.73336
+  rotation 0 -1 0 3.22609e-06
+  controller "Dstar_controller"
+  turretSlot [
+    Compass {
+    }
+    GPS {
+    }
+  ]
+}
+E-puck {
+  translation -0.816324 0 -0.186321
+  rotation 0 -1 0 3.22609e-06
+  name "e-puck(2)"
+  controller "Dstar_controller"
+  turretSlot [
+    Compass {
+    }
+    GPS {
+    }
+  ]
+}
+E-puck {
+  translation 0.796579 0 0.377632
+  rotation 0 1 0 3.14159
+  name "e-puck(1)"
+  controller "Dstar_controller"
+  turretSlot [
+    Compass {
+    }
+    GPS {
+    }
+  ]
+}
+E-puck {
+  translation -0.320197 0 0.714912
+  rotation 0 1 0 3.14159
+  name "e-puck(3)"
+  controller "Dstar_controller"
+  turretSlot [
+    Compass {
+    }
+    GPS {
+    }
+  ]
+}
+WoodenBox {
+  translation -0.537342 0.125 -0.436694
+  size 0.25 0.25 0.25
+}
+WoodenBox {
+  translation -0.370201 0.125 -0.192167
+  name "wooden box(4)"
+  size 0.25 0.25 0.25
+}
+WoodenBox {
+  translation 0.370037 0.125 0.20845
+  name "wooden box(2)"
+  size 0.25 0.25 0.25
+}
+WoodenBox {
+  translation 0.245039 0.125 -0.611257
+  name "wooden box(3)"
+  size 0.25 0.25 0.25
+}
+WoodenBox {
+  translation -0.124373 0.125 0.369691
+  name "wooden box(1)"
+  size 0.25 0.25 0.25
+}

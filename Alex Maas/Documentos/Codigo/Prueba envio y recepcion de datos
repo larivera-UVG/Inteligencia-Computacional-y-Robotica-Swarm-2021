@@ -31,6 +31,9 @@ static double recepcion[2];
 static double best_global[] = {1.0, 1.0};
 static double fitness_global = 10.0;
 int num_agente = 0;
+static double posicion_robot_X =0;
+static double posicion_robot_Y =0;
+static double rad =0;
 //------------------------------Comunicacion -------------------------------
 void error(const char *msg)
 {
@@ -41,7 +44,7 @@ void error(const char *msg)
 // Receiving thr: constantly waits for messages. Whatever is received is displayed.
 void *receiving(void *ptr)
 {
-	int *sock, n;
+	int *sock, n, ret;
 	int i = 0;
 	sock = (int *)ptr;								  // socket identifier
 	unsigned int length = sizeof(struct sockaddr_in); // size of structure
@@ -56,25 +59,40 @@ void *receiving(void *ptr)
 			error("Error: recvfrom");
 		}
 		i = 0;
-		// descomponer buffer_recibir, strtok
-		token = strtok(buffer_recibir, ",");
-		recepcion[i] = atof(token);
+		ret=strncmp(buffer_recibir, "T1" ,2);
 
-		while ((token = strtok(NULL, ",")) != NULL){
-			i++;
+		if(ret != 0){
+			// descomponer buffer_recibir, strtok
+			token = strtok(buffer_recibir, ",");
 			recepcion[i] = atof(token);
-		}
-		// Actualizar global best
-		if (recepcion[2] <= fitness_global){ //Local< Global, asigna el valor local al global
-			best_global[0] = recepcion[0];
-			best_global[1] = recepcion[1];
-			fitness_global = recepcion[2];
-			fitness_local = recepcion[2];
-			printf("Agente %d actualiza su Best Global a %d.\n", num_agente, fitness_global);
-		}
-		else{
-			printf("Agente %d no actualiza su Best Global %d.\n", num_agente, fitness_global);
-		}
+			while ((token = strtok(NULL, ",")) != NULL){
+				i++;
+				recepcion[i] = atof(token);
+			}
+			// Actualizar global best
+			if (recepcion[2] <= fitness_global){ //Local< Global, asigna el valor local al global
+				best_global[0] = recepcion[1];
+				best_global[1] = recepcion[2];
+				fitness_global = recepcion[3];
+				fitness_local = recepcion[3];
+				printf("Agente %d actualiza su Best Global a %f.\n", num_agente, fitness_global);
+			}else{
+				printf("Agente %d no actualiza su Best Global %f.\n", num_agente, fitness_global);
+			}
+
+		}else{
+			// descomponer buffer_recibir, strtok
+			token = strtok(buffer_recibir, ",");
+			recepcion[i] = atoi(token);
+			while ((token = strtok(NULL, ",")) != NULL){
+				i++;
+				recepcion[i] = atoi(token);
+			}
+			posicion_robot_X = recepcion[1];
+            posicion_robot_Y = recepcion[2];
+            rad = recepcion[3];
+            printf("Coordenadas recibidas del agente %d son: %f, %f, %f.\n", num_agente, posicion_robot_X, posicion_robot_Y, rad);
+		}	
 	}
 	pthread_exit(0);
 }
@@ -87,20 +105,23 @@ int main(int argc, char *argv[])
 
 	int sock, n;
 	unsigned int length = sizeof(struct sockaddr_in); // size of structure
-	char buffer_enviar[MSG_SIZE];					  // to store received messages or messages to be sent.
+	char buffer_enviar1[MSG_SIZE], buffer_enviar2[MSG_SIZE];					  // to store received messages or messages to be sent.
 	struct sockaddr_in anybody;						  // for the socket configuration
 	int boolval = 1;								  // for a socket option
 	pthread_t thread_rec;							  // thread variable
 	char IP_broadcast[IP_LENGTH];					  // para la dirección de broadcast
 	FILE *file;
-	strcpy(IP_broadcast, "10.0.0.255"); // Puede que se deba cambiar. Revisar ifconfig
+	strcpy(IP_broadcast, "10.0.0.255"); 		// Puede que se deba cambiar. Revisar ifconfig
 
 	printf("La dirección de broadcast es: %s\n\n", IP_broadcast);
 
-	if (argc == 4){
+	if (argc == 7){
 		fitness_local = atof(argv[1]);
 		fitness_global = atof(argv[2]);
 		num_agente = atoi(argv[3]);
+		posicion_robot_X = atof(argv[4]);
+		posicion_robot_Y = atof(argv[5]);
+		rad = atof(argv[6]);
 	}
 	anybody.sin_family = AF_INET;				 // symbol constant for Internet domain
 	anybody.sin_port = htons(PUERTO);			 // port field
@@ -131,19 +152,32 @@ int main(int argc, char *argv[])
 	printf("Agente %d conectado\n", num_agente);
 	do
 	{
-		memset(buffer_enviar, 0, MSG_SIZE); // "limpia" el buffer
+		memset(buffer_enviar1, 0, MSG_SIZE); // "limpia" el buffer
+		memset(buffer_enviar2, 0, MSG_SIZE); // "limpia" el buffer
 											//fgets(buffer_enviar,MSG_SIZE-1,stdin); // MSG_SIZE-1 'cause a null character is added
 		sleep(5);
-		sprintf(buffer_enviar, "%f,%f,%f", best_local[0], best_local[1], fitness_local);
-		if (buffer_enviar[0] != '!')
+
+		// Valores a enviar
+		sprintf(buffer_enviar1, "T1,%f,%f,%f", best_local[0], best_local[1], fitness_local);
+		sprintf(buffer_enviar2, "T2,%f,%f,%f", posicion_robot_X, posicion_robot_Y, rad);
+
+		if (buffer_enviar1[0] != '!')
 		{
 			// send message to anyone there...
-			n = sendto(sock, buffer_enviar, strlen(buffer_enviar), 0,
+			n = sendto(sock, buffer_enviar1, strlen(buffer_enviar1), 0,
 					   (const struct sockaddr *)&anybody, length);
 			if (n < 0)
 				error("Error: sendto");
 		}
-	} while (buffer_enviar[0] != '!');
+		if (buffer_enviar2[0] != '!')
+		{
+			// send message to anyone there...
+			n = sendto(sock, buffer_enviar2, strlen(buffer_enviar2), 0,
+					   (const struct sockaddr *)&anybody, length);
+			if (n < 0)
+				error("Error: sendto");
+		}
+	} while (buffer_enviar1[0] && buffer_enviar2[0] != '!');
 
 	close(sock); // close socket.
 	return 0;
