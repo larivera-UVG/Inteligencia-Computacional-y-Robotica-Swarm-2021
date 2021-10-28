@@ -18,26 +18,32 @@ Im(4:7,5) = 168;
 Im(4:7,6) = 161;
 
 Im2 = zeros(10);
-Im2(4:7,3) = 155;
+Im2(4:7,1) = 155;
 Im2(4:7,4) = 168;
-Im2(4:7,7) = 161;
+Im2(4:7,9) = 161;
 
 SRef = Im;
-STemp = Im2;
-SReg = STemp;
+STemp = Im2; % Distorsionada
+SReg = STemp; % Distorsionada
 % figure;
 % imshow(SubJ)
 % 
 % figure;
 % imshow(JD)
 
+% Si Idiff es negativo, la hormiga debe buscar intensidades más bajas con
+% los vecinos. Si es mayor o igual a cero, va a buscar valores de
+% intensidad más altos con los vecinos.
+% Alimento de las hormigas
+Idiff = double(SRef - STemp);
+
 %% Graph generation
 tic
 % Creamos grid cuadrado con la cantidad de nodos indicada:
 grid_size = size(SRef,1);
-cost_diag = 0.5;
+% cost_diag = 0.5;
 tau_0 = 0.1;  % Valor de tau inicial
-G = graph_grid(grid_size, tau_0);
+G = graph_grid(grid_size, tau_0, Idiff);
 % nodo_dest = '10';
 nodo_init = "1";
 
@@ -65,11 +71,6 @@ all_path = cell(hormigas, t_max); % El path de todas las hormigas
 % Coloca las hormigas de forma uniforme en el grid
 
 %% Nuevo
-% Si Idiff es negativo, la hormiga debe buscar intensidades más bajas con
-% los vecinos. Si es mayor o igual a cero, va a buscar valores de
-% intensidad más altos con los vecinos.
-% Alimento de las hormigas
-Idiff = double(SRef - STemp);
 
 for i = 1:hormigas
     
@@ -126,10 +127,14 @@ map = [255 255 255
 
 % colormap(map);
 contador = 0;
+
+% Inicialización variables
+SRegX = zeros(hormigas);
+SRegY = zeros(hormigas);
 %%
 while (t <= t_max && stop)
     
-    parfor k = 1:hormigas
+    for k = 1:hormigas
         %% Inicio debug
 %         contador = contador + 1;
        % while (not(strcmp(ants(k).current_node, nodo_dest))) % Mientras no se haya llegado al destino
@@ -142,20 +147,20 @@ while (t <= t_max && stop)
             
             % Posicion actual por hormiga (Se hace esto para que las
             % posiciones en la imagen coincidan con el grafo)
-            m = G.Nodes.X(str2num(ants(k).current_node));
-            l = G.Nodes.Y(str2num(ants(k).current_node));
-            l = abs(-grid_size + l(1)) + 1; % Fila
-            m = m(1); % Columna
+            m = G.Nodes.X(str2double(ants(k).current_node)); % Columna
+            l = G.Nodes.Y(str2double(ants(k).current_node)); % Fila
+%             l = abs(-grid_size + l(1)) + 1; % Fila
+%             m = m(1); % Columna
             
             % encuentra los nodos vecinos
             proximity = [convertCharsToStrings(neighbors(G, k))];
             
-            % Posicion actual por hormiga (columnas y filas). La referencia es el
+            % Posicion actual por nodo (columnas y filas). La referencia es el
             % origen de la imagen (esquina superior izquierda)
             colum_coor = G.Nodes.X(double(proximity));
-            fila_coor = abs(-grid_size + G.Nodes.Y(double(proximity))) + 1;
+            fila_coor = G.Nodes.Y(double(proximity));
             
-            weight_int_vec = 0;
+            weight_int_vec = zeros(1,size(colum_coor,1));
             
             % encuentra el peso de los pixeles en proximity. El peso está dado como
             % la diferencia ente la imagen de referencia y el template.
@@ -163,23 +168,23 @@ while (t <= t_max && stop)
                 weight_int_vec(j) = Idiff(fila_coor(j),colum_coor(j));
             end
             
-            if (Idiff(l,m)>=0)
-                % Bloquea los nodos que tengan peso menor a 0 para que solo
-                % busque pesos más grandes
-                nodos_bloqueados_menor = [];
-                index_Idiff_menor = find(weight_int_vec<0);
-                nodos_bloqueados_menor = proximity(index_Idiff_menor);
-                ants(k).blocked_nodes = [ants(k).blocked_nodes; ...
-                    string(nodos_bloqueados_menor)];
-            else
-                % Bloquea los nodos que tengan peso mayor o igual a 0, para
-                % que solo busque pesos pequeños. 
-                nodos_bloqueados_mayor = [];
-                index_Idiff_mayor = find(weight_int_vec>=0);
-                nodos_bloqueados_mayor = proximity(index_Idiff_mayor);
-                ants(k).blocked_nodes = [ants(k).blocked_nodes; ...
-                    string(nodos_bloqueados_mayor)];
-            end
+%             if (Idiff(l,m)>=0)
+%                 % Bloquea los nodos que tengan peso menor a 0 para que solo
+%                 % busque pesos más grandes
+% %                 nodos_bloqueados_menor = [];
+%                 index_Idiff_menor = find(weight_int_vec<0);
+%                 nodos_bloqueados_menor = proximity(index_Idiff_menor);
+%                 ants(k).blocked_nodes = [ants(k).blocked_nodes; ...
+%                     string(nodos_bloqueados_menor)];
+%             else
+%                 % Bloquea los nodos que tengan peso mayor o igual a 0, para
+%                 % que solo busque pesos pequeños. 
+% %                 nodos_bloqueados_mayor = [];
+%                 index_Idiff_mayor = find(weight_int_vec>=0);
+%                 nodos_bloqueados_mayor = proximity(index_Idiff_mayor);
+%                 ants(k).blocked_nodes = [ants(k).blocked_nodes; ...
+%                     string(nodos_bloqueados_mayor)];
+%             end
             
             ants(k).blocked_nodes = [ants(k).blocked_nodes; convertCharsToStrings(ants(k).current_node)];
             
@@ -195,8 +200,8 @@ while (t <= t_max && stop)
                 % La hormiga toma la decisión de a donde ir eq.(17.6)
                 next_node = ant_decision(vecinos_updated, alpha, beta, G, ants(k).current_node);
                 
-                dirx = G.Nodes.X(str2num(next_node)) - G.Nodes.X(str2num(ants(k).current_node));
-                diry = G.Nodes.Y(str2num(next_node)) - G.Nodes.Y(str2num(ants(k).current_node));
+                dirx = G.Nodes.X(str2double(next_node)) - G.Nodes.X(str2double(ants(k).current_node));
+                diry = G.Nodes.Y(str2double(next_node)) - G.Nodes.Y(str2double(ants(k).current_node));
             
                 % Gradiente de la imagen
                 [Tx, Ty] = imgradientxy(SReg);
@@ -236,50 +241,62 @@ while (t <= t_max && stop)
         % no strings.
         
         ants(k).path = loop_remover(str2double(ants(k).path));
-        L(k, t) = sum(G.Edges.Eta(findedge(G, ants(k).path(1:end-1), ants(k).path(2:end))).^-1);
-        all_path{k, t} = ants(k).path;  % Equivale a x_k(t)
+%         L(k, t) = sum(G.Nodes.Eta(findedge(G, ants(k).path(1:end-1), ants(k).path(2:end))).^-1);
+%         all_path{k, t} = ants(k).path;  % Equivale a x_k(t)
+        
+
+        % Se lleva la comida al nodo inicial
+        food(k) = Idiff(str2double(ants(k).current_node));
+        SReg(k) = SReg(k) - food(k);
+        SReg(str2double(ants(k).current_node)) = SReg(str2double(ants(k).current_node)) + food(k)
         
         % Regresamos la hormiga k al inicio (k-esimo nodo)
         ants(k).current_node = int2str(k);
         ants(k).blocked_nodes = [];
         ants(k).last_node = int2str(k);
+        
+        % Feromona
+        G.Nodes.Weight(k) = exp(-rho)*G.Nodes.Weight(k) + tau_0;
+        all_weight(k) = G.Nodes.Weight(k);
+        ants(k).path = int2str(k);
     %% Fin debug    
     end
     
     %% Actualización de foto
-    for k = 1:hormigas
-        % Posicion actual por hormiga
-        m = G.Nodes.X(double(ants(k).current_node));
-        l = G.Nodes.Y(double(ants(k).current_node));
-        l = abs(-grid_size + l(1)) + 1; % Fila
-        m = m(1); % Columna
-        SReg(SRegX(k),SRegY(k)) = SRef(l,m);
-%         STemp = SReg
-    end
+%     for k = 1:hormigas
+%         % Posicion actual por hormiga
+%         m = G.Nodes.X(str2double(ants(k).current_node));
+%         l = G.Nodes.Y(str2double(ants(k).current_node));
+% %         l = abs(-grid_size + l(1)) + 1; % Fila
+% %         m = m(1); % Columna
+% %         SReg(SRegX(k),SRegY(k)) = SReg(l,m);
+% %         STemp = SReg
+%     end
     
     %% Evaporación de Feromona
 %     G.Edges.Weight = G.Edges.Weight * (1 - rho);
     
     %% Update de Feromona
-    for k = 1:hormigas
-%         dtau = Q/numel(ants(k).path);
-%         edge_index = findedge(G, ants(k).path(1:end - 1), ants(k).path(2:end));
-        if size(ants(k).path,1) ~= 1
-            G.Nodes.WeightN((ants(k).path)) = ...
-                exp(-rho)*G.Nodes.WeightN((ants(k).path)) + tau_0;
-        else
-            G.Nodes.WeightN((ants(k).path)) = 0.75*G.Nodes.WeightN((ants(k).path));
-        end
-        all_weight(k) = G.Nodes.WeightN(k);
-        ants(k).path = int2str(k);
-    end
+%     for k = 1:hormigas
+% %         dtau = Q/numel(ants(k).path);
+% %         edge_index = findedge(G, ants(k).path(1:end - 1), ants(k).path(2:end));
+% %         if size(ants(k).path,1) ~= 1
+% %             G.Nodes.Weight((ants(k).path)) = ...
+% %                 exp(-rho)*G.Nodes.Weight((ants(k).path)) + tau_0;
+% %         else
+% %             G.Nodes.Weight((ants(k).path)) = 0.75*G.Nodes.Weight((ants(k).path));
+% %         end
+%         G.Nodes.Weight(k) = exp(-rho)*G.Nodes.Weight(k) + tau_0;
+%         all_weight(k) = G.Nodes.Weight(k);
+%         ants(k).path = int2str(k);
+%     end
     
-    [mode_plot(t), F] = mode(L(:,t));
-    mean_plot(t) = mean(L(:,t));
+%     [mode_plot(t), F] = mode(L(:,t));
+%     mean_plot(t) = mean(L(:,t));
     
-    if (F/hormigas >= epsilon) % condición de paro
-        stop = 0;
-    end
+%     if (F/hormigas >= epsilon) % condición de paro
+%         stop = 0;
+%     end
     
 %     % Animación
 %     G.Nodes.NormWeight = G.Nodes.WeightN/sum(G.Nodes.WeightN);
@@ -300,15 +317,15 @@ if (t > t_max)
 else
     
     % Con la MODA vemos qué largo es el que más se repite
-    moda =  mode(L(:, t-1));
-    % Tomamos los index de todos los largos que son iguales a la moda (en
-    % la última iteración)
-    len_indx = L(:, t-1).*(L(:,t-1) == moda);
-    % Tomamos probabilidad random de qué camino tomar (si hubiese varios
-    % casos con el mismo largo pero ruta diferente). Esta función nos
-    % devuelve el index (la hormiga) que produjo el best path
-    len_prob = rouletteWheel(len_indx);
-    best_path = all_path{len_prob, t-1};
+%     moda =  mode(L(:, t-1));
+%     % Tomamos los index de todos los largos que son iguales a la moda (en
+%     % la última iteración)
+%     len_indx = L(:, t-1).*(L(:,t-1) == moda);
+%     % Tomamos probabilidad random de qué camino tomar (si hubiese varios
+%     % casos con el mismo largo pero ruta diferente). Esta función nos
+%     % devuelve el index (la hormiga) que produjo el best path
+%     len_prob = rouletteWheel(len_indx);
+%     best_path = all_path{len_prob, t-1};
     
 %     % Gráfica
 %     figure(2);
@@ -318,12 +335,9 @@ else
 end
 
 %     WeightMatrix =  reshape(all_weight,grid_size,grid_size);
-%     Regis = round(STemp.*(WeightMatrix./max(WeightMatrix)));
-%     DiffR = SRef-Regis
-% %     imtool(Regis)
-%     figure;
-%     imshow(Regis)
-%     figure;
-%     imshow(SRef)
+    figure;
+    imshow(SReg)
+    figure;
+    imshow(SRef)
 % profile viewer % Es parte del profiler, descomentar para ver
 tiempofinal = toc; 

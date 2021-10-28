@@ -18,13 +18,31 @@ clear
         
     %% ACO init
 t_max = 150; 
-hormigas = 30;
+constantes = 1;
+switch constantes
+    case 1
+        % Barrido 1
+        rho = 0.8;
+        alpha = 2.2;
+        beta = 0.5;
+        gamma = 3.4;
+        Q = 65;
+        hormigas = 25;
+    case 2
+        % Barrido 2
+        % Rate de evaporación (puede tomar valores entre 0 y 1)
+        rho = 0.9;
+        % Le da más peso a la feromona en la probabilidad
+        alpha = 2;
+        % Le da más peso al costo del link en la probabilidad
+        beta = 0.5;
+        % Factor de guía
+        gamma = 2.2;
+        % cte. positiva que regula el depósito de feromona
+        Q = 40;
+        hormigas = 30;
+end
 
-rho = 0.4; 
-alpha = 2.2;
-beta = 0.5; 
-gamma = 3.6; 
-Q = 45; 
 epsilon = 0.9; 
 
 % Matriz peso
@@ -288,7 +306,7 @@ for rep = 1:1:repetitions
             % no strings.
 
             ants(k).path = loop_remover(str2double(ants(k).path));
-            L(k, t) = sum(G.Edges.Eta(findedge(G, ants(k).path(1:end-1), ants(k).path(2:end))));
+            L(k, t) = sum(G.Edges.Eta(findedge(G, ants(k).path(1:end-1), ants(k).path(2:end))).^-1);
             all_path{k, t} = ants(k).path;  % Equivale a x_k(t)
 
             % Regresamos la hormiga k al inicio

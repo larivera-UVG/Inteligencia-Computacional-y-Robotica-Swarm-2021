@@ -3,7 +3,9 @@
 % parámetros:
 % grid es un número entero mayor a 1. Se genera un grafo de grid x grid
 % La salida es el grafo para implementar el ACO.
-function [grafo] = graph_grid(grid, tau0)
+% Al nodo 1 se le asigna el peso del primer pixel de la imagen, el avance
+% es por filas.
+function [grafo] = graph_grid(grid, tau0, Idiff)
 
 diag_cost = 0.5;
 x_lim_pos = grid;
@@ -26,7 +28,7 @@ EndNodes = [];
 Weight = [];
 Eta = [];
 
-WeightN = tau0*ones(n,1);
+Weight = tau0*ones(n,1);
 for nodo = 1:n
     moved_node = repmat(Coords(nodo, :), [4 1]) + simple_move;
     diag_moved_node = repmat(Coords(nodo, :), [4 1]) + diag_move;
@@ -35,17 +37,18 @@ for nodo = 1:n
     vecino_diag = diag_moved_node(diag_moved_node(:, 1) <= x_lim_pos & diag_moved_node(:, 1) >= x_lim_neg & diag_moved_node(:, 2) <= y_lim_pos & diag_moved_node(:, 2) >= y_lim_neg, :);
     
     EndNodes = [EndNodes; grid_x*(vecino_simple(:, 2) - ones(size(vecino_simple, 1), 1)) + vecino_simple(:, 1), ones(size(vecino_simple, 1), 1)*nodo];
-    Weight = [Weight; ones(size(vecino_simple, 1), 1)];
-    Eta = [Eta; ones(size(vecino_simple, 1), 1)];
     
     EndNodes = [EndNodes; grid_x*(vecino_diag(:, 2) - ones(size(vecino_diag, 1), 1)) + vecino_diag(:, 1), ones(size(vecino_diag, 1), 1)*nodo];
-    Weight = [Weight; ones(size(vecino_diag, 1), 1)];
-    Eta = [Eta; ones(size(vecino_diag, 1), 1)*1/diag_cost];
+   
+    % Para usar un parámetro de corrimiento dentro de una matriz, este se
+    % corre por filas. Se hace dentro del for para que quede como vector y
+    % no como matriz. 
+    Eta = [Eta; Idiff(nodo)];
 
 end
 X = Coords(:, 1);
 Y = Coords(:, 2);
-G = graph(table(EndNodes, Weight, Eta), table(Name, X, Y, WeightN));
+G = graph(table(EndNodes), table(Name, X, Y, Weight, Eta));
 grafo = simplify(G);
 
 end

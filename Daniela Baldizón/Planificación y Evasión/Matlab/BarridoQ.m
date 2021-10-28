@@ -18,13 +18,29 @@ clear
         
     %% ACO init
 t_max = 150; 
-hormigas = 30;
-
-rho = 0.4; 
-alpha = 2.2;
-beta = 0.5; 
-gamma = 3.6; 
-Q = 45; 
+switch constantes
+    case 1
+        % Barrido 1
+        rho = 0.8;
+        alpha = 2.2;
+        beta = 0.5;
+        gamma = 3.4;
+        Q = 65;
+        hormigas = 25;
+    case 2
+        % Barrido 2
+        % Rate de evaporación (puede tomar valores entre 0 y 1)
+        rho = 0.9;
+        % Le da más peso a la feromona en la probabilidad
+        alpha = 2;
+        % Le da más peso al costo del link en la probabilidad
+        beta = 0.5;
+        % Factor de guía
+        gamma = 2.2;
+        % cte. positiva que regula el depósito de feromona
+        Q = 40;
+        hormigas = 30;
+end
 epsilon = 0.9; 
 
 % Matriz peso
@@ -40,8 +56,8 @@ mapa = zeros(grid_size+2); % Creación del mapa
 % Preallocation
 ants(1:hormigas) = struct('blocked_nodes', [], 'last_node', nodo_init,...
     'current_node', nodo_init, 'path', nodo_init, 'L', zeros(1, t_max));
-sweep = 10:10:100;
-repetitions = 2;
+sweep = 5:5:100;
+repetitions = 15;
 Q_sweep_data = cell(numel(sweep) * repetitions + 1, 5);
 Q_sweep_data(1, :) = {'tiempo', 'costo', 'iteraciones', 'path', 'Q'};
 sweep_count = 1;
@@ -288,7 +304,7 @@ for rep = 1:1:repetitions
             % no strings.
 
             ants(k).path = loop_remover(str2double(ants(k).path));
-            L(k, t) = sum(G.Edges.Eta(findedge(G, ants(k).path(1:end-1), ants(k).path(2:end))));
+            L(k, t) = sum(G.Edges.Eta(findedge(G, ants(k).path(1:end-1), ants(k).path(2:end))).^-1);
             all_path{k, t} = ants(k).path;  % Equivale a x_k(t)
 
             % Regresamos la hormiga k al inicio

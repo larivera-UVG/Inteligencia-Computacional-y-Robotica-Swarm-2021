@@ -57,12 +57,15 @@ tic  % Para medir el tiempo que se tarda el algoritmo en correr.
         case 6
             % Mapa Webots
             obstaculos = [23,24,27,28,32,62,67,72,73,74,78,79]'; 
+        case 7
+            % Barrido
+            obstaculos = [4,5,6, 71, 73, 72, 78, 89, 99, 67,56,18,19,28,29]';
     end
         
     %% ACO init
 t_max = 1000; 
 
-constantes = 4;
+constantes = 3;
 switch constantes
     case 1
         % Constantes Gaby
@@ -87,7 +90,7 @@ switch constantes
         beta = 0.5;
         gamma = 3.4;
         Q = 65;
-        hormigas = 25;
+        hormigas = 15;
     case 4
         % Barrido 2
         % Rate de evaporación (puede tomar valores entre 0 y 1)
@@ -100,11 +103,11 @@ switch constantes
         gamma = 2.2;
         % cte. positiva que regula el depósito de feromona
         Q = 40;
-        hormigas = 20;
+        hormigas = 60;
 end
 
 % Porcentaje de hormigas que queremos siguiendo la misma solución
-epsilon = 0.9; 
+epsilon = 0.95; 
 
 % Matriz peso
 D = zeros(grid_size^2);
@@ -385,7 +388,7 @@ while (t <= t_max && stop)
         
         ants(k).path = loop_remover(str2double(ants(k).path));
         L(k, t) = sum(G.Edges.Eta(findedge(G, ants(k).path(1:end-1), ants(k).path(2:end))).^-1);
-        Largo(k,t) = sum(G.Edges.Eta(findedge(G, ants(k).path(1:end-1), ants(k).path(2:end))));
+%         Largo(k,t) = sum(G.Edges.Eta(findedge(G, ants(k).path(1:end-1), ants(k).path(2:end))));
         all_path{k, t} = ants(k).path;  % Equivale a x_k(t)
         
         % Regresamos la hormiga k al inicio
@@ -400,7 +403,7 @@ while (t <= t_max && stop)
     
     %% Update de Feromona
     for k = 1:hormigas
-        dtau = 1.5*Q/(L(k,t)*numel(ants(k).path));
+        dtau = Q/(L(k,t)*numel(ants(k).path));
         edge_index = findedge(G, ants(k).path(1:end - 1), ants(k).path(2:end));
         
         largos = find(L~=0);
@@ -409,11 +412,11 @@ while (t <= t_max && stop)
         
         
         [mode_plot(t), F] = mode(L(:,t));
-        if (F/hormigas >= epsilon*0.4) % condición de paro
-            2568
+        if (F/hormigas >= epsilon*0.4) 
+            disp("Nivel de convergencia mayor a e*0.4")
             if(L(k,t)<=min_cost)
                 G.Edges.Weight(edge_index) = G.Edges.Weight(edge_index) + Q*dtau;
-                1568
+                disp("Segunda Fermona")
             end
         else
             G.Edges.Weight(edge_index) = G.Edges.Weight(edge_index) + dtau;
