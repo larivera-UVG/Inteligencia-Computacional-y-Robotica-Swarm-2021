@@ -48,7 +48,7 @@ G = graph_grid(grid_size, tau_0, Idiff);
 nodo_init = "1";
 
 %% ACO init
-t_max = 100; 
+t_max = 50; 
 hormigas = (size(SRef,1))^2;
 
 % Rate de evaporación (puede tomar valores entre 0 y 1)
@@ -244,11 +244,12 @@ while (t <= t_max && stop)
                 
                 % Se lleva la comida al nodo inicial
                 food(k) = Idiff(str2double(ants(k).current_node));
-                % Se busca la comida que es negativa para que lo que se
-                % mueva sean los pixeles en SReg
+                % Se busca la comida que es negativ
                 if food(k) < 0
                     SReg(k) = SReg(k) - food(k);
-                    SReg(str2double(ants(k).current_node)) = SReg(str2double(ants(k).current_node)) + food(k)
+                    SReg(str2double(ants(k).current_node)) = SReg(str2double(ants(k).current_node)) + food(k);
+                    ants(k).current_node;
+                    SReg
                     Idiff = double(SRef - SReg);
                     G.Nodes.Eta(k) = Idiff(k);
                 end

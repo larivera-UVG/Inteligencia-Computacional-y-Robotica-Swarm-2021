@@ -7,7 +7,7 @@
 % es por filas.
 function [grafo] = graph_grid(grid, tau0, Idiff)
 
-diag_cost = 0.5;
+diag_cost = 1;
 x_lim_pos = grid;
 y_lim_pos = grid;
 x_lim_neg = 1;
