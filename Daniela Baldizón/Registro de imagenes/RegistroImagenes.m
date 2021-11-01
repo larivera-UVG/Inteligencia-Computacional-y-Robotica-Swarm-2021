@@ -70,6 +70,7 @@ path_k = cell(hormigas, 1); % Inicializa el path de las hormigas en 0
 all_path = cell(hormigas, t_max); % El path de todas las hormigas
 all_weight = cell(hormigas, t_max);
 
+%% Nuevo
 
 for i = 1:hormigas
     % Struct de las hormigas
@@ -89,21 +90,20 @@ B_BP = zeros(sqrt(hormigas));
 while (t <= t_max && stop)
     contador = 0;
     
-        parfor k = 1:hormigas
+        for n = 1:hormigas
             contador = contador + 1;
            
             % Si Idiff es negativo, la hormiga debe buscar intensidades más bajas con
             % los vecinos. Si es mayor o igual a cero, va a buscar valores de
             % intensidad más altos con los vecinos.
             % Alimento de las hormigas
-            Idiff(k) = double(SRef(k) - SReg(k));
-            food = zeros(1,hormigas);
+%             Idiff = double(SRef - SReg);
 
-%             if mod(t,2) == 0
-%                 k = hormigas - n + 1;
-%             else
-%                 k = contador;
-%             end
+            if mod(t,2) == 0
+                k = hormigas - n + 1;
+            else
+                k = contador;
+            end
             
             % Posicion actual por hormiga (Se hace esto para que las
             % posiciones en la imagen coincidan con el grafo)
@@ -144,6 +144,7 @@ while (t <= t_max && stop)
                 ants(k).current_node = next_node;
                 ants(k).path = [ants(k).path; ants(k).current_node];
                 
+                
                 % Se lleva la comida al nodo inicial
                 food(k) = Idiff(str2double(ants(k).current_node));
                 % Se busca la comida que es negativa para que lo que se
@@ -151,7 +152,7 @@ while (t <= t_max && stop)
                 if food(k) < 0
                     SReg(k) = SReg(k) - food(k);
                     SReg(str2double(ants(k).current_node)) = SReg(str2double(ants(k).current_node)) + food(k);
-                    Idiff(k) = double(SRef(k) - SReg(k));
+                    Idiff = double(SRef - SReg);
                     G.Nodes.Eta(k) = Idiff(k);
                 end
             end
@@ -173,10 +174,6 @@ while (t <= t_max && stop)
             ants(k).last_node = int2str(k);
 
         end
-        
-    for k = 1:hormigas
-        
-    end
     
     %% Cálculos SSD y CC
     % Se tomó A como la referencia y B como la registrada
