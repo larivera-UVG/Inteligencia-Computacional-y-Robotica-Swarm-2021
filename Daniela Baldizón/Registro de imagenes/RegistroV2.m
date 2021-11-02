@@ -1,6 +1,6 @@
-% Algoritmo de Registro de im·genes
-% Daniela BaldizÛn
-% Se tomÛ como base el cÛdigo desarrollado por Gabriela Iriarte
+% Algoritmo de Registro de im√°genes
+% Daniela Baldiz√≥n
+% Se tom√≥ como base el c√≥digo desarrollado por Gabriela Iriarte
 
 clear
 clc
@@ -34,9 +34,9 @@ SReg = STemp; % Distorsionada
 % figure;
 % imshow(JD)
 
-% Si Idiff es negativo, la hormiga debe buscar intensidades m·s bajas con
+% Si Idiff es negativo, la hormiga debe buscar intensidades m√°s bajas con
 % los vecinos. Si es mayor o igual a cero, va a buscar valores de
-% intensidad m·s altos con los vecinos.
+% intensidad m√°s altos con los vecinos.
 % Alimento de las hormigas
 Idiff = double(SRef - STemp);
 
@@ -51,15 +51,15 @@ G = graph_grid(grid_size, tau_0, Idiff);
 t_max = 150; 
 hormigas = (size(SRef,1))^2;
 
-% Rate de evaporaciÛn (puede tomar valores entre 0 y 1)
+% Rate de evaporaci√≥n (puede tomar valores entre 0 y 1)
 rho = 0.6; 
-% Le da m·s peso a la feromona en la probabilidad
+% Le da m√°s peso a la feromona en la probabilidad
 alpha = 1;
-% Le da m·s peso al costo del link en la probabilidad
+% Le da m√°s peso al costo del link en la probabilidad
 beta = 1;
-% cte. positiva que regula el depÛsito de feromona
+% cte. positiva que regula el dep√≥sito de feromona
 Q = 2.1; 
-% Porcentaje de hormigas que queremos siguiendo la misma soluciÛn
+% Porcentaje de hormigas que queremos siguiendo la misma soluci√≥n
 epsilon = 0.9; 
 
 % Preallocation
@@ -78,7 +78,7 @@ end
 t = 1;
 stop = 1; % No tocar
 
-% InicializaciÛn variables
+% Inicializaci√≥n variables
 food = zeros(1,hormigas);
 A_B = zeros(sqrt(hormigas));
 A_AP = zeros(sqrt(hormigas));
@@ -89,9 +89,9 @@ while (t <= t_max && stop)
     
     parfor k = 1:hormigas
 
-        % Si Idiff es negativo, la hormiga debe buscar intensidades m·s bajas con
+        % Si Idiff es negativo, la hormiga debe buscar intensidades m√°s bajas con
         % los vecinos. Si es mayor o igual a cero, va a buscar valores de
-        % intensidad m·s altos con los vecinos.
+        % intensidad m√°s altos con los vecinos.
         % Alimento de las hormigas
         Idiff = double(SRef - SReg);
 
@@ -111,7 +111,7 @@ while (t <= t_max && stop)
 
         weight_int_vec = zeros(1,size(colum_coor,1));
 
-        % encuentra el peso de los pixeles en proximity. El peso est· dado como
+        % encuentra el peso de los pixeles en proximity. El peso est√° dado como
         % la diferencia ente la imagen de referencia y el template.
         for j = 1:size(colum_coor,1)
             weight_int_vec(j) = Idiff(fila_coor(j),colum_coor(j));
@@ -142,7 +142,7 @@ while (t <= t_max && stop)
             
             vecinos_updated = vecinos;
 
-            % La hormiga toma la decisiÛn de a donde ir eq.(17.6)
+            % La hormiga toma la decisi√≥n de a donde ir eq.(17.6)
             next_node = ant_decision(vecinos_updated, alpha, beta, G);
 
             ants(k).last_node = [ants(k).last_node; ants(k).current_node];
@@ -151,7 +151,7 @@ while (t <= t_max && stop)
 
         end
 
-        % Le quitamos los loops al path y ahora los Ìndices son n˙meros y
+        % Le quitamos los loops al path y ahora los √≠ndices son n√∫meros y
         % no strings.
 
         ants(k).path = loop_remover(str2double(ants(k).path));
@@ -184,8 +184,8 @@ while (t <= t_max && stop)
         ants(k).path = int2str(k);
     end
         
-    %% C·lculos SSD y CC
-    % Se tomÛ A como la referencia y B como la registrada
+    %% C√°lculos SSD y CC
+    % Se tom√≥ A como la referencia y B como la registrada
     
     % Intensidad promedio de la referencia
     AP = mean2(SRef);
@@ -206,7 +206,7 @@ while (t <= t_max && stop)
     CC = (sum(sum(A_AP.*B_BP)))/sqrt(sum(sum(A_AP.^2))*sum(sum(B_BP.^2)));
     
     if CC >= 0.9
-        % CondiciÛn de paro cuando el coeficiente de correlaciÛn sea lo
+        % Condici√≥n de paro cuando el coeficiente de correlaci√≥n sea lo
         % suficientemente bueno
         stop = 0;
     end
