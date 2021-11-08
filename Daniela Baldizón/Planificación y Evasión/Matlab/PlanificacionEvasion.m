@@ -21,7 +21,7 @@ tic  % Para medir el tiempo que se tarda el algoritmo en correr.
     nodo_init = "1";
     
     
-    escenario = 2;
+    escenario = 1;
    
     switch escenario
         case 1
@@ -63,9 +63,9 @@ tic  % Para medir el tiempo que se tarda el algoritmo en correr.
     end
         
     %% ACO init
-t_max = 1000; 
+t_max = 100; 
 
-constantes = 3;
+constantes = 4;
 switch constantes
     case 1
         % Constantes Gaby
@@ -86,24 +86,24 @@ switch constantes
     case 3
         % Barrido 1
         rho = 0.8;
-        alpha = 2.2;
+        alpha = 1;
         beta = 0.5;
         gamma = 3.4;
-        Q = 65;
-        hormigas = 15;
+        Q = 60;
+        hormigas = 60;
     case 4
         % Barrido 2
         % Rate de evaporación (puede tomar valores entre 0 y 1)
         rho = 0.9;
         % Le da más peso a la feromona en la probabilidad
-        alpha = 2;
+        alpha = 1;
         % Le da más peso al costo del link en la probabilidad
         beta = 0.5;
         % Factor de guía
         gamma = 2.2;
         % cte. positiva que regula el depósito de feromona
-        Q = 40;
-        hormigas = 60;
+        Q = 55;
+        hormigas = 45;
 end
 
 % Porcentaje de hormigas que queremos siguiendo la misma solución
@@ -412,7 +412,7 @@ while (t <= t_max && stop)
         
         
         [mode_plot(t), F] = mode(L(:,t));
-        if (F/hormigas >= epsilon*0.4) 
+        if (F/hormigas >= epsilon*0.5) 
             disp("Nivel de convergencia mayor a e*0.4")
             if(L(k,t)<=min_cost)
                 G.Edges.Weight(edge_index) = G.Edges.Weight(edge_index) + Q*dtau;

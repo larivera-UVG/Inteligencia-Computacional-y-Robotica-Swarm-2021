@@ -12,6 +12,9 @@ function nextIndx = rouletteWheel(probabilidad)
     suma = norm_probability(ind); % Número inicial
     while (suma < r) % Si la probabilidad es menor que el random
         ind = ind + 1; % Siguiente número
+%         if ind > size(probabilidad,1)
+%             ind = 1
+%         end
         suma = suma + norm_probability(ind); % Probabilidad acumulada
     end
     nextIndx = ind;

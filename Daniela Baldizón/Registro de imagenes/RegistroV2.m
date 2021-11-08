@@ -5,29 +5,44 @@
 clear
 clc
 
-% % Referencia
-% Ref = rgb2gray(imread('Lena.jpg'));
+tic
+% Referencia
+Ref = rgb2gray(imread('Reference.jpg'));
+
+% Template
+Temp = rgb2gray(imread('Template.jpg'));
+% (1:10,1:10)
+SRef = double(Ref);
+STemp = double(Temp);
+SReg = STemp;
+
+% Intensidad total
+int_ref = sum(sum(SRef));
+int_temp = sum(sum(STemp));
+int_reg = sum(sum(SReg));
+desface = int_ref - int_temp;
+
+Residuo = sign(desface)*mod(abs(desface),numel(SRef));
+desfaceM = sign(desface)*(abs(desface) - abs(Residuo));
+idesface = randi(numel(SReg));
+% desface de intensidad
+SReg = SReg + desfaceM/numel(SReg);
+SReg(idesface) = SReg(idesface) + Residuo;
+int_reg2 = sum(sum(SReg));
+
+% Im = zeros(10);
+% Im(4:7,4) = 155;
+% Im(4:7,5) = 168;
+% Im(4:7,6) = 161;
 % 
-% % Template
-% Temp = rgb2gray(imread('Lena Distorsion.jpg'));
+% Im2 = zeros(10);
+% Im2(4:7,1) = 155;
+% Im2(4:7,4) = 168;
+% Im2(4:7,9) = 161;
 % 
-% SRef = double(Ref(1:10,1:10));
-% STemp = double(Temp(1:10,1:10));
-% SReg = STemp;
-
-Im = zeros(10);
-Im(4:7,4) = 155;
-Im(4:7,5) = 168;
-Im(4:7,6) = 161;
-
-Im2 = zeros(10);
-Im2(4:7,1) = 155;
-Im2(4:7,4) = 168;
-Im2(4:7,9) = 161;
-
-SRef = Im;
-STemp = Im2; % Distorsionada
-SReg = STemp; % Distorsionada
+% SRef = Im;
+% STemp = Im2; % Distorsionada
+% SReg = STemp; % Distorsionada
 % figure;
 % imshow(SubJ)
 % 
@@ -38,18 +53,17 @@ SReg = STemp; % Distorsionada
 % los vecinos. Si es mayor o igual a cero, va a buscar valores de
 % intensidad más altos con los vecinos.
 % Alimento de las hormigas
-Idiff = double(SRef - STemp);
+Idiff = double(SRef - SReg);
 
 %% Graph generation
-tic
 % Creamos grid cuadrado con la cantidad de nodos indicada:
 grid_size = size(SRef,1);
-tau_0 = 1;  % Valor de tau inicial
+tau_0 = 0.1;  % Valor de tau inicial
 G = graph_grid(grid_size, tau_0, Idiff);
 
 %% ACO init
-t_max = 150; 
-hormigas = (size(SRef,1))^2;
+t_max = 750; 
+hormigas = numel(SRef);
 
 % Rate de evaporación (puede tomar valores entre 0 y 1)
 rho = 0.6; 
@@ -83,8 +97,10 @@ food = zeros(1,hormigas);
 A_B = zeros(sqrt(hormigas));
 A_AP = zeros(sqrt(hormigas));
 B_BP = zeros(sqrt(hormigas));
+CC_acumulado = zeros(t_max,1);
+
 %%
-while (t <= t_max && stop)
+while stop%(t <= t_max && stop)
     
     
     parfor k = 1:hormigas
@@ -124,15 +140,16 @@ while (t <= t_max && stop)
         
         % En las iteraciones par se bloquean los nodos mayores al
         % actual, para dar el efecto de retroceso
-%         if (mod(t,2)==0 && ~isempty(vecinos))
-%             vecinos_v2 = str2double(vecinos);
-%             for i = 1:vecinos_v2
-%                 ants(k).blocked_nodes = [ants(k).blocked_nodes; ...
-%                     vecinos_v2(i)];
-%             end
-%             vecinos = setdiff(convertCharsToStrings(neighbors(G, ants(k).current_node)),...
-%                 ants(k).blocked_nodes, 'rows','stable');
-%         end
+        if (mod(t,10)==0 && ~isempty(vecinos))
+            vecinos_v2 = str2double(vecinos);
+            for i = 1:size(vecinos_v2,1)
+                if vecinos_v2(i) > str2double(ants(k).current_node)
+                    ants(k).blocked_nodes = [ants(k).blocked_nodes; vecinos_v2(i)];
+                end
+            end
+            vecinos = setdiff(convertCharsToStrings(neighbors(G, ants(k).current_node)),...
+                ants(k).blocked_nodes, 'rows','stable');
+        end
         
         if (isempty(vecinos))
             ants(k).path = ants(k).current_node;
@@ -167,6 +184,13 @@ while (t <= t_max && stop)
     for k = 1:hormigas
         Idiff = double(SRef - SReg);
         nodo_actual = ants(k).path(end);
+        
+%         food(k) = Idiff(k);
+%         if food(k) < 0
+%             SReg(nodo_actual) = SReg(nodo_actual) - food(k);
+%             SReg(k) = SReg(k) + food(k)
+%             Idiff = double(SRef - SReg);
+%         end
         % Se lleva la comida al nodo inicial
         food(k) = Idiff(nodo_actual);
         % Se busca la comida que es negativa para que lo que se
@@ -174,12 +198,16 @@ while (t <= t_max && stop)
         if food(k) < 0
             SReg(k) = SReg(k) - food(k);
             SReg(nodo_actual) = SReg(nodo_actual) + food(k);
-            Idiff(k) = double(SRef(k) - SReg(k));
-            G.Nodes.Eta(k) = Idiff(k);
+            Idiff = double(SRef - SReg);
         end
         
+        % Intensidad
+        G.Nodes.Eta(k) = Idiff(k);
+        G.Nodes.Eta(nodo_actual) = Idiff(nodo_actual);
+        
         % Feromona
-        G.Nodes.Weight(str2double(ants(k).current_node)) = (1-rho)*G.Nodes.Weight(k) + tau_0;
+        G.Nodes.Weight(str2double(ants(k).current_node)) = exp(-rho)*G.Nodes.Weight(k) +...
+            tau_0*abs(Idiff(k))*heaviside(-Idiff(k));
         
         ants(k).path = int2str(k);
     end
@@ -204,6 +232,13 @@ while (t <= t_max && stop)
     
     SSD = sum(sum(A_B));
     CC = (sum(sum(A_AP.*B_BP)))/sqrt(sum(sum(A_AP.^2))*sum(sum(B_BP.^2)));
+    CC_acumulado(t,1) = CC;
+    
+    ref_zero = sum(any(Idiff));
+    
+    if isnan(CC) && ref_zero == 0
+        CC = 1;
+    end
     
     if CC >= 0.9
         % Condición de paro cuando el coeficiente de correlación sea lo
@@ -224,8 +259,9 @@ else
     imshow(uint8(SReg))
     figure;
     imshow(uint8(SRef))
-%     figure;
-%     imshow(uint8(STemp))
+    figure;
+    imshow(uint8(STemp))
+%     save Resultados.mat
 end
 
     
