@@ -1,10 +1,10 @@
 # Implementación y Validación del Algoritmo de Robótica de Enjambre Particle Swarm Optimizationen Sistemas Físicos
 
 # Indice
-[John Gruber]
-Estructura de Carpetas
-	Codigo
-		PSO
+1. [Estructura de Carpetas](#Estructura de Carpetas)
+	Estructura de Carpetas
+		Codigo
+			PSO
 	Raspberry Pi
 	Documentos
 	Reporte
