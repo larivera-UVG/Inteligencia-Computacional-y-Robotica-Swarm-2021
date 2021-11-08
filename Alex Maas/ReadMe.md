@@ -1,7 +1,12 @@
 # Implementación y Validación del Algoritmo de Robótica de Enjambre Particle Swarm Optimizationen Sistemas Físicos
 
-# Indice
-1. [Estructura de Carpetas](#Estructura de Carpetas)
+## Indice
+1. [Estructura de Carpetas](#Estructura-de-Carpetas)
+2. [Antecedentes](#Antecedentes)
+
+## Estructura de Carpetas
+## Antecedentes 
+
 	Estructura de Carpetas
 		Codigo
 			PSO
