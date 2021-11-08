@@ -1,6 +1,7 @@
 # Implementación y Validación del Algoritmo de Robótica de Enjambre Particle Swarm Optimizationen Sistemas Físicos
 
-
+# Indice
+[John Gruber]
 Estructura de Carpetas
 	Codigo
 		PSO
