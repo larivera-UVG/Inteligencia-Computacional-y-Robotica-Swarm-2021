@@ -8,8 +8,8 @@
 ## Estructura de Carpetas
 Estructura de las carpetas en el repositorio
 - Codigo:
-* PSO.c
-* PSO3.py
+** PSO.c
+** PSO3.py
 - Fases Anteriores
 - Raspberry Pi
 
