@@ -37,7 +37,18 @@ Para compilar la librería  math agregar el comando
 
 Para compilar algún programa con multihilos agregar el comando 
 ```sh
---lpthread
+-lpthread
+```
+
+Para apagar la Raspberry desde la terminal
+```sh
+sudo shutdown -h now
+```
+
+Para verificar si algún socket se encuentra abierto y forzar su terminación
+```sh
+ps ax | grep _ejecutable_
+kill _num.ejecutable_
 ```
 
 ## Documentos
