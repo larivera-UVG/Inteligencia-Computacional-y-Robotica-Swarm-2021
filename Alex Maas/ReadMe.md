@@ -55,13 +55,13 @@ Para enviar algún archivo (o ejecutable) de una raspberry a otra (deben estar e
 ```sh
 scp _archivo_ pi@10.0.0.0:Desktop
 ```
-*Nota: modificar la direccion IP y la ubicacion de destino (ejemplo: Desktop)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <sub>Nota: modificar la direccion IP y la ubicacion de destino (ejemplo: Desktop).</sub>
 
 Para conectarse desde la aplicación Cygwin (terminal) a alguna Raspberry 
 ```sh
 ssh pi@10.0.0.0
 ```
-*Nota: modificar la direccion IP
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <sub>Nota: modificar la direccion IP.</sub>
 
 ## Documentos
 Se agrupan documentos importantes desarrollados en los cursos diseño e innovación en ingeniería y los preparativos finales para la defensa de la tesis.
