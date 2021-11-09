@@ -51,5 +51,12 @@ ps ax | grep _ejecutable_
 kill _num.ejecutable_
 ```
 
+Para enviar algún archivo (o ejecutable) de una raspberry a otra (deben estar en la misma red)
+```sh
+scp _archivo_ pi@10.0.0.0:Desktop
+```
+*Nota: modificar la direccion IP y la ubicacion de destino (ejemplo: Desktop)
+
+
 ## Documentos
 Se agrupan documentos importantes desarrollados en los cursos diseño e innovación en ingeniería y los preparativos finales para la defensa de la tesis.
