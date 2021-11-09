@@ -57,6 +57,11 @@ scp _archivo_ pi@10.0.0.0:Desktop
 ```
 *Nota: modificar la direccion IP y la ubicacion de destino (ejemplo: Desktop)
 
+Para conectarse desde la aplicación Cygwin (terminal) a alguna Raspberry 
+```sh
+ssh pi@10.0.0.0
+```
+*Nota: modificar la direccion IP
 
 ## Documentos
 Se agrupan documentos importantes desarrollados en los cursos diseño e innovación en ingeniería y los preparativos finales para la defensa de la tesis.
