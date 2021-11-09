@@ -5,6 +5,6 @@
 
 clc
 clear
-load MapaAC3B2.mat
+load MapaDC3B1.mat
 formatSpec = 'iter: %d - t: %.2f - cost: %.2f \n';
 fprintf(formatSpec, t-1, tiempofinal/(60), moda)

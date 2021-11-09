@@ -36,7 +36,7 @@ Im(4:7,5) = 168;
 Im(4:7,6) = 161;
 
 Im2 = zeros(10);
-Im2(4:7,1) = 155;
+Im2(4:7,2) = 155;
 Im2(4:7,4) = 168;
 Im2(4:7,9) = 161;
 
@@ -98,24 +98,41 @@ A_B = zeros(sqrt(hormigas));
 A_AP = zeros(sqrt(hormigas));
 B_BP = zeros(sqrt(hormigas));
 CC_acumulado = zeros(t_max,1);
+CC12_acumulado = zeros(t_max,1);
+contador = 0;
 
 %%
 while stop%(t <= t_max && stop)
     
-    
-    parfor k = 1:hormigas
-
+    contador = 1;
+    for n = 1:hormigas
+%         contador = contador + 1;
         % Si Idiff es negativo, la hormiga debe buscar intensidades más bajas con
         % los vecinos. Si es mayor o igual a cero, va a buscar valores de
         % intensidad más altos con los vecinos.
         % Alimento de las hormigas
         Idiff = double(SRef - SReg);
-
-
-        % Posicion actual por hormiga (Se hace esto para que las
-        % posiciones en la imagen coincidan con el grafo)
-        l = G.Nodes.X(str2double(ants(k).current_node)); % Fila
-        m = G.Nodes.Y(str2double(ants(k).current_node)); % Columna
+        
+        
+        
+        if mod(contador,2) == 0
+            if mod(t,2) == 0
+                k = hormigas - k + 1;
+            else
+                k = k - 1;
+            end
+        else
+            if mod(t,2) == 0
+                k = hormigas - n + 1;
+            else
+                k = n;
+            end
+        end
+%         if mod(t,2) == 0
+%                 k = hormigas - n + 1;
+%             else
+%                 k = contador;
+%         end
 
         % encuentra los nodos vecinos
         proximity = [convertCharsToStrings(neighbors(G, k))];
@@ -138,19 +155,6 @@ while stop%(t <= t_max && stop)
         vecinos = setdiff(convertCharsToStrings(neighbors(G, ants(k).current_node)),...
             ants(k).blocked_nodes, 'rows','stable');
         
-        % En las iteraciones par se bloquean los nodos mayores al
-        % actual, para dar el efecto de retroceso
-        if (mod(t,10)==0 && ~isempty(vecinos))
-            vecinos_v2 = str2double(vecinos);
-            for i = 1:size(vecinos_v2,1)
-                if vecinos_v2(i) > str2double(ants(k).current_node)
-                    ants(k).blocked_nodes = [ants(k).blocked_nodes; vecinos_v2(i)];
-                end
-            end
-            vecinos = setdiff(convertCharsToStrings(neighbors(G, ants(k).current_node)),...
-                ants(k).blocked_nodes, 'rows','stable');
-        end
-        
         if (isempty(vecinos))
             ants(k).path = ants(k).current_node;
             ants(k).current_node = ants(k).path(end);
@@ -161,10 +165,31 @@ while stop%(t <= t_max && stop)
 
             % La hormiga toma la decisión de a donde ir eq.(17.6)
             next_node = ant_decision(vecinos_updated, alpha, beta, G);
+            nodo_actual = str2double(ants(k).current_node);
+
+            % Se lleva la comida al nodo inicial
+            food(str2double(ants(k).current_node)) = Idiff(str2double(next_node));
+            % Se busca la comida que es negativa para que lo que se
+            % mueva sean los pixeles en SReg
+            if food(str2double(ants(k).current_node)) < 0
+                SReg(str2double(ants(k).current_node)) = SReg(str2double(ants(k).current_node)) - food(str2double(ants(k).current_node));
+                SReg(str2double(next_node)) = SReg(str2double(next_node)) + food(str2double(ants(k).current_node))
+                Idiff = double(SRef - SReg);
+            end
+
+            % Intensidad
+            G.Nodes.Eta(str2double(ants(k).current_node)) = Idiff(str2double(ants(k).current_node));
+            G.Nodes.Eta(str2double(next_node)) = Idiff(str2double(next_node));
+
+            % Feromona
+            G.Nodes.Weight(str2double(ants(k).current_node)) = ...
+                exp(-rho)*G.Nodes.Weight(str2double(ants(k).current_node)) +...
+                tau_0*abs(Idiff(str2double(ants(k).current_node)))*heaviside(-Idiff(str2double(ants(k).current_node)));
 
             ants(k).last_node = [ants(k).last_node; ants(k).current_node];
             ants(k).current_node = next_node;
             ants(k).path = [ants(k).path; ants(k).current_node];
+            
 
         end
 
@@ -178,38 +203,17 @@ while stop%(t <= t_max && stop)
         ants(k).current_node = int2str(k);
         ants(k).blocked_nodes = [];
         ants(k).last_node = int2str(k);
-
-    end
-    
-    for k = 1:hormigas
-        Idiff = double(SRef - SReg);
-        nodo_actual = ants(k).path(end);
-        
-%         food(k) = Idiff(k);
-%         if food(k) < 0
-%             SReg(nodo_actual) = SReg(nodo_actual) - food(k);
-%             SReg(k) = SReg(k) + food(k)
-%             Idiff = double(SRef - SReg);
-%         end
-        % Se lleva la comida al nodo inicial
-        food(k) = Idiff(nodo_actual);
-        % Se busca la comida que es negativa para que lo que se
-        % mueva sean los pixeles en SReg
-        if food(k) < 0
-            SReg(k) = SReg(k) - food(k);
-            SReg(nodo_actual) = SReg(nodo_actual) + food(k);
-            Idiff = double(SRef - SReg);
-        end
-        
-        % Intensidad
-        G.Nodes.Eta(k) = Idiff(k);
-        G.Nodes.Eta(nodo_actual) = Idiff(nodo_actual);
-        
-        % Feromona
-        G.Nodes.Weight(str2double(ants(k).current_node)) = exp(-rho)*G.Nodes.Weight(k) +...
-            tau_0*abs(Idiff(k))*heaviside(-Idiff(k));
-        
         ants(k).path = int2str(k);
+        
+
+%         if mod(n,grid_size) == 0
+%             contador = contador + 1;
+%             if mod(t,2) == 0
+%                 k = contador*grid_size - 1;
+%             else
+%                 k = contador*grid_size + 1;
+%             end
+%         end
     end
         
     %% Cálculos SSD y CC
@@ -231,14 +235,16 @@ while stop%(t <= t_max && stop)
     
     
     SSD = sum(sum(A_B));
-    CC = (sum(sum(A_AP))*sum(sum(B_BP)))/sqrt(sum(sum(A_AP.^2))*sum(sum(B_BP.^2)));
+    CC_12 = (sum(sum(A_AP))*sum(sum(B_BP)))/sqrt(sum(sum(A_AP.^2))*sum(sum(B_BP.^2)));
+    CC12_acumulado(t,1) = CC_12;
+    CC = (sum(sum(A_AP.*B_BP)))/sqrt(sum(sum(A_AP.^2))*sum(sum(B_BP.^2)));
     CC_acumulado(t,1) = CC;
     
     ref_zero = sum(any(Idiff));
     
-% %     if isnan(CC) && ref_zero == 0
-% %         CC = 1;
-% %     end
+    if isnan(CC) && ref_zero == 0
+        CC = 1;
+    end
     
     if CC >= 0.9
         % Condición de paro cuando el coeficiente de correlación sea lo
