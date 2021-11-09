@@ -25,6 +25,20 @@ Diseñó una red neuronal recurrente (RNN) capaz de tomar diferentes métricas d
 ### José Pablo Guerra (2020)
 
 ## Raspberry Pi
+Para compilar algún código desde la terminar
+```sh
+gcc nombre_del_archivo.c -o _ejecutable_
+```
+
+Para compilar la librería  math agregar el comando 
+```sh
+-lm
+```
+
+Para compilar algún programa con multihilos agregar el comando 
+```sh
+--lpthread
+```
 
 ## Documentos
 Se agrupan documentos importantes desarrollados en los cursos diseño e innovación en ingeniería y los preparativos finales para la defensa de la tesis.
