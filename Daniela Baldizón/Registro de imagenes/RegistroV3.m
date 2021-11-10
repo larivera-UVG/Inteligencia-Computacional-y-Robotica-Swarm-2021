@@ -7,10 +7,10 @@ clc
 
 tic
 % Referencia
-Ref = rgb2gray(imread('Reference.jpg'));
+Ref = rgb2gray(imread('LenaOjo.jpg'));
 
 % Template
-Temp = rgb2gray(imread('Template.jpg'));
+Temp = rgb2gray(imread('LenaOjoD.jpg'));
 % (1:10,1:10)
 SRef = double(Ref);
 STemp = double(Temp);
@@ -106,7 +106,7 @@ while stop%(t <= t_max && stop)
     
     contador = 1;
     for n = 1:hormigas
-%         contador = contador + 1;
+        
         % Si Idiff es negativo, la hormiga debe buscar intensidades más bajas con
         % los vecinos. Si es mayor o igual a cero, va a buscar valores de
         % intensidad más altos con los vecinos.
@@ -128,11 +128,6 @@ while stop%(t <= t_max && stop)
                 k = n;
             end
         end
-%         if mod(t,2) == 0
-%                 k = hormigas - n + 1;
-%             else
-%                 k = contador;
-%         end
 
         % encuentra los nodos vecinos
         proximity = [convertCharsToStrings(neighbors(G, k))];
@@ -154,19 +149,6 @@ while stop%(t <= t_max && stop)
 
         vecinos = setdiff(convertCharsToStrings(neighbors(G, ants(k).current_node)),...
             ants(k).blocked_nodes, 'rows','stable');
-        
-        % En las iteraciones par se bloquean los nodos mayores al
-        % actual, para dar el efecto de retroceso
-%         if (mod(t,2)==0 && ~isempty(vecinos))
-%             vecinos_v2 = str2double(vecinos);
-%             for i = 1:size(vecinos_v2,1)
-%                 if vecinos_v2(i) > str2double(ants(k).current_node)
-%                     ants(k).blocked_nodes = [ants(k).blocked_nodes; vecinos_v2(i)];
-%                 end
-%             end
-%             vecinos = setdiff(convertCharsToStrings(neighbors(G, ants(k).current_node)),...
-%                 ants(k).blocked_nodes, 'rows','stable');
-%         end
         
         if (isempty(vecinos))
             ants(k).path = ants(k).current_node;
@@ -285,3 +267,13 @@ end
 
     
 tiempofinal = toc; 
+
+subplot(1,3,1)
+imshow(uint8(STemp))
+title('Imagen plantilla')
+subplot(1,3,2)
+imshow(uint8(SRef))
+title('Imagen de referencia')
+subplot(1,3,3)
+imshow(uint8(SReg))
+title('Imagen registada')

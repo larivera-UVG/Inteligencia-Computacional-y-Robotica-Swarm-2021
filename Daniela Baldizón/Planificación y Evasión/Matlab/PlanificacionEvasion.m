@@ -73,7 +73,7 @@ switch constantes
         alpha = 1;
         beta = 1;
         Q = 2.1;
-        gamma = 1;
+        gamma = 3;
         hormigas = 60;
     case 2
         % Artículo
@@ -412,11 +412,11 @@ while (t <= t_max && stop)
         
         
         [mode_plot(t), F] = mode(L(:,t));
-        if (F/hormigas >= epsilon*0.5) 
-            disp("Nivel de convergencia mayor a e*0.4")
+        if (F/hormigas >= epsilon*0.4) 
+%             disp("Nivel de convergencia mayor a e*0.4")
             if(L(k,t)<=min_cost)
                 G.Edges.Weight(edge_index) = G.Edges.Weight(edge_index) + Q*dtau;
-                disp("Segunda Fermona")
+%                 disp("Segunda Fermona")
             end
         else
             G.Edges.Weight(edge_index) = G.Edges.Weight(edge_index) + dtau;

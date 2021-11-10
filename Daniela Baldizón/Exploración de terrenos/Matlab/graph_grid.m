@@ -5,7 +5,7 @@
 % La salida es el grafo para implementar el ACO.
 function [grafo] = graph_grid(grid)
 
-diag_cost = 0.5;
+diag_cost = 1.41;
 x_lim_pos = grid;
 y_lim_pos = grid;
 x_lim_neg = 1;
@@ -36,7 +36,7 @@ for nodo = 1:n
     
     EndNodes = [EndNodes; grid_x*(vecino_simple(:, 2) - ones(size(vecino_simple, 1), 1)) + vecino_simple(:, 1), ones(size(vecino_simple, 1), 1)*nodo];
     Weight = [Weight; ones(size(vecino_simple, 1), 1)];
-    Eta = [Eta; 3*ones(size(vecino_simple, 1), 1)];
+    Eta = [Eta; ones(size(vecino_simple, 1), 1)];
     
     EndNodes = [EndNodes; grid_x*(vecino_diag(:, 2) - ones(size(vecino_diag, 1), 1)) + vecino_diag(:, 1), ones(size(vecino_diag, 1), 1)*nodo];
     Weight = [Weight; ones(size(vecino_diag, 1), 1)];
