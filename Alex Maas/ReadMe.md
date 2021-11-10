@@ -8,6 +8,7 @@
 
 ## Estructura de Carpetas
 Estructura de las carpetas en el repositorio
+```json
 Codigo:
    | 
    └─── C
@@ -38,6 +39,7 @@ Codigo:
    └─── Python
        |
        └─── PSO3:
+```
 
 - Fases Anteriores
 - Raspberry Pi
