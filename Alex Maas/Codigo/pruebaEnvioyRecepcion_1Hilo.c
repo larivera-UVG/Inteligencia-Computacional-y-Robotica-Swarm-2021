@@ -31,27 +31,24 @@ static double recepcion[2];
 static double best_global[] = {1.0, 1.0};
 static double fitness_global = 10.0;
 int num_agente = 0;
-static double posicion_robot_X =0;
-static double posicion_robot_Y =0;
-static double rad =0;
+static double posicion_robot_X = 10.0;
+static double posicion_robot_Y = 10.0;
+static double rad = 10.0;
 //------------------------------Comunicacion -------------------------------
-void error(const char *msg)
-{
+void error(const char *msg){
 	perror(msg);
 	exit(0);
 }
 
 // Receiving thr: constantly waits for messages. Whatever is received is displayed.
-void *receiving(void *ptr)
-{
+void *receiving(void *ptr){
 	int *sock, n, ret;
 	int i = 0;
 	sock = (int *)ptr;								  // socket identifier
 	unsigned int length = sizeof(struct sockaddr_in); // size of structure
 	struct sockaddr_in from;
 
-	while (1)
-	{
+	while (1){
 		memset(buffer_recibir, 0, MSG_SIZE); // "limpia" el buffer
 		// receive message
 		n = recvfrom(*sock, buffer_recibir, MSG_SIZE, 0, (struct sockaddr *)&from, &length);
@@ -59,7 +56,7 @@ void *receiving(void *ptr)
 			error("Error: recvfrom");
 		}
 		i = 0;
-		ret=strncmp(buffer_recibir, "T1" ,2);
+		ret=strncmp(buffer_recibir, "T2" ,2);
 
 		if(ret != 0){
 			// descomponer buffer_recibir, strtok
@@ -69,8 +66,9 @@ void *receiving(void *ptr)
 				i++;
 				recepcion[i] = atof(token);
 			}
+			printf("recepcion %f,%f, %f.\n",recepcion[1],recepcion[2],recepcion[3]);
 			// Actualizar global best
-			if (recepcion[2] <= fitness_global){ //Local< Global, asigna el valor local al global
+			if (recepcion[3] <= fitness_global){ //Local< Global, asigna el valor local al global
 				best_global[0] = recepcion[1];
 				best_global[1] = recepcion[2];
 				fitness_global = recepcion[3];
@@ -83,11 +81,12 @@ void *receiving(void *ptr)
 		}else{
 			// descomponer buffer_recibir, strtok
 			token = strtok(buffer_recibir, ",");
-			recepcion[i] = atoi(token);
+			recepcion[i] = atof(token);
 			while ((token = strtok(NULL, ",")) != NULL){
 				i++;
-				recepcion[i] = atoi(token);
+				recepcion[i] = atof(token);
 			}
+			printf("recepcion %f, %f, %f.\n",recepcion[1],recepcion[2],recepcion[3]);
 			posicion_robot_X = recepcion[1];
             posicion_robot_Y = recepcion[2];
             rad = recepcion[3];
@@ -99,10 +98,8 @@ void *receiving(void *ptr)
 //------------------------------------------------------------------------------------------
 
 // Main function
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]){
 	//------------------------------Comunicacion -------------------------------
-
 	int sock, n;
 	unsigned int length = sizeof(struct sockaddr_in); // size of structure
 	char buffer_enviar1[MSG_SIZE], buffer_enviar2[MSG_SIZE];					  // to store received messages or messages to be sent.
@@ -111,7 +108,8 @@ int main(int argc, char *argv[])
 	pthread_t thread_rec;							  // thread variable
 	char IP_broadcast[IP_LENGTH];					  // para la dirección de broadcast
 	FILE *file;
-	strcpy(IP_broadcast, "10.0.0.255"); 		// Puede que se deba cambiar. Revisar ifconfig
+	//strcpy(IP_broadcast, "10.0.0.255"); 		// Puede que se deba cambiar. Revisar ifconfig
+	strcpy(IP_broadcast, "192.168.0.255");
 
 	printf("La dirección de broadcast es: %s\n\n", IP_broadcast);
 
@@ -177,7 +175,7 @@ int main(int argc, char *argv[])
 			if (n < 0)
 				error("Error: sendto");
 		}
-	} while (buffer_enviar1[0] && buffer_enviar2[0] != '!');
+	} while ((buffer_enviar1[0] || buffer_enviar2[0]) != '!');
 
 	close(sock); // close socket.
 	return 0;

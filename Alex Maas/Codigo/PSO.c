@@ -19,6 +19,7 @@ Alex Maas #17146  */
 #define MSG_SIZE 40 // message size
 #define IP_LENGTH 15
 #define PUERTO 2001
+#define PUERTO2 2010
 
 // Controladores
 #define TUC_CONTROLLER 0
@@ -74,9 +75,9 @@ Alex Maas #17146  */
 #define MAX_CHANGE 1.00
 
 //static const double *posicion_robot; //falta sensor
-static double posicion_robot_X;
-static double posicion_robot_Y;
-static double rad;
+static double posicion_robot_X = 0;
+static double posicion_robot_Y = 0;
+static double rad = 0;
 
 // Nuevas posiciones del robot
 static double new_position[] = {0, 0};
@@ -96,9 +97,6 @@ static double fitness_local = 0;
 // Posicion Global
 static double best_global[] = {0, 0};
 static double fitness_global = 0;
-
-// Recepcion de datos de otros robots
-static double recepcion[2];
 
 // Parametros PSO
 static double epsilon = CONSTRICTION_FACTOR;
@@ -157,9 +155,14 @@ static int numero_iter = 0;
 int estado = 0;
 int num_agente = 0;
 
+// Recepcion de datos de otros robots
+static double recepcion[2];
+static double recepcion2[2];
+
 // Variable de recibir
 char buffer_recibir[MSG_SIZE];  // to store received messages or messages to be sent.
 char *token;
+char *token2;
 
 
 // Numeros aleatorios
@@ -202,81 +205,118 @@ void error(const char *msg){
 }
 //----------------------------------------------------------------------------------
 
-//------------------------Hilo para recibir--------------------------------------
+//------------------------Recepcion Broadcast (comunicacion agentes)--------------------------------------
 // Receiving thr: constantly waits for messages. Whatever is received is displayed.
-void *receiving(void *ptr)
-{
+void *receiving(void *ptr){
     int *sock, n, ret;
     int i = 0;
     sock = (int *)ptr;                                // socket identifier
     unsigned int length = sizeof(struct sockaddr_in); // size of structure
     struct sockaddr_in from;
 
-    while (1)
-    {
+    while (1){
         memset(buffer_recibir, 0, MSG_SIZE); // "limpia" el buffer
         // receive message
         n = recvfrom(*sock, buffer_recibir, MSG_SIZE, 0, (struct sockaddr *)&from, &length);
-        if (n < 0)
-        {
+        if (n < 0){
             error("Error: recvfrom");
         }
         i = 0;
-        ret=strncmp(buffer_recibir, "T1" ,2);
-
-        if(ret != 0){
-            //------ Se descompone el buffer_recibir---------------------
-            token = strtok(buffer_recibir, ",");
-            recepcion[i] = atof(token);
-            while ((token = strtok(NULL, ",")) != NULL){
-                i++;
-                recepcion[i] = atof(token);
-            }
-            // ---------------Actualizar global best ----------------------
-            if (recepcion[2] < fitness_global){ 
-                printf("Global actualizado.\n");
-                best_global[0] = recepcion[1];
-                best_global[1] = recepcion[2];
-                fitness_global = recepcion[3];
-                printf("Agente %d actualiza su Best Global a %f.\n", num_agente, fitness_global);
-            }else{
-                printf("Agente %d no actualiza su Best Global %f.\n", num_agente, fitness_global);
-            }
-        }else{
-            //------ Se descompone el buffer_recibir---------------------
-            token = strtok(buffer_recibir, ",");
-            recepcion[i] = atof(token);
-            while ((token = strtok(NULL, ",")) != NULL){
-                i++;
-                recepcion[i] = atof(token);
-            }
-            posicion_robot_X = recepcion[1];
-            posicion_robot_Y = recepcion[2];
-            rad = recepcion[3];
-            printf("Coordenadas recibidas del agente %d son: %f, %f, %f.\n", num_agente, posicion_robot_X, posicion_robot_Y, rad);
-        } 
+		// descomponer buffer_recibir, strtok
+		token = strtok(buffer_recibir, ",");
+		recepcion[i] = atof(token);
+		while ((token = strtok(NULL, ",")) != NULL){
+			i++;
+			recepcion[i] = atof(token);
+		}
+		printf("recepcion %f,%f, %f.\n",recepcion[1],recepcion[2],recepcion[3]);
+		// Actualizar global best
+		if (recepcion[3] <= fitness_global){ //Local< Global, asigna el valor local al global
+			best_global[0] = recepcion[1];
+			best_global[1] = recepcion[2];
+			fitness_global = recepcion[3];
+			//fitness_local = recepcion[3];
+			printf("Agente %d actualiza su Best Global a %f.\n", num_agente, fitness_global);
+		}else{
+			printf("Agente %d no actualiza su Best Global %f.\n", num_agente, fitness_global);
+		}	
     }
     pthread_exit(0);
 }
 //----------------------------------------------------------------------------------------
 
+//------------ Recepcion Matlab (Vision por computadora) ------------------
+void *receiving2(void *ptr){
+    int sockfd, length, n;
+    int j = 0;
+	socklen_t fromlen;
+	struct sockaddr_in server;
+	struct sockaddr_in from;
+	char buffer[MSG_SIZE];
+
+	sockfd = socket(AF_INET, SOCK_DGRAM, 0); // Creates socket. Connectionless.
+	if(sockfd < 0)
+		error("Opening socket");
+
+	length = sizeof(server);			// length of structure
+	memset((char *)&server, 0, length); // sets all values to zero.
+	server.sin_family = AF_INET;		// symbol constant for Internet domain
+	server.sin_addr.s_addr = htonl(INADDR_ANY);	// para recibir de cualquier interfaz de red
+	server.sin_port = htons(PUERTO2);	// port number
+
+	// binds the socket to the address of the host and the port number
+	if(bind(sockfd, (struct sockaddr *)&server, length) < 0)
+       error("binding");
+
+	fromlen = sizeof(struct sockaddr_in);	// size of structure
+
+	while(1){
+		memset(buffer, 0, MSG_SIZE);	// sets all values to zero.
+		// receive from client
+		// Usamos recvfrom(), indicando de quién esperamos el mensaje. A diferencia
+		// de TCP, acá no se establece la conexión. Necesitamos indicar de quién
+		// recibimos cada vez.
+		n = recvfrom(sockfd, buffer, MSG_SIZE, 0, (struct sockaddr *)&from, &fromlen);
+		if(n < 0)
+            error("recvfrom");
+
+		//printf("Mensaje recibido: %s\n", buffer);
+        j = 0;
+		// descomponer buffer_recibir, strtok
+		token2 = strtok(buffer, ",");
+        recepcion2[j] = atof(token2);
+		while ((token2 = strtok(NULL, ",")) != NULL){
+			j++;
+			recepcion2[j] = atof(token2);   
+		}
+        posicion_robot_X = recepcion2[1];
+        posicion_robot_Y = recepcion2[2];
+        rad = recepcion2[3];
+        printf("Coordenadas de Vision por Computadora del agente %d son: %f, %f, %f.\n", num_agente, posicion_robot_X, posicion_robot_Y, rad);
+    }
+    pthread_exit(0);
+}
+
+//------------------------------------------------------------------------------------
+
+
 //-------------------------------- MAIN ----------------------------------------------------------
 // Main function
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]){
     //------------------------------Proceso de Comunicacion -------------------------------
     int sock, n;
     unsigned int length = sizeof(struct sockaddr_in);           // size of structure
-    char buffer_enviar1[MSG_SIZE], buffer_enviar2[MSG_SIZE];    // to store received messages or messages to be sent.
+    char buffer_enviar1[MSG_SIZE];                              // to store received messages or messages to be sent.
     struct sockaddr_in anybody;                                 // for the socket configuration
     int boolval = 1;                                            // for a socket option
-    pthread_t hilo_envio 
+    pthread_t thread_rec, thread_rec2; 
     char IP_broadcast[IP_LENGTH];                               // para la dirección de broadcast
     FILE *file;
     strcpy(IP_broadcast, "10.0.0.255"); // Puede que se deba cambiar. Revisar ifconfig
+    //strcpy(IP_broadcast, "192.168.0.255");
     printf("La dirección de broadcast es: %s\n\n", IP_broadcast);
 
-	if (argc == 2){
+	if (argc == 5){
 		num_agente = atoi(argv[1]);
 	}
 
@@ -300,21 +340,18 @@ int main(int argc, char *argv[])
     }
     anybody.sin_addr.s_addr = inet_addr(IP_broadcast); // broadcast address
  
-    pthread_create(&hilo_envio, NULL, receiving, (void *)&sock); // para recepcion
+    pthread_create(&thread_rec, NULL, receiving, (void *)&sock); // para recepcion
+    pthread_create(&thread_rec2, NULL, receiving2, (void *)&sock); // for receiving
 
  	printf("Este programa despliega lo que sea que reciba.\n");
 	printf("Agente %d conectado\n", num_agente);
 
-    do
-    {
+    while ((buffer_enviar1[0] || buffer_enviar2[0]) != '!'){
         memset(buffer_enviar1, 0, MSG_SIZE); // "limpia" el buffer
-		memset(buffer_enviar2, 0, MSG_SIZE); // "limpia" el buffer
-        //fgets(buffer_enviar,MSG_SIZE-1,stdin); // MSG_SIZE-1 'cause a null character is added
-        sleep(5);
-
-        // Valores a enviar
+											//fgets(buffer_enviar,MSG_SIZE-1,stdin); // MSG_SIZE-1 'cause a null character is added
+		sleep(5);
+		// Valores a enviar
 		sprintf(buffer_enviar1, "T1,%f,%f,%f", best_local[0], best_local[1], fitness_local);
-		//sprintf(buffer_enviar2, "T2,%f,%f,%f", posicion_robot_X, posicion_robot_Y, rad); esto viene de VC
 
         if (buffer_enviar1[0] != '!'){
 			// send message to anyone there...
@@ -323,22 +360,9 @@ int main(int argc, char *argv[])
 			if (n < 0)
 				error("Error: sendto");
 		}
-		if (buffer_enviar2[0] != '!'){
-			// send message to anyone there...
-			n = sendto(sock, buffer_enviar2, strlen(buffer_enviar2), 0,
-					   (const struct sockaddr *)&anybody, length);
-			if (n < 0)
-				error("Error: sendto");
-		}
-	} while (buffer_enviar1[0] && buffer_enviar2[0] != '!');
-    close(sock); // close socket.
-    //------------------------------------------------------------------------------------------
-
-    //-----------------------------------------------------------------------------------------------
-
-    //-------------------------------- Main loop -----------------------------------------------
-    while (TIME_STEP != -1){
+        //------ PSO ---------------------------------------
         numero_iter++;
+        printf("Comienza PSO.\n");
         // --------------------Configuracion de valores iniciales del PSO-------------------
         if (estado == 0)
         {
@@ -353,6 +377,7 @@ int main(int argc, char *argv[])
             // Calcular  Fitness valor
             fitness_local = funcion(actual_position[0], actual_position[1]);
             fitness_global = funcion(actual_position[0], actual_position[1]);
+            printf("Valor Fitness Local Inicial: %f y Valor Fitnes Global Inicial: %f.\n", fitness_local, fitness_global);
             estado = 1;
         }
         //-------------------Obtener posicion y orientacion del robot-------------------------------
@@ -381,9 +406,10 @@ int main(int argc, char *argv[])
         //--------------------------- Actualizacion de global y local best-------------------------------
 
         // Calcular fitness valor de posicion actual
-        actual_position[0] = posicion_robot[2];
-        actual_position[1] = posicion_robot[0];
+        actual_position[0] = posicion_robot_X;
+        actual_position[1] = posicion_robot_Y;
         fitness_actual = funcion(actual_position[0], actual_position[1]);
+        printf("Valor Fitness Actual: %f.\n", fitness_actual);
 
         // Actualizar local best si posicion actual  posee una mejor fitness valor
         if (fitness_actual < fitness_local)
@@ -454,6 +480,7 @@ int main(int argc, char *argv[])
             new_position[0] = actual_position[0] + new_velocity[0] * V_scaler;
             new_position[1] = actual_position[1] + new_velocity[1] * V_scaler;
         }
+        printf("Nuevas Posiciones del agente %d son: %f, %f.\n", num_agente, new_position[0], new_position[1]);
         // ------------------ Variables de Controladores ----------------------
 
         // Inicializacion  de velocidad angular y lineal
@@ -666,8 +693,9 @@ int main(int argc, char *argv[])
             }
             PhiL_old = phi_l;
         }
-
+         printf("Valores de velocidad del agente %d son: %f, %f.\n", num_agente, phi_l, phi_r);
         // Envio de velocidads a motores
     }
+    close(sock); // close socket.
     return 0;
 }

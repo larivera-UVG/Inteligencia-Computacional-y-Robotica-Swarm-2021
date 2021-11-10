@@ -31,3 +31,6 @@ int main (){
     sprintf(buffer_enviar, "%f,%f,%f",recepcion[0],recepcion[1],recepcion[2]);
     printf("\n%s\n",buffer_enviar);
 }
+
+
+
