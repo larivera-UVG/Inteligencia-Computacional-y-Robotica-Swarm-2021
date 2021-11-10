@@ -8,7 +8,7 @@
 
 ## Estructura de Carpetas
 Estructura de las carpetas en el repositorio
-- Codigo:
+Codigo:
    | 
    └─── C
    |   |
