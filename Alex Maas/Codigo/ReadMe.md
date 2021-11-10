@@ -18,6 +18,11 @@ En este código se prueban las funciones “strtok”, “atof” y “sprintf�
 ## prueba_comunicacionUDP_C&Matlab.c 
 
 ## prueba_comunicacionUDP_Matlab&C.m
+Este código contiene la 
+
 ## prueba_enviodecoordenadas_Webots.m
+
+
+
 ## PSO3.py
 Esta versión del algoritmo PSO 2D consiste en una implementación ordinaria del conocido algoritmo para su comparación con el mismo algoritmo desarrollado en fases anteriores en Matlab. Esta implementación se realiza para Python, aprovechando sus múltiples librerías para graficar y su facilidad para trabajar con clases. Este código permite variar el numero de iteraciones, cantidad de agentes, seleccionar algún tipo de inercia y función costo, así como desplegar la iteración final en forma gráfica.  Se muestra la mejor posición alcanzada por los agentes según el máximo de iteraciones establecidas. Para tener una comparación justa con Matlab el espacio de búsqueda se limita a [-5,5] y se toman los agentes como partículas sin dimensiones físicas.

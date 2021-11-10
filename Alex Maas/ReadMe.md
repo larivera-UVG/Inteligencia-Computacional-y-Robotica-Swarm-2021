@@ -38,7 +38,7 @@ Codigo:
    |
    └─── Python
        |
-       └─── PSO3:
+       └─── PSO3
 ```
 
 - Fases Anteriores
