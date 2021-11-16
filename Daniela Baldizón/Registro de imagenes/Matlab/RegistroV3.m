@@ -10,10 +10,10 @@ tic
 Ref = rgb2gray(imread('Lena.jpg'));
 
 % Template
-Temp = rgb2gray(imread('LenaDistorsion.jpg'));
+Temp = rgb2gray(imread('Lena Distorsion.jpg'));
 % (1:10,1:10)
-SRef = double(Ref);
-STemp = double(Temp);
+SRef = double(Ref(11:20,11:20));
+STemp = double(Temp(11:20,11:20));
 SReg = STemp;
 
 % Intensidad total
@@ -247,6 +247,9 @@ while stop%(t <= t_max && stop)
         % Condición de paro cuando el coeficiente de correlación sea lo
         % suficientemente bueno
         stop = 0;
+        
+        T_final = T_final - desfaceM/numel(SReg);
+        T_final(idesface) = T_final(idesface) - Residuo;
     end
     
     t = t + 1;
@@ -258,6 +261,7 @@ if (t > t_max)
     disp("No hubo convergencia")
 else
     disp("Listo")
+    
 %     figure;
 %     imshow(uint8(SReg))
 %     figure;
