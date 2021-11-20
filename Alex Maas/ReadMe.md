@@ -3,8 +3,9 @@
 ## Indice
 1. [Estructura de Carpetas](#Estructura-de-Carpetas)
 2. [Antecedentes](#Antecedentes)
-3. [Uso Raspberry Pi](#Raspberry-Pi)
+3. [Codigo](#Codigo)
 4. [Documentos](#Documentos)
+5. [Uso Raspberry Pi](#Raspberry-Pi)
 
 ## Estructura de Carpetas
 Estructura de las carpetas en el repositorio
@@ -50,10 +51,6 @@ Repositorio
 	   
 ```
 
-- Fases Anteriores
-- Raspberry Pi
-- Documentos
-
 ## Antecedentes 
 ### Aldo Aguilar (2019)
 Tomando como base el algoritmo PSO como un planificador de trayectorias procedió a modificarlo para que este tome en consideración las dimensiones de robots físicosy la velocidad a la que estos pueden moverse, además se implementaron diferentes tipos decontroladores para buscar el robot pueda llegar al punto de meta realizando una trayectoriasuave y controlada.
@@ -65,7 +62,17 @@ Diseñó una red neuronal recurrente (RNN) capaz de tomar diferentes métricas d
 
 ### José Pablo Guerra (2020)
 
+
+## Código
+Dentro de la carpeta de código se encuentran todos los código desarrollados para esta tesis, se agrupan de acuerdo con el  lenguaje de programación usado y se da una breve descripción de su funcionamiento y de cómo ejecutarlos, así como la razón de su creación (validación de la prueba).    
+
+
+## Documentos
+Se agrupan documentos importantes desarrollados en los cursos diseño e innovación en ingeniería y los preparativos finales para la defensa de la tesis.
+
+
 ## Raspberry Pi
+
 Para compilar algún código desde la terminar
 ```sh
 gcc nombre_del_archivo.c -o _ejecutable_
@@ -104,5 +111,3 @@ ssh pi@10.0.0.0
 ```
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <sub>Nota: modificar la direccion IP.</sub>
 
-## Documentos
-Se agrupan documentos importantes desarrollados en los cursos diseño e innovación en ingeniería y los preparativos finales para la defensa de la tesis.
