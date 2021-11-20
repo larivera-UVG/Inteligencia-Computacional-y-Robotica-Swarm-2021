@@ -40,8 +40,8 @@ Repositorio
 |    |        └─── Archivos .mat y .txt con resultados de las simulaciones en Webots
 |    |
 |    └─── Python
-| 	  |
-| 	  └─── PSO3
+| 	 |
+| 	 └─── PSO3
 | 	   
 | 
 └─── Documentación:
