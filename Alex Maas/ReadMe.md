@@ -64,50 +64,15 @@ Diseñó una red neuronal recurrente (RNN) capaz de tomar diferentes métricas d
 
 
 ## Código
-Dentro de la carpeta de código se encuentran todos los código desarrollados para esta tesis, se agrupan de acuerdo con el  lenguaje de programación usado y se da una breve descripción de su funcionamiento y de cómo ejecutarlos, así como la razón de su creación (validación de la prueba).    
+Dentro de la carpeta de Código se encuentran todos los código desarrollados para esta tesis, se agrupan de acuerdo con el  lenguaje de programación usado y se da una breve descripción de su funcionamiento y de cómo ejecutarlos, así como la razón de su creación (validación de la prueba).    
 
 
 ## Documentos
-Se agrupan documentos importantes desarrollados en los cursos diseño e innovación en ingeniería y los preparativos finales para la defensa de la tesis.
+Dentro de la carpeta de Documentos se agrupan documentos importantes desarrollados en los cursos diseño e innovación en ingeniería y los preparativos finales para la defensa de la tesis.
 
 
 ## Raspberry Pi
+Dentro de la carpeta de Documentos se agrupan documentos importantes para el uso del ordenador Raspberry Pi, usado para la elaboración de esta tesis. Comandos útiles y notas para compilar programas
 
-Para compilar algún código desde la terminar
-```sh
-gcc nombre_del_archivo.c -o _ejecutable_
-```
 
-Para compilar la librería  math agregar el comando 
-```sh
--lm
-```
-
-Para compilar algún programa con multihilos agregar el comando 
-```sh
--lpthread
-```
-
-Para apagar la Raspberry desde la terminal
-```sh
-sudo shutdown -h now
-```
-
-Para verificar si algún socket se encuentra abierto y forzar su terminación
-```sh
-ps ax | grep _ejecutable_
-kill _num.ejecutable_
-```
-
-Para enviar algún archivo (o ejecutable) de una raspberry a otra (deben estar en la misma red)
-```sh
-scp _archivo_ pi@10.0.0.0:Desktop
-```
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <sub>Nota: modificar la direccion IP y la ubicacion de destino (ejemplo: Desktop).</sub>
-
-Para conectarse desde la aplicación Cygwin (terminal) a alguna Raspberry 
-```sh
-ssh pi@10.0.0.0
-```
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <sub>Nota: modificar la direccion IP.</sub>
 
