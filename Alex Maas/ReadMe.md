@@ -9,36 +9,45 @@
 ## Estructura de Carpetas
 Estructura de las carpetas en el repositorio
 ```json
-Codigo:
-   | 
-   └─── C
-   |   |
-   |   └─── PSO
-   |   |
-   |   └─── pruebaEnvioyRecepcion_1Hilo
-   |   |
-   |   └─── pruebaEnvioyRecepcion_2Hilos
-   |   |
-   |   └─── pruebaPSO_1agente
-   |   |
-   |   └─── pruebaSTRTOK
-   |   |
-   |   └─── prueba_comunicacionUDP_C&Matlab
-   |
-   |
-   └─── Matlab
-   |   |
-   |   └─── prueba_comunicacionUDP_Matlab&C:
-   |   |
-   |   └─── prueba_enviodecoordenadas_Webots:
-   |   |
-   |   └─── Puntos de Evaluacion:
-   |        |   
-   |        └─── Archivos .mat y .txt con resultados de las simulaciones en Webots
-   |
-   └─── Python
-       |
-       └─── PSO3
+Repositorio
+| 
+└─── Codigo:
+| 	 | 
+|    └─── C
+|    |   |
+|    |   └─── PSO
+|    |   |
+| 	 |   └─── pruebaEnvioyRecepcion_1Hilo
+| 	 |   |
+| 	 |   └─── pruebaEnvioyRecepcion_2Hilos
+| 	 |   |
+| 	 |   └─── pruebaPSO_1agente
+| 	 |   |
+| 	 |   └─── pruebaSTRTOK
+| 	 |   |
+| 	 |   └─── prueba_comunicacionUDP_C&Matlab
+| 	 |
+| 	 |
+| 	 └─── Matlab
+| 	 |   |
+| 	 |   └─── prueba_comunicacionUDP_Matlab&C:
+| 	 |   |
+| 	 |   └─── prueba_enviodecoordenadas_Webots:
+| 	 |   |
+| 	 |   └─── Puntos de Evaluacion:
+| 	 |        |   
+| 	 |        └─── Archivos .mat y .txt con resultados de las simulaciones en Webots
+| 	 |
+| 	 └─── Python
+| 	      |
+| 	      └─── PSO3
+| 	   
+| 
+└─── Documentación:
+|
+|
+└─── Raspberry Pi:
+	   
 ```
 
 - Fases Anteriores
