@@ -45,6 +45,7 @@ En esta carpeta está el código de la implementación del algoritmo de planific
 
 <a name="regis"></a>
 ### Registro de imágenes
+En esta carpeta se encuentr el código de la implementación del algoritmo de registro de imágenes. Asimisno, se encuentran las funciones necesarias para el funcionamiento correcto del algoritmo y los resultados obtenidos durante la experimentación. 
 
 <a name="webots"></a>
 ### Webots
