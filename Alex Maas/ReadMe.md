@@ -3,47 +3,53 @@
 ## Indice
 1. [Estructura de Carpetas](#Estructura-de-Carpetas)
 2. [Antecedentes](#Antecedentes)
-3. [Uso Raspberry Pi](#Raspberry-Pi)
+3. [Codigo](#Codigo)
 4. [Documentos](#Documentos)
+5. [Uso Raspberry Pi](#Raspberry-Pi)
 
 ## Estructura de Carpetas
 Estructura de las carpetas en el repositorio
 ```json
-Codigo:
-   | 
-   └─── C
-   |   |
-   |   └─── PSO
-   |   |
-   |   └─── pruebaEnvioyRecepcion_1Hilo
-   |   |
-   |   └─── pruebaEnvioyRecepcion_2Hilos
-   |   |
-   |   └─── pruebaPSO_1agente
-   |   |
-   |   └─── pruebaSTRTOK
-   |   |
-   |   └─── prueba_comunicacionUDP_C&Matlab
-   |
-   |
-   └─── Matlab
-   |   |
-   |   └─── prueba_comunicacionUDP_Matlab&C:
-   |   |
-   |   └─── prueba_enviodecoordenadas_Webots:
-   |   |
-   |   └─── Puntos de Evaluacion:
-   |        |   
-   |        └─── Archivos .mat y .txt con resultados de las simulaciones en Webots
-   |
-   └─── Python
-       |
-       └─── PSO3
+Repositorio
+| 
+└─── Codigo:
+|    | 
+|    └─── C
+|    |   |
+|    |   └─── PSO
+|    |   |
+|    |   └─── pruebaEnvioyRecepcion_1Hilo
+|    |   |
+|    |   └─── pruebaEnvioyRecepcion_2Hilos
+|    |   |
+|    |   └─── pruebaPSO_1agente
+|    |   |
+|    |   └─── pruebaSTRTOK
+|    |   |
+|    |   └─── prueba_comunicacionUDP_C&Matlab
+|    |
+|    |
+|    └─── Matlab
+|    |   |
+|    |   └─── prueba_comunicacionUDP_Matlab&C:
+|    |   |
+|    |   └─── prueba_enviodecoordenadas_Webots:
+|    |   |
+|    |   └─── Puntos de Evaluacion:
+|    |        |   
+|    |        └─── Archivos .mat y .txt con resultados de las simulaciones en Webots
+|    |
+|    └─── Python
+| 	 |
+| 	 └─── PSO3
+| 	   
+| 
+└─── Documentación:
+|
+|
+└─── Raspberry Pi:
+	   
 ```
-
-- Fases Anteriores
-- Raspberry Pi
-- Documentos
 
 ## Antecedentes 
 ### Aldo Aguilar (2019)
@@ -56,44 +62,17 @@ Diseñó una red neuronal recurrente (RNN) capaz de tomar diferentes métricas d
 
 ### José Pablo Guerra (2020)
 
-## Raspberry Pi
-Para compilar algún código desde la terminar
-```sh
-gcc nombre_del_archivo.c -o _ejecutable_
-```
 
-Para compilar la librería  math agregar el comando 
-```sh
--lm
-```
+## Código
+Dentro de la carpeta de Código se encuentran todos los código desarrollados para esta tesis, se agrupan de acuerdo con el  lenguaje de programación usado y se da una breve descripción de su funcionamiento y de cómo ejecutarlos, así como la razón de su creación (validación de la prueba).    
 
-Para compilar algún programa con multihilos agregar el comando 
-```sh
--lpthread
-```
-
-Para apagar la Raspberry desde la terminal
-```sh
-sudo shutdown -h now
-```
-
-Para verificar si algún socket se encuentra abierto y forzar su terminación
-```sh
-ps ax | grep _ejecutable_
-kill _num.ejecutable_
-```
-
-Para enviar algún archivo (o ejecutable) de una raspberry a otra (deben estar en la misma red)
-```sh
-scp _archivo_ pi@10.0.0.0:Desktop
-```
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <sub>Nota: modificar la direccion IP y la ubicacion de destino (ejemplo: Desktop).</sub>
-
-Para conectarse desde la aplicación Cygwin (terminal) a alguna Raspberry 
-```sh
-ssh pi@10.0.0.0
-```
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <sub>Nota: modificar la direccion IP.</sub>
 
 ## Documentos
-Se agrupan documentos importantes desarrollados en los cursos diseño e innovación en ingeniería y los preparativos finales para la defensa de la tesis.
+Dentro de la carpeta de Documentos se agrupan documentos importantes desarrollados en los cursos diseño e innovación en ingeniería y los preparativos finales para la defensa de la tesis.
+
+
+## Raspberry Pi
+Dentro de la carpeta de Documentos se agrupan documentos importantes para el uso del ordenador Raspberry Pi, usado para la elaboración de esta tesis. Comandos útiles y notas para compilar programas
+
+
+
