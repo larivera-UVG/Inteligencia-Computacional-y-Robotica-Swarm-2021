@@ -27,7 +27,7 @@ En esta carpeta se encuentra el código de la implementación. El archivo Planif
 
 - PlanificacionEvasion.m
 
-  Es el archivo principal y el cual debe ejecutarse. 
+  Es el archivo principal y el cual debe ejecutarse. Los obstáculos se establecen según el número de nodo, por ejemplo para un grid de 10x10 obstaculos = [5,6,7,15,16]'. Para     cambiar de mapa utlizar la variable escenario, tomar en cuenta que no todos son del mismo tamaño de grid. Para cambiar las constantes, utilizar la variable constantes.           Modificar los nodos de destino e inicio con las variables nodo_dest y nodo_init, respectivamente.
   
 - rouletteWheel.m
 
