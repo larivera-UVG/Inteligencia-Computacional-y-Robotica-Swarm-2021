@@ -1,0 +1,32 @@
+#VRML_SIM R2021a utf8
+WorldInfo {
+  coordinateSystem "NUE"
+}
+Viewpoint {
+  orientation 1 0 0 4.71238898038469
+  position 7.631550377726291e-05 4.010107779091737 8.995236056298229e-07
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+RectangleArena {
+  floorSize 2 2
+  floorTileSize 0.4 0.4
+  wallHeight 0.05
+}
+E-puck {
+  hidden position_0_0 3.099856692300867e-08
+  hidden position_0_1 -3.099869861034726e-08
+  hidden rotation_1 -1 0 0 2.9802322387695313e-08
+  hidden rotation_2 1 0 0 2.9802322387695313e-08
+  translation -0.939999999833353 -6.392987264458409e-05 0.9399999999999389
+  rotation 3.020165984981629e-06 0.9999999999954393 -1.7505315128352083e-09 3.141589996212804
+  controller "ACO_controller"
+  turretSlot [
+    GPS {
+    }
+    Compass {
+    }
+  ]
+}
