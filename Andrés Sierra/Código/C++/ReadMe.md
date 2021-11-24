@@ -44,7 +44,7 @@ Estos tres archivos contienen la clase con algoritmo ACO descrito anteriormente.
 |----------------|--------------------------------------------------------------|
 |`void optimizar(int ITERACIONES)` | Para la clase se agrega esta función la cual se encarga de correr el proceso del algoritmo (lo que en `pruebaACO.cpp` se corría en el `void main()`. |
 
-|        	
+       	
 Para compilar la clase se debe ejecutar el siguiente comando, este creara un archivo ejecutable en la carpeta donde está guardada la clase.
 ```bash
 g++ main.cpp ACO.cpp -o main
