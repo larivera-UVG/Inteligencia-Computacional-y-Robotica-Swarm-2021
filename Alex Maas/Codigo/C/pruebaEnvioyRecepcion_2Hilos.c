@@ -13,14 +13,14 @@
 #include <ctype.h>
 
 
-#define MSG_SIZE 40 // message size
+#define MSG_SIZE 40 			// tamaño del mensaje
 #define IP_LENGTH 15
-#define PUERTO1 2001
-#define PUERTO2 2010
+#define PUERTO1 2001			// puerto para enviar informacion entre agentes (UDP broadcast)
+#define PUERTO2 2010			// puerto para enviar la pose de los agentes (UDP)
 
 
 // Variable de recibir
-char buffer_recibir[MSG_SIZE]; // to store received messages or messages to be sent.
+char buffer_recibir[MSG_SIZE]; 		// almacenar mensaje recibido
 char *token;
 char *token2;
 
@@ -49,13 +49,13 @@ void error(const char *msg){
 void *receiving(void *ptr){
 	int *sock, n, ret;
 	int i = 0;
-	sock = (int *)ptr;								  // socket identifier
-	unsigned int length = sizeof(struct sockaddr_in); // size of structure
+	sock = (int *)ptr;								  // identificador del socket
+	unsigned int length = sizeof(struct sockaddr_in); 				  // tamaño de la estructura
 	struct sockaddr_in from;
 
 	while (1){
-		memset(buffer_recibir, 0, MSG_SIZE); // "limpia" el buffer
-		// receive message
+		memset(buffer_recibir, 0, MSG_SIZE); 					// "limpia" el buffer
+		// recibir mensaje
 		n = recvfrom(*sock, buffer_recibir, MSG_SIZE, 0, (struct sockaddr *)&from, &length);
 		if (n < 0){
 			error("Error: recvfrom");
@@ -69,9 +69,8 @@ void *receiving(void *ptr){
 			i++;
 			recepcion[i] = atof(token);
 		}
-		//printf("recepcion %f,%f, %f.\n",recepcion[1],recepcion[2],recepcion[3]);
 		// Actualizar global best
-		if (recepcion[3] <= fitness_global){ //Local< Global, asigna el valor local al global
+		if (recepcion[3] <= fitness_global){ 			//Local< Global, asigna el valor local al global
 		    best_global[0] = recepcion[1];
 		    best_global[1] = recepcion[2];
 		    fitness_global = recepcion[3];
@@ -94,46 +93,39 @@ void *receiving2(void *ptr){
 	struct sockaddr_in from;
 	char buffer[MSG_SIZE];
 
-	sockfd = socket(AF_INET, SOCK_DGRAM, 0); // Creates socket. Connectionless.
+	sockfd = socket(AF_INET, SOCK_DGRAM, 0); 		// Creacion del socket
 	if(sockfd < 0)
 		error("Opening socket");
 
-	length = sizeof(server);			// length of structure
-	memset((char *)&server, 0, length); // sets all values to zero.
-	server.sin_family = AF_INET;		// symbol constant for Internet domain
-	server.sin_addr.s_addr = htonl(INADDR_ANY);	// para recibir de cualquier interfaz de red
-	server.sin_port = htons(PUERTO2);	// port number
+	length = sizeof(server);				// length of structure
+	memset((char *)&server, 0, length); 			// establece todos los valores en cero
+	server.sin_family = AF_INET;				// simbolo constante para internet
+	server.sin_addr.s_addr = htonl(INADDR_ANY);		// para recibir de cualquier interfaz de red
+	server.sin_port = htons(PUERTO2);			// Seleccion del puerto
 
-	// binds the socket to the address of the host and the port number
 	if(bind(sockfd, (struct sockaddr *)&server, length) < 0)
        error("binding");
 
-	fromlen = sizeof(struct sockaddr_in);	// size of structure
+	fromlen = sizeof(struct sockaddr_in);			// tamaño de la estructura
 
 	while(1){
-		memset(buffer, 0, MSG_SIZE);	// sets all values to zero.
-		// receive from client
-		// Usamos recvfrom(), indicando de quién esperamos el mensaje. A diferencia
-		// de TCP, acá no se establece la conexión. Necesitamos indicar de quién
-		// recibimos cada vez.
+		memset(buffer, 0, MSG_SIZE);			// limpia el buffer
+		//  recepción  de informacion
 		n = recvfrom(sockfd, buffer, MSG_SIZE, 0, (struct sockaddr *)&from, &fromlen);
 		if(n < 0)
-            error("recvfrom");
-
-		//printf("Mensaje recibido: %s\n", buffer);
-        j = 0;
+            		error("recvfrom");
+       		 j = 0;
 		// descomponer buffer_recibir, strtok
 		token2 = strtok(buffer, ",");
-        recepcion2[j] = atof(token2);
+        	recepcion2[j] = atof(token2);
 		while ((token2 = strtok(NULL, ",")) != NULL){
 			j++;
 			recepcion2[j] = atof(token2);
-            
 		}
-        posicion_robot_X = recepcion2[1];
-        posicion_robot_Y = recepcion2[2];
-        rad = recepcion2[3];
-        printf("Coordenadas de Vision por Computadora del agente %d son: %f, %f, %f.\n", num_agente, posicion_robot_X, posicion_robot_Y, rad);
+        	posicion_robot_X = recepcion2[1];
+        	posicion_robot_Y = recepcion2[2];
+        	rad = recepcion2[3];
+        	printf("Coordenadas de Vision por Computadora del agente %d son: %f, %f, %f.\n", num_agente, posicion_robot_X, posicion_robot_Y, rad);
     }
     pthread_exit(0);
 }
@@ -143,14 +135,14 @@ void *receiving2(void *ptr){
 int main(int argc, char *argv[]){
 	//------------------------------Comunicacion -------------------------------
 	int sock, n;
-	unsigned int length = sizeof(struct sockaddr_in); // size of structure
-	char buffer_enviar1[MSG_SIZE];					  // to store received messages or messages to be sent.
-	struct sockaddr_in anybody;						  // for the socket configuration
-	int boolval = 1;								  // for a socket option
-	pthread_t thread_rec, thread_rec2;							  // thread variable
-	char IP_broadcast[IP_LENGTH];					  // para la dirección de broadcast
+	unsigned int length = sizeof(struct sockaddr_in); 		// tamaño de la estructura
+	char buffer_enviar1[MSG_SIZE];					// almacenar mensaje
+	struct sockaddr_in anybody;					// configuracion del socket
+	int boolval = 1;					
+	pthread_t thread_rec, thread_rec2;				 // variables para multihilos
+	char IP_broadcast[IP_LENGTH];					 // para la dirección de broadcast
 	FILE *file;
-	strcpy(IP_broadcast, "10.0.0.255"); 		// Puede que se deba cambiar. Revisar ifconfig
+	strcpy(IP_broadcast, "10.0.0.255"); 				// Puede que se deba cambiar. Revisar ifconfig
 	//strcpy(IP_broadcast, "192.168.1.255");
 
 	printf("La dirección de broadcast es: %s\n\n", IP_broadcast);
@@ -160,44 +152,43 @@ int main(int argc, char *argv[]){
 		fitness_global = atof(argv[2]);
 		num_agente = atoi(argv[3]);
 	}
-	anybody.sin_family = AF_INET;				 // symbol constant for Internet domain
-	anybody.sin_port = htons(PUERTO1);			 // port field
-	anybody.sin_addr.s_addr = htonl(INADDR_ANY); // para recibir de cualquiera
+	anybody.sin_family = AF_INET;				 // simbolo constante para internet
+	anybody.sin_port = htons(PUERTO1);			 // puerto seleccionado
+	anybody.sin_addr.s_addr = htonl(INADDR_ANY); 		 // para recibir de cualquiera
 
-	sock = socket(AF_INET, SOCK_DGRAM, 0); // Creates socket. Connectionless.
+	sock = socket(AF_INET, SOCK_DGRAM, 0);			 // creacion del socket
 	if (sock < 0)
 		error("Error: socket");
 
-	// Sin el bind, no se reciben los mensajes
 	if (bind(sock, (struct sockaddr *)&anybody, sizeof(struct sockaddr_in)) < 0){
 		printf("Error binding socket.\n");
 		exit(-1);
 	}
 
-	// change socket permissions to allow broadcast
+	// configuracion para permitir broadcast
 	if (setsockopt(sock, SOL_SOCKET, SO_BROADCAST, &boolval, sizeof(boolval)) < 0){
 		printf("Error setting socket options.\n");
 		exit(-1);
 	}
 
-	anybody.sin_addr.s_addr = inet_addr(IP_broadcast); // broadcast address
-
-	// Se creae el hilo de recepción.
-	pthread_create(&thread_rec, NULL, receiving, (void *)&sock); // for receiving
-    pthread_create(&thread_rec2, NULL, receiving2, (void *)&sock); // for receiving
+	anybody.sin_addr.s_addr = inet_addr(IP_broadcast); 		// direccion del broadcast 
+	
+	// Se creen los hilo de recepción.
+	pthread_create(&thread_rec, NULL, receiving, (void *)&sock); 		
+   	pthread_create(&thread_rec2, NULL, receiving2, (void *)&sock); 		
 
 	printf("Este programa despliega lo que sea que reciba.\n");
 	printf("Agente %d conectado\n", num_agente);
 	do
 	{
-		memset(buffer_enviar1, 0, MSG_SIZE); // "limpia" el buffer
-											//fgets(buffer_enviar,MSG_SIZE-1,stdin); // MSG_SIZE-1 'cause a null character is added
+		memset(buffer_enviar1, 0, MSG_SIZE); 			// "limpia" el buffer
+										
 		sleep(5);
 
 		// Valores a enviar
 		sprintf(buffer_enviar1, "T1,%f,%f,%f", best_local[0], best_local[1], fitness_local);
 		if (buffer_enviar1[0] != '!'){
-			// send message to anyone there...
+			// enviar mensaje
 			n = sendto(sock, buffer_enviar1, strlen(buffer_enviar1), 0,
 					   (const struct sockaddr *)&anybody, length);
 			if (n < 0)
@@ -205,6 +196,6 @@ int main(int argc, char *argv[]){
 		}
 	} while (buffer_enviar1[0]  != '!');
 
-	close(sock); // close socket.
+	close(sock); 			// cerrar el socket.
 	return 0;
 }
