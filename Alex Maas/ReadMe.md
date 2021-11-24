@@ -3,7 +3,7 @@
 ## Indice
 1. [Estructura de Carpetas](#Estructura-de-Carpetas)
 2. [Antecedentes](#Antecedentes)
-3. [Codigo](#Codigo)
+3. [Codigo](#Código)
 4. [Documentos](#Documentos)
 5. [Uso Raspberry Pi](#Raspberry-Pi)
 
