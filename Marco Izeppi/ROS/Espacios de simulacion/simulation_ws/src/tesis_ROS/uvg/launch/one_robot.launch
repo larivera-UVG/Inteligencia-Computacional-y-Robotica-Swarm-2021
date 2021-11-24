@@ -1,0 +1,30 @@
+<launch>
+  <arg name= "robot_name"/>
+  <arg name= "x_pos"/>
+  <arg name= "y_pos"/>
+  <arg name= "z_pos"/>
+  <arg name= "yaw"/>
+
+  <node name="urdf_robot_model_spawner" pkg="gazebo_ros" type="spawn_model"
+    args="-param /robot_description
+    -urdf
+    -x $(arg x_pos)
+    -y $(arg y_pos)
+    -z $(arg z_pos)
+    -Y $(arg yaw)
+    -model $(arg robot_name)"
+    respawn="false" output="screen"/>
+
+    <!-- el siguiente codigo se utiliza para coorrer el sistema con diversos robots-->
+<!--
+  <node pkg="uvg" type="check_odom.py" name="check_odometry" output="screen" />
+
+-->
+  <node pkg="uvg" type="PSO.py" name="run_PSO" output="screen" />
+
+  </launch>
+
+
+
+
+
