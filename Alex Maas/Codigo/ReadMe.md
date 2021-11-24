@@ -12,6 +12,7 @@ Se debe verificar la dirección del broadcast
 Este código evalúa la capacidad de ejecutar un código principal y 2 hilos de programación simultáneos que estarán recibiendo información de forma constante. Se combina el Código desarrollado anteriormente "pruebaEnvioyRecepcion_1Hilo" con un nuevo hilo que estará recibiendo la pose de los agentes mediante un algoritmo de visión por computadora desarrollado como otro proyecto de tesis.
 
 ## pruebaPSO_1agente.c
+Este código evalúa el algoritmo PSO mientras se ejecuta el hilo de recepción que permite la comunicación entre agentes y la recepción de coordenadas de la mesa de pruebas de la UVG (se probó esta última como broadcast). Esta prueba únicamente se hizo con un agente ya que se quería comprobar el funcionamiento del PSO con los datos enviados constantemente por el algoritmo de visión por computadora por medio de boradcast. Al tener solo un agente los resultados del PSO no son buenos, pero se cumple el objetivo de validar este código. 
 
 ## pruebaSTRTOK.c
 En este código se prueban las funciones “strtok”, “atof” y “sprintf”. Se elabora un código al cual se le introduce una cadena de caracteres separados por comas, esta cadena es separada por la función strtok y por medio de la función atof cada elemento de la cadena es convertido a su valor numérico. Este proceso se continúa haciendo hasta haber terminado con el ultimo elemento de la cadena de caracteres iniciales. Finalmente, cada elemento se vuelve a agrupar dentro de otra variable en un orden especifico mediante la función sprintf. 
