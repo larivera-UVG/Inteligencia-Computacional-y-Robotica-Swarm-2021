@@ -1,1 +1,1 @@
-Mundo y controlador utilizado en Webots
+Se utilizó la platafoma ya hecha en la fase anterior para poder hacer una simulación del recorrido con las trayectorias de los archivos txt generados en c++, para validar que la ruta generada funciona de la manera correcta. 
