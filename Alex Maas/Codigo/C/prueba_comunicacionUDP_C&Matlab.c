@@ -8,8 +8,8 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 
-#define MSG_SIZE 40			// message size
-#define PUERTO 2010
+#define MSG_SIZE 40			// tamaño del mensaje
+#define PUERTO 2010			// Puerto seleccionado		
 
 void error(const char *msg){
     perror(msg);
@@ -23,36 +23,31 @@ int main(int argc, char *argv[]){
 	struct sockaddr_in from;
 	char buffer[MSG_SIZE];
 
-	sockfd = socket(AF_INET, SOCK_DGRAM, 0); // Creates socket. Connectionless.
+	sockfd = socket(AF_INET, SOCK_DGRAM, 0); 				// Creacion del socket
 	if(sockfd < 0)
 		error("Opening socket");
 
-	length = sizeof(server);			// length of structure
-	memset((char *)&server, 0, length); // sets all values to zero.
-	server.sin_family = AF_INET;		// symbol constant for Internet domain
-	server.sin_addr.s_addr = htonl(INADDR_ANY);	// para recibir de cualquier interfaz de red
-	server.sin_port = htons(PUERTO);	// port number
+	length = sizeof(server);						// largo de la estructura
+	memset((char *)&server, 0, length); 					// establece todos los valores en cero
+	server.sin_family = AF_INET;						// simbolo constante para internet
+	server.sin_addr.s_addr = htonl(INADDR_ANY);				// para recibir de cualquier interfaz de red
+	server.sin_port = htons(PUERTO);					// Seleccion del puerto
 
-	// binds the socket to the address of the host and the port number
 	if(bind(sockfd, (struct sockaddr *)&server, length) < 0)
        error("binding");
 
-	fromlen = sizeof(struct sockaddr_in);	// size of structure
+	fromlen = sizeof(struct sockaddr_in);					// tamaño de la estructura
 
 	while(1){
-		memset(buffer, 0, MSG_SIZE);	// sets all values to zero.
-		// receive from client
-		// Usamos recvfrom(), indicando de quién esperamos el mensaje. A diferencia
-		// de TCP, acá no se establece la conexión. Necesitamos indicar de quién
-		// recibimos cada vez.
+		memset(buffer, 0, MSG_SIZE);					// limpia el buffer
+		// repeccion de informacion 
 		n = recvfrom(sockfd, buffer, MSG_SIZE, 0, (struct sockaddr *)&from, &fromlen);
 		if(n < 0)
 	 		error("recvfrom");
 
 		printf("Mensaje recibido: %s\n", buffer);
 		 
-		// send message to client
-		// Usamos sendto(), indicando a quién mandamos el mensaje.
+		// Se envia un mensaje de recibido luego de cada mensaje. 
 		n = sendto(sockfd, "Got your message\n", MSG_SIZE, 0, (struct sockaddr *)&from, fromlen);
 		if(n < 0)
 	 		error("sendto");
