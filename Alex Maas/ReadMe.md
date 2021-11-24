@@ -40,14 +40,24 @@ Repositorio
 |    |        └─── Archivos .mat y .txt con resultados de las simulaciones en Webots
 |    |
 |    └─── Python
-| 	 |
-| 	 └─── PSO3
+| 	 	 |
+| 	 	 └─── PSO3
 | 	   
 | 
-└─── Documentación:
+└─── Documentos:
+|    | 
+|    └─── Articulo
+|    | 
+|    └─── Imagenes
+|    | 
+|    └─── Protocolo
+|    | 
+|    └─── Tesis 
 |
 |
 └─── Raspberry Pi:
+     | 
+     └─── Guias de instalacion
 	   
 ```
 
