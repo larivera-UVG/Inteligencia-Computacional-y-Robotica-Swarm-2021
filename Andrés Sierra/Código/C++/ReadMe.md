@@ -31,3 +31,24 @@ Este archivo tiene el código para obtener la mejor ruta entre dos puntos de un 
 |`void imprimirFEROMONAS()`|Despliego el valor de las feromonas en la consola. Tanto este como `imprimirGRAFO` no se recomienda utilizar cuando se tienen muchos nodos ya que la consola no es suficientemente grande para desplegar todos los valores lo cual dificulta la visualización.  |
 |`void imprimirRESULTADOS()`|Imprime el resultado de la mejor ruta en la consola. En la visualización de los nodos seleccionados a la hora de imprimir se le suma 1 para que coincida con la definición del grafo en MATLAB y así poder visualizar de mejor manera la ruta seleccionada. |
 
+
+### `main.cpp, ACO.cpp y ACO.h`
+Estos tres archivos contienen la clase con algoritmo ACO descrito anteriormente.
+
+`ACO.h` es el *header file*, aquí se definen todas las funciones y variables que se utilizar. Este archivo se divide en dos, la parte *public*, aquí se definen tanto variables como funciones que serán accedidos por el usuario (se utilizarán en el `main.cpp`). Y la parte *private* que forman parte de las operaciones internas del algoritmo. 
+
+`ACO.cpp` aquí se define el contenido de todas las funciones tanto públicas como privadas.
+
+`main.cpp` es el código principal, aquí se les asignan los valores a los parámetros se crea el grafo a utilizar con la función `conectarNODOS` y se define las coordenadas de los nodos con la función `setCOORDENADAS`. y se llama a la función `optimizar`.
+| Función        |Descripción                                                  	|
+|----------------|--------------------------------------------------------------|
+|`void optimizar(int ITERACIONES)`|Para la clase se agrega esta función la cual se encarga de correr el proceso del algoritmo (lo que en `pruebaACO.cpp` se corría en el `void main()`|          	
+Para compilar la clase se debe ejecutar el siguiente comando, este creara un archivo ejecutable en la carpeta donde está guardada la clase.
+```bash
+g++ main.cpp ACO.cpp -o main
+```
+Una vez con el ejecutable creado se corre utilizando
+```bash
+./main
+```
+
