@@ -6,8 +6,6 @@ En este trabajo se migrará el algoritmo desarrollado en Matlab (**Ant System**)
 
 **Tabla de contenido**
 
-[TOC]
-
 ## Prerrequisitos 
 ### Raspberry 
 Para este proyecto se utilizo la rasperry pi como microcontrolador por lo que es necesario tener una rasp con una imagen funcionando de no ser así
