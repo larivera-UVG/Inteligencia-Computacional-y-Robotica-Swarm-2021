@@ -1,6 +1,6 @@
 Folder para el trabajo de tesis de Andres Sierra.
 
-# Implementación y Validación del Algoritmos de Robótica de Enjambre Ant Colony Optimization y Ant System en Sistemas Físicos
+# Implementación  y  Validación  del  Algoritmo de Robótica de Enjambre Ant Colony Optimizationen Sistemas Físicos
 
 En este trabajo se migrará el algoritmo desarrollado en Matlab (**Ant System**) a un lenguaje de programación adecuado para los microcontroladores que se usarán en los sistemas físicos. Se realizarán pruebas simples en mesa de pruebas. Finalmente, se compararán los resultadosobtenidos en los sistemas físicos con los obtenidos en las simulaciones.
 
