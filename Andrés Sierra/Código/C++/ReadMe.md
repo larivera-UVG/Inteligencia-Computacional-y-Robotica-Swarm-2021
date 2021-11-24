@@ -42,7 +42,7 @@ Estos tres archivos contienen la clase con algoritmo ACO descrito anteriormente.
 `main.cpp` es el código principal, aquí se les asignan los valores a los parámetros se crea el grafo a utilizar con la función `conectarNODOS` y se define las coordenadas de los nodos con la función `setCOORDENADAS`. y se llama a la función `optimizar`.
 | Función        |Descripción                                                  	|
 |----------------|--------------------------------------------------------------|
-|`void optimizar(int ITERACIONES)`|Para la clase se agrega esta función la cual se encarga de correr el proceso del algoritmo (lo que en `pruebaACO.cpp` se corría en el `void main()`|          	
+|`void optimizar(int ITERACIONES)`|Para la clase se agrega esta función la cual se encarga de correr el proceso del algoritmo (lo que en `pruebaACO.cpp` se corría en el `void main()`. |          	
 Para compilar la clase se debe ejecutar el siguiente comando, este creara un archivo ejecutable en la carpeta donde está guardada la clase.
 ```bash
 g++ main.cpp ACO.cpp -o main
