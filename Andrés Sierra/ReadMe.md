@@ -16,4 +16,4 @@ Deberá instalar el software para poder quemar la imagen de la rasp en la SD [Ra
 Tomar en cuenta que para quemar la imagen se debe contar con una SD al menos que sea de generación 10 (la utilizada para este trabajo) de no ser así puede que no funcione o que se tarde demasiado quemando la imagen. 
 
 ### Matlab
-Se realizaron pruebas de comunicación utilizando software de Matlab, por lo que será necesario contar con el software para realizar las pruebas.
+Se realizaron pruebas de comunicación utilizando software de Matlab, por lo que será necesario contar con el software para realizar las pruebas. Las pruebas se realizaron en dos versiones de Matlab, Matlab 2019 y Matlab 2021. Las funciones entre las versiones puede variar por lo que debe verificar si las funciones utilizadas sirven en la version de Matlab que se tenga. 
