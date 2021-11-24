@@ -40,7 +40,7 @@ int main(int argc, char *argv[]){
 
 	while(1){
 		memset(buffer, 0, MSG_SIZE);					// limpia el buffer
-		// repeccion de informacion 
+		//  recepción  de informacion 
 		n = recvfrom(sockfd, buffer, MSG_SIZE, 0, (struct sockaddr *)&from, &fromlen);
 		if(n < 0)
 	 		error("recvfrom");
