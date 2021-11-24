@@ -14,7 +14,6 @@ tic  % Para medir el tiempo que se tarda el algoritmo en correr.
 
 %% Creamos grid cuadrado con la cantidad de nodos indicada:
     grid_size = 10;
-    cost_diag = 0.5;
     tau_0 = 0.1;  % Valor de tau inicial
     G = graph_grid(grid_size);
     nodo_dest = '100';
@@ -25,13 +24,13 @@ tic  % Para medir el tiempo que se tarda el algoritmo en correr.
    
     switch escenario
         case 1
-            % Mapa A
+            % Mapa A 10x10
             obstaculos = [12,13,22,23,37,38,47,48,75,76,85,86]'; % Nodos donde se colocan los obstaculos
         case 2
-            % Mapa B
+            % Mapa B 10x10
             obstaculos = [57,66,75,44,35,26,17]';
         case 3
-            % Mapa C
+            % Mapa C 20x20
             obstaculos = [4,5,6,51,52,58,59,67,68,69,71,72,75,78,79,83,84,87,...
                 88,89,96,97,98,99,103,104,111,112,113,117,118,119,120,131,132,...
                 133,144,145,146,156,157,158,159,168,169,188,189,213,214,215,216,...
@@ -39,7 +38,7 @@ tic  % Para medir el tiempo que se tarda el algoritmo en correr.
                 255,256,262,263,264,267,268,269,282,283,284,293,294,295,307,308,...
                 309,313,314,315,324,325,326,344,345,315,351,352,353,384,385]';
         case 4
-            % Mapa D
+            % Mapa D 20x20
             obstaculos = [4,5,6,51,52,58,59,67,68,69,71,72,78,79,83,84,87,88,89,...
                 96,97,98,99,103,104,111,112,113,117,118,119,120,131,132,133,144,...
                 145,146,156,157,158,159,168,169,188,189,213,214,215,216,222,223,...
@@ -47,7 +46,7 @@ tic  % Para medir el tiempo que se tarda el algoritmo en correr.
                 263,264,267,268,269,282,283,284,293,294,295,307,308,309,313,314,...
                 315,324,325,326,344,345,351,352,353,384,385]';
         case 5
-            % Mapa E
+            % Mapa E 20x20
             obstaculos = [53,54,55,71,72,73,74,75,77,78,87,88,89,91,92,97,98,...
                 103,104,107,108,109,123,124,132,133,134,136,152,153,154,156,172,...
                 173,174,188,189,208,209,211,212,213,214,231,232,233,234,242,243,...
@@ -55,10 +54,10 @@ tic  % Para medir el tiempo que se tarda el algoritmo en correr.
                 273,274,282,283,284,287,288,289,307,308,309,327,328,329,342,343,...
                 347,348,349,362,363]';
         case 6
-            % Mapa Webots
+            % Mapa Webots 10x10
             obstaculos = [23,24,27,28,32,62,67,72,73,74,78,79]'; 
         case 7
-            % Barrido
+            % Barrido 10x10
             obstaculos = [4,5,6, 71, 73, 72, 78, 89, 99, 67,56,18,19,28,29]';
     end
         
