@@ -1,12 +1,12 @@
 Para este trabajo se uso el ordenador Raspberry Pi, al trabajar con un algoritmo de robótica de enjambre es indispensable que se cuente con al menos 4. Todas las pruebas realizadas en esta tesis fueron hechas con los modelos 3B, 3B+ y 4, el departamento cuenta con modelos 3B y 3B+ por lo que se recomienda contactar con ellos para pedirlas prestadas. 
 
-Si se desea usar una propia se deberá instalar el siguiente software [Raspberry Pi Imager](http:www.raspberrypi.org/software/ "Raspberry Pi Imager") para quemar la imagen a su SD (se recomienda que sea de generación 10). Para más detalle o instalación de Visual Studio Code (usado en esta tesis) se recomienda ver guia "IE3027-lec6_Raspberry_Pi" desarrollada por Pablo Mazariego.
+Si se desea usar una propia se deberá instalar el siguiente software [Raspberry Pi Imager](http:www.raspberrypi.org/software/ "Raspberry Pi Imager") para quemar la imagen a su SD (se recomienda que sea de generación 10). Para más detalle o instalación de Visual Studio Code (usado en esta tesis) se recomienda ver guia "IE3027-lec6_Raspberry_Pi" desarrollada por Pablo Mazariegos.
 
+Para tener una terminal con ambiente Linux se recomienda la instalación de Cygwin, para esto ver guía "Guia de Instalacion Cygwin" desarrollada por Luis Rivera.
 
+## Comando útiles 
 
-## Comando útiles
-
-Para compilar algún código desde la terminar
+Para compilar algún código desde la terminal
 ```sh
 gcc nombre_del_archivo.c -o _ejecutable_
 ```
