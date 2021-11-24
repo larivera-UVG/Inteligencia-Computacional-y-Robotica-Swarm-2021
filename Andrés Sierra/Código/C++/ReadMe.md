@@ -1,5 +1,5 @@
 # Archivos en C++
-## pruebaACO.cpp
+## `pruebaACO.cpp`
 Este archivo tiene el código para obtener la mejor ruta entre dos puntos de un grafo, utilizando las ecuaciones del algoritmo Ant System. Este es el código base que será ordenado dentro de una clase. Para inicializar se necesita definir varios parámetros `ITERACIONES`: la cantidad de veces que las hormigas calcularan la ruta. `NUMEROHORMIGAS`: cantidad de agentes que se tienen. `NUMERONODOS`: cantidad de nodos del grafo. Los parámetros `ALPHA, BETA, Q, RO, TAUMAX` son parte de las ecuaciones del algoritmo y tienen el valor asignado con los cuales se obtuvieron mejores resultados. `NODOINICIAL y NODOFINAL`.
 ### Variables/punteros globales
 `MEJORLONG`: contiene la mejor longitud de la ruta más corta. <br />
