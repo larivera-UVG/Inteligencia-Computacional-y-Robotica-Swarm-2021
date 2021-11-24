@@ -1,1 +1,0 @@
-Folder en el cual se encuentra todo lo relacionado al entorno de Webots.

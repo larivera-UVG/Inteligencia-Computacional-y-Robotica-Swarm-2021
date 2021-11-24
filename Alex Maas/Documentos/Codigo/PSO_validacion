@@ -7,8 +7,8 @@ import math
 c1 = 2
 c2 = 10
 
-n_iterations = 50           #No. de iteraciones (50 funciona bien para comparacion con matlab)
-n_particles = 100
+n_iterations = 100           #No. de iteraciones (50 funciona bien para comparacion con matlab)
+n_particles = 2
 target_error = 1e-6
 dt = 0.1                    #Scaler de Velcidad
 funcion = 0                 #(0-Sphere, 1-Himmelblau, 3-Booth, 3-Rosenbrock)
@@ -19,7 +19,7 @@ w_max = 1
 Maxiter = 10000
 iter = 0
 
-Inertia_type = 0            #(0-Constante, 1-Linear, 2-Caotica, 3-Exponencial)
+Inertia_type = 3            #(0-Constante, 1-Linear, 2-Caotica, 3-Exponencial)
 if (Inertia_type== 0):
     W = 0.8                        
 elif (Inertia_type == 1):
