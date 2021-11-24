@@ -1,74 +1,97 @@
-% Algoritmo de Registro de im·genes
-% Daniela BaldizÛn
-% Se tomÛ como base el cÛdigo desarrollado por Gabriela Iriarte
+% Algoritmo de Registro de im√°genes
+% Daniela Baldiz√≥n
+% Se tom√≥ como base el c√≥digo desarrollado por Gabriela Iriarte
+% Esta es la versi√≥n 3 del algoritmo de registro de im√°genes. Es muy
+% importante que las im√°genes sean cuadradas 
 
 clear
 clc
 
-% % Referencia
-% Ref = rgb2gray(imread('Lena.jpg'));
+tic % Tiempo
+% Referencia
+
+Ref = rgb2gray(imread('RodillaR.jpg')); % Imagen de referencia
+
+% Template
+Temp = rgb2gray(imread('RodillaT.jpg')); % Imagen distorsionada
+% (1:10,1:10) Esto se agrega para tomar una parte de la im√°gen.
+SRef = double(Ref); % Se convierten las im√°genes para ya poder manipularlas.
+STemp = double(Temp);
+SReg = STemp; % Imagen registrada
+
+% Intensidad total: Se suman las intensidades de las im√°genes
+int_ref = sum(sum(SRef));
+int_temp = sum(sum(STemp));
+int_reg = sum(sum(SReg));
+
+% Se calcula la diferencia de intensidad entre la imagen de referencia y
+% la distorsionada
+desface = int_ref - int_temp;
+
+% Se calcula el residuo de dividir el desface en cantidades iguales
+% repartidas en los pixeles de la imagen.
+Residuo = sign(desface)*mod(abs(desface),numel(SRef));
+
+% Se calcula el desface sin residuo
+desfaceM = sign(desface)*(abs(desface) - abs(Residuo));
+
+% Pixel random donde se colocar√° el residuo
+idesface = randi(numel(SReg));
+
+% Se agrega el desface en cantidades iguales repartidas en los pixeles
+SReg = SReg + desfaceM/numel(SReg);
+
+% Se agrega el residuo en una casilla random
+SReg(idesface) = SReg(idesface) + Residuo;
+
+% Se verifica que las intensidades se hayan igualado
+int_reg2 = sum(sum(SReg));
+
+%% Para hacer pruebas r√°pidas
+% Im = zeros(10);
+% Im(4:7,4) = 155;
+% Im(4:7,5) = 168;
+% Im(4:7,6) = 161;
 % 
-% % Template
-% Temp = rgb2gray(imread('Lena Distorsion.jpg'));
+% Im2 = zeros(10);
+% Im2(4:7,2) = 155;
+% Im2(4:7,4) = 168;
+% Im2(4:7,9) = 161;
 % 
-% SRef = double(Ref(1:10,1:10));
-% STemp = double(Temp(1:10,1:10));
-% SReg = STemp;
+% SRef = Im;
+% STemp = Im2; % Distorsionada
+% SReg = STemp; % Distorsionada
 
-Im = zeros(10);
-Im(4:7,4) = 155;
-Im(4:7,5) = 168;
-Im(4:7,6) = 161;
 
-Im2 = zeros(10);
-Im2(4:7,1) = 155;
-Im2(4:7,4) = 168;
-Im2(4:7,9) = 161;
-
-SRef = Im;
-STemp = Im2; % Distorsionada
-SReg = STemp; % Distorsionada
-% figure;
-% imshow(SubJ)
-% 
-% figure;
-% imshow(JD)
-
-% Si Idiff es negativo, la hormiga debe buscar intensidades m·s bajas con
-% los vecinos. Si es mayor o igual a cero, va a buscar valores de
-% intensidad m·s altos con los vecinos.
-% Alimento de las hormigas
-Idiff = double(SRef - STemp);
-
+%% Alimento de las hormigas
+Idiff = double(SRef - SReg);
+imwrite(uint8(Idiff), 'RodillaD.jpg')
 %% Graph generation
-tic
 % Creamos grid cuadrado con la cantidad de nodos indicada:
 grid_size = size(SRef,1);
-tau_0 = 1;  % Valor de tau inicial
+tau_0 = 0.1;  % Valor de tau inicial
 G = graph_grid(grid_size, tau_0, Idiff);
 
 %% ACO init
-t_max = 150; 
-hormigas = (size(SRef,1))^2;
+t_max = 750; 
+hormigas = numel(SRef);
 
-% Rate de evaporaciÛn (puede tomar valores entre 0 y 1)
+% Rate de evaporaci√≥n (puede tomar valores entre 0 y 1)
 rho = 0.6; 
-% Le da m·s peso a la feromona en la probabilidad
+% Le da m√°s peso a la feromona en la probabilidad
 alpha = 1;
-% Le da m·s peso al costo del link en la probabilidad
+% Le da m√°s peso al costo del link en la probabilidad
 beta = 1;
-% cte. positiva que regula el depÛsito de feromona
+% cte. positiva que regula el dep√≥sito de feromona
 Q = 2.1; 
-% Porcentaje de hormigas que queremos siguiendo la misma soluciÛn
+% Porcentaje de hormigas que queremos siguiendo la misma soluci√≥n
 epsilon = 0.9; 
 
 % Preallocation
 path_k = cell(hormigas, 1); % Inicializa el path de las hormigas en 0
 all_path = cell(hormigas, t_max); % El path de todas las hormigas
-all_weight = cell(hormigas, t_max);
 
-%% Nuevo
-
+%% Se crea la estructura donde se almacena la informaci√≥n de cada hormiga
 for i = 1:hormigas
     % Struct de las hormigas
     ants(i) = struct('blocked_nodes', [], 'last_node',...
@@ -78,28 +101,38 @@ end
 t = 1;
 stop = 1; % No tocar
 
-% InicializaciÛn variables
-food = zeros(1,hormigas);
-A_B = zeros(sqrt(hormigas));
+% Inicializaci√≥n variables
+food = zeros(1,hormigas); % Representaci√≥n de la comida que transportan
+T_final = zeros(sqrt(hormigas)); % Transformaci√≥n para llegar al resultado final
+A_B = zeros(sqrt(hormigas)); % Matrices para c√°lculos estad√≠sticos
 A_AP = zeros(sqrt(hormigas));
 B_BP = zeros(sqrt(hormigas));
+CC_acumulado = zeros(t_max,1);
+contador = 0; % No tocar
 %%
 while (t <= t_max && stop)
     
-    
-    parfor k = 1:hormigas
-
-        % Si Idiff es negativo, la hormiga debe buscar intensidades m·s bajas con
-        % los vecinos. Si es mayor o igual a cero, va a buscar valores de
-        % intensidad m·s altos con los vecinos.
+    contador = 1; % No tocar
+    for n = 1:hormigas
+        
         % Alimento de las hormigas
         Idiff = double(SRef - SReg);
-
-
-        % Posicion actual por hormiga (Se hace esto para que las
-        % posiciones en la imagen coincidan con el grafo)
-        l = G.Nodes.X(str2double(ants(k).current_node)); % Fila
-        m = G.Nodes.Y(str2double(ants(k).current_node)); % Columna
+        
+        % Se modifica el √≠ndice k para hacer que las hormigas se muevan en
+        % forma de "ondas" por la im√°gen. 
+        if mod(contador,2) == 0
+            if mod(t,2) == 0
+                k = k + 1;
+            else
+                k = k - 1;
+            end
+        else
+            if mod(t,2) == 0
+                k = hormigas - n + 1;
+            else
+                k = n;
+            end
+        end
 
         % encuentra los nodos vecinos
         proximity = [convertCharsToStrings(neighbors(G, k))];
@@ -111,7 +144,7 @@ while (t <= t_max && stop)
 
         weight_int_vec = zeros(1,size(colum_coor,1));
 
-        % encuentra el peso de los pixeles en proximity. El peso est· dado como
+        % encuentra el peso de los pixeles en proximity. El peso est√° dado como
         % la diferencia ente la imagen de referencia y el template.
         for j = 1:size(colum_coor,1)
             weight_int_vec(j) = Idiff(fila_coor(j),colum_coor(j));
@@ -122,18 +155,6 @@ while (t <= t_max && stop)
         vecinos = setdiff(convertCharsToStrings(neighbors(G, ants(k).current_node)),...
             ants(k).blocked_nodes, 'rows','stable');
         
-        % En las iteraciones par se bloquean los nodos mayores al
-        % actual, para dar el efecto de retroceso
-%         if (mod(t,2)==0 && ~isempty(vecinos))
-%             vecinos_v2 = str2double(vecinos);
-%             for i = 1:vecinos_v2
-%                 ants(k).blocked_nodes = [ants(k).blocked_nodes; ...
-%                     vecinos_v2(i)];
-%             end
-%             vecinos = setdiff(convertCharsToStrings(neighbors(G, ants(k).current_node)),...
-%                 ants(k).blocked_nodes, 'rows','stable');
-%         end
-        
         if (isempty(vecinos))
             ants(k).path = ants(k).current_node;
             ants(k).current_node = ants(k).path(end);
@@ -142,16 +163,47 @@ while (t <= t_max && stop)
             
             vecinos_updated = vecinos;
 
-            % La hormiga toma la decisiÛn de a donde ir eq.(17.6)
+            % La hormiga toma la decisi√≥n de a donde ir eq.(17.6)
             next_node = ant_decision(vecinos_updated, alpha, beta, G);
+            nodo_actual = str2double(ants(k).current_node);
+
+            % Se lleva la comida al nodo inicial
+            food(str2double(ants(k).current_node)) = Idiff(str2double(next_node));
+            % Se busca la comida que es negativa para que lo que se
+            % mueva sean los pixeles en SReg
+            if food(str2double(ants(k).current_node)) < 0
+                % Se actualiza SReg quitandole o poniendo comida en los
+                % nodos correspondientes
+                SReg(str2double(ants(k).current_node)) = SReg(str2double(ants(k).current_node)) - food(str2double(ants(k).current_node));
+                SReg(str2double(next_node)) = SReg(str2double(next_node)) + food(str2double(ants(k).current_node));
+                Idiff = double(SRef - SReg);
+                % Matriz que contiene las transformaciones utilizadas, se
+                % suma o resta el valor de la comida que se pone o quita en
+                % los nodos, seg√∫n corresponda.
+                T_final(str2double(ants(k).current_node)) = T_final(str2double(ants(k).current_node)) + food(str2double(ants(k).current_node));
+                T_final(str2double(next_node)) = T_final(str2double(next_node)) - food(str2double(ants(k).current_node));
+            end
+            
+
+            % Intensidad en los nodos, se actualiza con Idiff
+            G.Nodes.Eta(str2double(ants(k).current_node)) = Idiff(str2double(ants(k).current_node));
+            G.Nodes.Eta(str2double(next_node)) = Idiff(str2double(next_node));
+
+            % Feromona: ecuaci√≥n del paper modificacada. La modificaci√≥n
+            % hace que tengan m√°s feromona los nodos donde las hormigas
+            % pueden ir a traer comida.
+            G.Nodes.Weight(str2double(ants(k).current_node)) = ...
+                exp(-rho)*G.Nodes.Weight(str2double(ants(k).current_node)) +...
+                tau_0*abs(Idiff(str2double(ants(k).current_node)))*heaviside(-Idiff(str2double(ants(k).current_node)));
 
             ants(k).last_node = [ants(k).last_node; ants(k).current_node];
             ants(k).current_node = next_node;
             ants(k).path = [ants(k).path; ants(k).current_node];
+            
 
         end
 
-        % Le quitamos los loops al path y ahora los Ìndices son n˙meros y
+        % Le quitamos los loops al path y ahora los √≠ndices son n√∫meros y
         % no strings.
 
         ants(k).path = loop_remover(str2double(ants(k).path));
@@ -161,31 +213,22 @@ while (t <= t_max && stop)
         ants(k).current_node = int2str(k);
         ants(k).blocked_nodes = [];
         ants(k).last_node = int2str(k);
-
-    end
-    
-    for k = 1:hormigas
-        Idiff = double(SRef - SReg);
-        nodo_actual = ants(k).path(end);
-        % Se lleva la comida al nodo inicial
-        food(k) = Idiff(nodo_actual);
-        % Se busca la comida que es negativa para que lo que se
-        % mueva sean los pixeles en SReg
-        if food(k) < 0
-            SReg(k) = SReg(k) - food(k);
-            SReg(nodo_actual) = SReg(nodo_actual) + food(k);
-            Idiff(k) = double(SRef(k) - SReg(k));
-            G.Nodes.Eta(k) = Idiff(k);
-        end
-        
-        % Feromona
-        G.Nodes.Weight(str2double(ants(k).current_node)) = (1-rho)*G.Nodes.Weight(k) + tau_0;
-        
         ants(k).path = int2str(k);
+        
+        % Esto tambi√©n modifica a k para el movimiento deseado.
+        if mod(n,grid_size) == 0
+            contador = contador + 1;
+            if mod(t,2) == 0
+                k = contador*grid_size;
+                k = hormigas - k;
+            else
+                k = contador*grid_size + 1;
+            end
+        end
     end
         
-    %% C·lculos SSD y CC
-    % Se tomÛ A como la referencia y B como la registrada
+    %% C√°lculos SSD y CC
+    % Se tom√≥ A como la referencia y B como la registrada
     
     % Intensidad promedio de la referencia
     AP = mean2(SRef);
@@ -204,11 +247,22 @@ while (t <= t_max && stop)
     
     SSD = sum(sum(A_B));
     CC = (sum(sum(A_AP.*B_BP)))/sqrt(sum(sum(A_AP.^2))*sum(sum(B_BP.^2)));
+    CC_acumulado(t,1) = CC;
+    
+    ref_zero = sum(any(Idiff));
+    
+    if isnan(CC) && ref_zero == 0
+        CC = 1;
+    end
     
     if CC >= 0.9
-        % CondiciÛn de paro cuando el coeficiente de correlaciÛn sea lo
+        % Condici√≥n de paro cuando el coeficiente de correlaci√≥n sea lo
         % suficientemente bueno
         stop = 0;
+        
+        % Quita el desface dado para obtener la verdadera transformaci√≥n
+        T_final = T_final - desfaceM/numel(SReg);
+        T_final(idesface) = T_final(idesface) - Residuo;
     end
     
     t = t + 1;
@@ -220,13 +274,31 @@ if (t > t_max)
     disp("No hubo convergencia")
 else
     disp("Listo")
-    figure;
-    imshow(uint8(SReg))
-    figure;
-    imshow(uint8(SRef))
+    
+%     figure;
+%     imshow(uint8(SReg))
+%     imwrite(uint8(SReg), 'Rodilla.jpg')
+%     figure;
+%     imshow(uint8(SRef))
 %     figure;
 %     imshow(uint8(STemp))
+%     save Resultados.mat
 end
 
     
 tiempofinal = toc; 
+
+subplot(1,3,1)
+imshow(uint8(STemp))
+title('Imagen plantilla')
+subplot(1,3,2)
+imshow(uint8(SRef))
+title('Imagen de referencia')
+subplot(1,3,3)
+imshow(uint8(SReg))
+title('Imagen registada')
+
+%% Transformaci√≥n luego del algoritmo
+% Producto = STemp - T_final;
+% figure;
+% imshow(uint8(Producto))
