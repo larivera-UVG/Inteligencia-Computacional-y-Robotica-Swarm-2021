@@ -9,6 +9,7 @@ Contiene comunicación mediante un socket utilizando el protocolo de comunicaci�
 
 Se necesita tener la información concatenada en un string, utilizamos la función `strcat` donde vamos agregando la informacion que se necesita. <br />
 Es necesario especificar la dirección IP a la cual se transmitirá la información y definir el puerto por el cual se estará comunicando. <br />
+
 Con la función `udpport` se crea el socket para enviar la información. <br />
 
-La variable `continueRunning` es utilizada como "bandera" para enviar la información, cada vez que sea true, se enviara la información. Es necesario escribir directamente en el command window de matlab la palabra true para que se envíen los datos.
+La variable `continueRunning` es utilizada como "bandera" para enviar la información, cada vez que sea *true*, se enviara la información. Es necesario escribir directamente en el *command window* de matlab la palabra *true* para que se envíen los datos.
