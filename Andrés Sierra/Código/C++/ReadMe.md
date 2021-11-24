@@ -1,32 +1,33 @@
 # Archivos en C++
 ## pruebaACO.cpp
-Este archivo tiene el código para obtener la mejor ruta entre dos puntos de un grafo, utilizando las ecuaciones del algoritmo Ant System. Este es el código base que será ordenado dentro de una clase. Para inicializar se necisita definir varios paramentros `ITERACIONES`: la cantidad de veces que las hormigas calcularan la ruta. `NUMEROHORMIGAS`: cantidad de agentes que se tienen. `NUMERONODOS`: cantidad de nodos del grafo. Los parametros `ALPHA, BETA, Q, RO, TAUMAX` son parte de las ecuaciones del algoritmo y tienen el valor asignado con los cuales se obtuvierom mejores resultados. `NODOINICIAL y NODOFINAL`.
+Este archivo tiene el código para obtener la mejor ruta entre dos puntos de un grafo, utilizando las ecuaciones del algoritmo Ant System. Este es el código base que será ordenado dentro de una clase. Para inicializar se necesita definir varios parámetros `ITERACIONES`: la cantidad de veces que las hormigas calcularan la ruta. `NUMEROHORMIGAS`: cantidad de agentes que se tienen. `NUMERONODOS`: cantidad de nodos del grafo. Los parámetros `ALPHA, BETA, Q, RO, TAUMAX` son parte de las ecuaciones del algoritmo y tienen el valor asignado con los cuales se obtuvieron mejores resultados. `NODOINICIAL y NODOFINAL`.
 ### Variables/punteros globales
-`MEJORLONG`: contiene la mejor longitud de la ruta mas corta
-`numITER`: para cada hormiga guarda el numero de iteraciones necesario para ejecutar el programa (funcionalidad, si el codigo se ejecuta mas veces del necesario, el algoritmo puede agarrar memoria que no esta definida o numeros no validos por lo que el algoritmo no funciona).
+`MEJORLONG`: contiene la mejor longitud de la ruta más corta
+`numITER`: para cada hormiga guarda el número de iteraciones necesario para ejecutar el programa (funcionalidad, si el código se ejecuta más veces del necesario, el algoritmo puede agarrar memoria que no está definida o números no validos por lo que el algoritmo no funciona).
 `*MEJORRUTA`: contiene los nodos seleccionados por el algoritmo
-`**GRAFO`: para cada nodo, contiene que nodos estan disponibles (estando en un nodo indica a que nodos se puede mover la hormiga)
-`**RUTAS`: contiene las rutas escogidas de todas las hormigas.
-`**COORDS`: contiene las coordenadas de todos los nodos.
+`**GRAFO`: asigno un espacio de memoria para cada nodo y para cada nodo tiene la información de los nodos disponibles (estando en un nodo indica a que nodos se puede mover la hormiga)
+`**RUTAS`:  asigno un espacio de memoria para cada hormiga y guardo las rutas escogidas de cada hormiga
+`**COORDS`: asigno un espacio de memoria a cada nodo y guardo las coordenadas X y Y de cada uno.
 `**FEROMONAS`: para cada nodo guarda la cantidad de feromonas en cada nodo disponible.  
-`**deltaFEROMONAS`: = Q/l, parte de la ecuacion y ayuda a definir la cantidad de feromona en cada nodo. 
-`**PROB`: guarda el valor dado por la ecuacion de probabilidad PHI.
+`**deltaFEROMONAS`: = Q/l, parte de la ecuación y ayuda a definir la cantidad de feromona en cada nodo. 
+`**PROB`: guarda el valor dado por la ecuación de probabilidad PHI.
 ### Funciones
-| Funcion        |Descripción                                                  	|
+| Función        |Descripción                                                  	|
 |----------------|--------------------------------------------------------------|
-|`void inicializar()`|Crea              								|
-|`void conectarNODOS(int nodoi, int nodoj)`|Reinicia el transceptor utilizando el pin de reset|
-|`void setCOORDENADAS(int nodo, double x, double y)`|Inicializa | 
-|`bool nodoVALIDO(int nodoi, int nodoc)`|Devuelve .|
-|`double distancia(int nodoi, int nodoj)`|Devuelve |
-|`bool visitado(int hormigaK, int c)`|f|
-|`double PHI(int nodoi, int nodoj, int hormigaK)`|f|
-|`int siguienteNODO()`|f|
-|`int nodoFINAL(int nodoi)`|f|
-|`void ruta(int hormigaK)`|f|
-|`f`|f|
-|`f`|f|
-|`f`|f|
-|`f`|f|
-|`f`|f|
-|`f`|f|
+|`void inicializar()`|Inicializa el algoritmo. Para cada puntero reserva los espacios de memoria necesarios en la memoria heap, para poder acceder a dichos espacios desde cualquier parte del Código. también asigna un valor inicial estas memorias para saber cuándo ya se han modificado. |          								
+|`void conectarNODOS(int nodoi, int nodoj)`|Conecta los nodos de entrada asignando un 1 para indicar que el nodo está habilitado. Asigno primero el [nodoi][nodoj] y luego [nodoj][nodoi] para indicar que es un grafo bidireccional (me puedo mover del nodo i al j y también del j al i). |
+|`void setCOORDENADAS(int nodo, double x, double y)`|Guardo la coordenadas X y Y de todos los nodos.| 
+|`bool nodoVALIDO(int nodoi, int nodoc)`| Verifico que los nodos de entrada sean validos (revisa si en la memoria GRAFO hay un 1, indicando que si me puedo mover a ese nodo.|
+|`double distancia(int nodoi, int nodoj)`|Calcula la distancia entre los dos nodos utilizando la ecuación euclidiana.  |
+|`bool visitado(int hormigaK, int c)`|Verifico si el nodo C ya fue visitado por la hormigaK.|
+|`double PHI(int nodoi, int nodoj, int hormigaK)`|Es la ecuación de probabilidad del algoritmo ANT SYSTEM. |
+|`int siguienteNODO()`|Retorna el siguiente nodo que se moverá la hormiga. |
+|`int nodoFINAL(int nodoi)`|Verifico las coordenadas x del nodo i y del nodo final para comprobar si la hormiga ya finalizo la ruta o tiene que seguir. |
+|`void ruta(int hormigaK)`|Calcula la ruta de todas las hormigas comenzando en el nodo inicial. Si se cumplen todas las condiciones calcula la probabilidad y llama a la función `siguienteNODO()` para calcular a donde se moverá la hormiga. |
+|`int valid(int hormigaK, int iteracion)`|Verifica si el nodo es válido, si se cumplen todas las condiciones y no hay ninguna condicion de paro retorna 0 y en el main se seguirá ejecutando el ciclo while.|
+|`double longitud(int hormigaK, int numit)`|Con la ruta ya calculada de la hormigaK calcula la longitud de todo el recorrido llamando a la función `distancia`. Es importante el parámetro de entrada numit, este define las iteraciones que se ejecutara. Como ya se reservó el espacio de memoria, y se le asigno un valor inicial de -1 al puntero RUTAS, si se pasa de esta iteración intentara calcular la distancia con el "nodo= -1" lo cual causara un error. |
+|`void actualizarFEROMONAS()`|Actualizo el valor de las feromonas en cada nodo para todas las hormigas|
+|`void imprimirGRAFO()`|Despliego el grafo en la consola. |
+|`void imprimirFEROMONAS()`|Despliego el valor de las feromonas en la consola. Tanto este como `imprimirGRAFO` no se recomienda utilizar cuando se tienen muchos nodos ya que la consola no es suficientemente grande para desplegar todos los valores lo cual dificulta la visualización.  |
+|`void imprimirRESULTADOS()`|Imprime el resultado de la mejor ruta en la consola. En la visualización de los nodos seleccionados a la hora de imprimir se le suma 1 para que coincida con la definición del grafo en MATLAB y así poder visualizar de mejor manera la ruta seleccionada. |
+
