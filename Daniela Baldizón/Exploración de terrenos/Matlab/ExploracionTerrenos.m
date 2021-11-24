@@ -13,37 +13,67 @@ clear
 tic  % Para medir el tiempo que se tarda el algoritmo en correr.
 
 %% Creamos grid cuadrado con la cantidad de nodos indicada:
-    grid_size = 20;
+    grid_size = 10;
     cost_diag = 0.5;
     tau_0 = 0.1;  % Valor de tau inicial
     G = graph_grid(grid_size);
-    nodo_dest = '56';
-    nodo_init = "1";
-    plot_obstacles = 0;
-%     obstaculos = [37,31,25,19,35,44]';
-    obstaculos = [4,5,6,51,52,58,59,67,68,69,71,72,75,78,79,83,84,87,...
-        88,89,96,97,98,99,103,104,111,112,113,117,118,119,120,131,132,...
-        133,144,145,146,156,157,158,159,168,169,188,189,213,214,215,216,...
-        222,223,224,226,233,234,235,236,242,243,244,247,248,249,253,254,...
-        255,256,262,263,264,267,268,269,282,283,284,293,294,295,307,308,...
-        309,313,314,315,324,325,326,344,315,351,352,353,384,385]';
+    nodo_dest = '1';
+    nodo_init = "10";
+    
+    escenario = 2;
+   
+    switch escenario
+        case 1
+            % Mapa A
+            obstaculos = [12,13,22,23,37,38,47,48,75,76,85,86]'; % Nodos donde se colocan los obstaculos
+        case 2
+            % Mapa B
+            obstaculos = [57,66,75,44,35,26,17]';
+        case 3
+            % Mapa C
+            obstaculos = [4,5,6,51,52,58,59,67,68,69,71,72,75,78,79,83,84,87,...
+                88,89,96,97,98,99,103,104,111,112,113,117,118,119,120,131,132,...
+                133,144,145,146,156,157,158,159,168,169,188,189,213,214,215,216,...
+                222,223,224,226,233,234,235,236,242,243,244,247,248,249,253,254,...
+                255,256,262,263,264,267,268,269,282,283,284,293,294,295,307,308,...
+                309,313,314,315,324,325,326,344,345,315,351,352,353,384,385]';
+        case 4
+            % Mapa D
+            obstaculos = [4,5,6,51,52,58,59,67,68,69,71,72,78,79,83,84,87,88,89,...
+                96,97,98,99,103,104,111,112,113,117,118,119,120,131,132,133,144,...
+                145,146,156,157,158,159,168,169,188,189,213,214,215,216,222,223,...
+                224,233,234,235,236,242,243,244,247,248,249,253,254,255,256,262,...
+                263,264,267,268,269,282,283,284,293,294,295,307,308,309,313,314,...
+                315,324,325,326,344,345,351,352,353,384,385]';
+        case 5
+            % Mapa E
+            obstaculos = [53,54,55,71,72,73,74,75,77,78,87,88,89,91,92,97,98,...
+                103,104,107,108,109,123,124,132,133,134,136,152,153,154,156,172,...
+                173,174,188,189,208,209,211,212,213,214,231,232,233,234,242,243,...
+                244,247,248,249,251,252,253,254,262,263,264,267,268,269,271,272,...
+                273,274,282,283,284,287,288,289,307,308,309,327,328,329,342,343,...
+                347,348,349,362,363]';
+        case 6
+            % Mapa Webots
+            obstaculos = [23,24,27,28,32,62,67,72,73,74,78,79]'; 
+        case 7
+            % Barrido
+            obstaculos = [4,5,6, 71, 73, 72, 78, 89, 99, 67,56,18,19,28,29]';
+    end
         
     %% ACO init
-t_max = 350; 
-hormigas = 50;
+t_max = 150; 
 
-% Rate de evaporación (puede tomar valores entre 0 y 1)
-rho = 0.6; % Gaby
-% Le da más peso a la feromona en la probabilidad
+% Barrido 1
+rho = 0.8;
 alpha = 1;
-% Le da más peso al costo del link en la probabilidad
-beta = 1; % Gaby
-% cte. positiva que regula el depósito de feromona
-Q = 2.1; % Gaby
+beta = 0.5;
+gamma = 3.4;
+Q = 60;
+hormigas = 60;
+
 % Porcentaje de hormigas que queremos siguiendo la misma solución
-epsilon = 0.9; 
-% Factor de guía
-gamma = 1; % Gaby
+epsilon = 0.95;
 
 % Inicialización de matrices
 submapa = zeros(3);
@@ -348,15 +378,21 @@ while (t <= t_max && stop)
     
     %% Update de Feromona
     for k = 1:hormigas
-        dtau = Q/numel(ants(k).path);
+        dtau = Q/(L(k,t)*numel(ants(k).path));
         edge_index = findedge(G, ants(k).path(1:end - 1), ants(k).path(2:end));
-        G.Edges.Weight(edge_index) = G.Edges.Weight(edge_index) + Q*dtau;
-        if k == lgb_index
-            G.Edges.Weight(edge_index) = G.Edges.Weight(edge_index)*2.5;
-        end
         
-        if L(k,t) == Lmin
-            G.Edges.Weight(edge_index) = G.Edges.Weight(edge_index)*2.5;
+        largos = find(L~=0);
+        largos = L(largos);
+        min_cost = min(largos);
+        
+        
+        [mode_plot(t), F] = mode(L(:,t));
+        if (F/hormigas >= epsilon*0.4) 
+            if(L(k,t)<=min_cost)
+                G.Edges.Weight(edge_index) = G.Edges.Weight(edge_index) + Q*dtau;
+            end
+        else
+            G.Edges.Weight(edge_index) = G.Edges.Weight(edge_index) + dtau;
         end
         
         ants(k).path = nodo_init;
@@ -398,9 +434,9 @@ else
     best_path = all_path{len_prob, t-1};
     
     % Gráfica
-    figure(2);
+    figure(1);
     hold on;
-    plot(G.Nodes.X(best_path), G.Nodes.Y(best_path),'r')
+    plot(G.Nodes.X(best_path)+0.5, G.Nodes.Y(best_path)+0.5,'r')
     
     mapa_exp = [];
     for i = 1:hormigas
@@ -409,9 +445,9 @@ else
     
     mapa_exp = unique(mapa_exp);
     
-    figure(3); 
+    figure(2); clf; 
     % Se crea la imagen animada
-    plot(G, 'XData', G.Nodes.X+0.5, 'YData', G.Nodes.Y+0.5, 'NodeColor', 'k'); 
+%     plot(G, 'XData', G.Nodes.X+0.5, 'YData', G.Nodes.Y+0.5, 'NodeColor', 'k'); 
     hold on 
     nodos_especiales = [G.Nodes.X(str2double(nodo_init)), G.Nodes.Y(str2double(nodo_init)); G.Nodes.X(str2double(nodo_dest)), G.Nodes.Y(str2double(nodo_dest))];
     scatter(nodos_especiales(1, 1)+0.5, nodos_especiales(1, 2)+0.5, 'g','filled')

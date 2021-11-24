@@ -5,7 +5,7 @@
 % La salida es el grafo para implementar el ACO.
 function [grafo] = graph_grid(grid)
 
-diag_cost = sqrt(2);
+diag_cost = 1.41;%sqrt(2);
 x_lim_pos = grid;
 y_lim_pos = grid;
 x_lim_neg = 1;

@@ -1,44 +1,54 @@
-# Inteligencia Computacional y Robótica Swarm
-## Aplicaciones Prácticas para Algoritmos de Inteligencia y Robótica de Enjambre
-
 [![Build Status](https://travis-ci.org/joemccann/dillinger.svg?branch=master)](https://travis-ci.org/joemccann/dillinger)
 
-### Contenido del repositorio:
-- Documentos
+# Aplicaciones Prácticas para Algoritmos de Inteligencia y Robótica de Enjambre
+En este proyecto se emplea el algoritmo _Ant Colony Optimization_ (ACO) en Matlab para implementar aplicaciones de inteligencia y robótica de enjambre. Los algoritmos implementados son los siguientes:
 
+- Algoritmo de planificación de trayectorias y evasión de obstáculos. 
+- Algoritmo de exploración de terrenos
 
-		Entregas protocolo: En esta sección se encuentran las entregas que se han hecho del protocolo.
-		Figuras: Figuras generadas durante la redacción del protocolo y la experimentación con fases previas.
-		Literatura: Aquí se encuentran los papers encontrados durante la investigación de las aplicaciones de 
-			los algoritmos de enjambre.
-		Referencias: Archivos bibtex con las referencias del protocolo
-		
+El algoritmo de planificación de trayectorias y evasión de obstáculos se utilizó como planificador de trayectorias para el robot E-Puck. Se validaron dichas trayectorias haciendo uso de Webots.
 
-- Fase anterior
+## Tabla de contenido
 
+1. [Prerrequisitos](#desc)
+2. [ Carpetas ](#usage)
+   1. [ Documentos ](#docs)
+   2. [Exploración de terrenos](#exp)
+   3. [Fase anterior](#fant)
+   4. [Planificación y evasión](#pye)
+   5. [Registro de imágenes](#regis)
+   6. [Webots](#webots)
 
-		En esta carpeta se encuentra únicamente los archivos que se modificaron del trabajo de Garbriela Iriarte. 
-		No se incluyeron los archivos de Eduardo Santizo porque con estos se excedía el espacio permitido y github 
-		no permitía agregarlos. 
+<a name="desc"></a>
+## Prerrequisitos
+Para correr los programas es necesario tener instalado Matlab. Para la elaboración del código se utilizó la versión 2020a y para realizar algunas pruebas se utilizó la versión 2021a. En el caso de la validación de las trayectorias, se utilzó Webots versión 2021a. Los controladores se implementaron en Matlab, por lo que es necesario realizar la conexión entre Matlab y Webots. Para la conexión visitar el siguiente link: [Matlab+Webots].
 
+<a name="usage"></a>
+## Carpetas
+A continuación se presenta un resumen de lo que contienen las carpetas dentro de este repositorio. 
 
-   [dill]: <https://github.com/joemccann/dillinger>
-   [git-repo-url]: <https://github.com/joemccann/dillinger.git>
-   [john gruber]: <http://daringfireball.net>
-   [df1]: <http://daringfireball.net/projects/markdown/>
-   [markdown-it]: <https://github.com/markdown-it/markdown-it>
-   [Ace Editor]: <http://ace.ajax.org>
-   [node.js]: <http://nodejs.org>
-   [Twitter Bootstrap]: <http://twitter.github.com/bootstrap/>
-   [jQuery]: <http://jquery.com>
-   [@tjholowaychuk]: <http://twitter.com/tjholowaychuk>
-   [express]: <http://expressjs.com>
-   [AngularJS]: <http://angularjs.org>
-   [Gulp]: <http://gulpjs.com>
+<a name="docs"></a>
+### Documentos
+En esta carpeta se encuentran las entregas del protocolo y de la tesis. También se encuentran algunas figuras utilizadas en el documento de tesis, los artículos encontrados durante el proceso de investigación y los bibtex de las referencias. 
 
-   [PlDb]: <https://github.com/joemccann/dillinger/tree/master/plugins/dropbox/README.md>
-   [PlGh]: <https://github.com/joemccann/dillinger/tree/master/plugins/github/README.md>
-   [PlGd]: <https://github.com/joemccann/dillinger/tree/master/plugins/googledrive/README.md>
-   [PlOd]: <https://github.com/joemccann/dillinger/tree/master/plugins/onedrive/README.md>
-   [PlMe]: <https://github.com/joemccann/dillinger/tree/master/plugins/medium/README.md>
-   [PlGa]: <https://github.com/RahulHP/dillinger/blob/master/plugins/googleanalytics/README.md>
+<a name="exp"></a>
+### Exploración de terrenos
+En esta carpeta se encuentra el código de esta implementación y los resultados obtenidos durante las pruebas.
+
+<a name="fant"></a>
+### Fase anterior
+Aquí está el trabajo realizado en el trabajo previo a este. Estos códigos se tomaron como base para las implementaciones.
+
+<a name="pye"></a>
+### Planificación y evasión
+En esta carpeta está el código de la implementación del algoritmo de planificación de trayectorias y evasión de obstáculos. Asimismo, se incluye la carpeta con los resultados obtenidos de las pruebas y de los barridos de parámetros. 
+
+<a name="regis"></a>
+### Registro de imágenes
+En esta carpeta se encuentr el código de la implementación del algoritmo de registro de imágenes. Asimisno, se encuentran las funciones necesarias para el funcionamiento correcto del algoritmo y los resultados obtenidos durante la experimentación. 
+
+<a name="webots"></a>
+### Webots
+En esta sección se encuentran los archivos utilizados en Webots para la validación de las trayectorias. Se incluyen los archivos de matlab con los controladores y los resutlados obtenidos. 
+
+[Matlab+Webots]: <https://cyberbotics.com/doc/guide/using-matlab>

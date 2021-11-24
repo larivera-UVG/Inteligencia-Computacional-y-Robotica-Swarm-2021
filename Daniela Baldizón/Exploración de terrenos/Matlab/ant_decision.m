@@ -22,12 +22,6 @@ function next_node = ant_decision(vecinos, alpha, beta, G, id)
 index_edges = findedge(G, repmat(convertCharsToStrings(id), size(vecinos)), vecinos);
 tau = G.Edges.Weight(index_edges);
 eta = G.Edges.Eta(index_edges);
-% if eta == 1
-%     eta = 2;
-% else
-%     eta = 1;
-% end
-% eta = eta.^(-1);
 w = tau.^alpha.*eta.^beta;
 probabilidad = w/sum(w);
 I = rouletteWheel(probabilidad);

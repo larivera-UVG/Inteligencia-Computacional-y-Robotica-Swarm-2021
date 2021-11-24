@@ -289,7 +289,7 @@ for rep = 1:1:repetitions
             % no strings.
 
             ants(k).path = loop_remover(str2double(ants(k).path));
-            L(k, t) = sum(G.Edges.Eta(findedge(G, ants(k).path(1:end-1), ants(k).path(2:end))));
+            L(k, t) = sum(G.Edges.Eta(findedge(G, ants(k).path(1:end-1), ants(k).path(2:end))).^-1);
             Largo(k,t) = sum(G.Edges.Eta(findedge(G, ants(k).path(1:end-1), ants(k).path(2:end))));
             all_path{k, t} = ants(k).path;  % Equivale a x_k(t)
 
