@@ -1,6 +1,8 @@
 ## Webots
 En esta carpeta se encuentran los archivos utilizados para la validación de las trayectorias en Webots. Las carpetas se detallan a continuación:
 
+![MapaWebots](https://user-images.githubusercontent.com/45132555/143382042-70ed7599-cc68-4e77-a3d9-22683fe76a53.JPG)
+
 ### PYE
 En esta carpeta se encuentra la información de la trayectoria generada por el algoritmo de planificación de trayectorias y evasión de obstáculos. 
 
