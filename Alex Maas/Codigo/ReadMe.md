@@ -2,7 +2,7 @@
 A continuación se dará una breve explicación de cada código incluido en esta carpeta, como ejecutarlo y como fue validado. 
 
 ## PSO.c
-
+Este código agrupa las versiones finales de todos los demás, en el se ejecuta el algoritmo PSO mientras se envían información a otros agentes por medio de broadcast. Se ejecutan 2 hilos de programación, el primero recibiendo información mediante broadcast y el segundo recibiendo información del algoritmo de visión por computadora (matlab). Permite seleccionar el tipo de controlador, función costo y variar parámetros del PSO. 
  
 ## pruebaEnvioyRecepcion_1Hilo.c
 Este código evalúa la capacidad de enviar y recibir información de varios agentes por medio del protocolo de comunicación UDP tipo broadcast. Se introduce manualmente el costo local, global, numero de agente, posición en X, posición en Y y orientación de cada agente; estos son agrupados y enviados por medio del código principal y por medio de un hilo de programación son recibidos por todos los agentes. El hilo de recepción es capaz de identificar si se esta recibiendo datos de la pose de los agentes o datos del costo por posición de cada agente. 
