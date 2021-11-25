@@ -18,7 +18,7 @@ Alex Maas #17146  */
 
 #define MSG_SIZE 40 			// tamaño del mensaje
 #define IP_LENGTH 15
-#define PUERTO 2001			// puerto para enviar informacion entre agentes (UDP broadcast)
+#define PUERTO1 2001			// puerto para enviar informacion entre agentes (UDP broadcast)
 #define PUERTO2 2010			// puerto para enviar la pose de los agentes (UDP)
 
 // Controladores
@@ -325,7 +325,7 @@ int main(int argc, char *argv[]){
 	}
 
     anybody.sin_family = AF_INET;                // symbol constant for Internet domain
-    anybody.sin_port = htons(PUERTO);            // port field
+    anybody.sin_port = htons(PUERTO1);            // port field
     anybody.sin_addr.s_addr = htonl(INADDR_ANY); // para recibir de cualquiera
 
     sock = socket(AF_INET, SOCK_DGRAM, 0); // Creates socket. Connectionless.
