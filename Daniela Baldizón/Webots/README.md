@@ -1,7 +1,5 @@
 ## Webots
-En esta carpeta se encuentran los archivos utilizados para la validación de las trayectorias en Webots. Las carpetas se detallan a continuación:
-
-![MapaWebots](https://user-images.githubusercontent.com/45132555/143382042-70ed7599-cc68-4e77-a3d9-22683fe76a53.JPG)
+En esta carpeta se encuentran los archivos utilizados para la validación de las trayectorias en Webots. Las carpetas se detallan a continuación.
 
 ### PYE
 En esta carpeta se encuentra la información de la trayectoria generada por el algoritmo de planificación de trayectorias y evasión de obstáculos. 
@@ -26,3 +24,11 @@ Para cambiar el controlador se debe modificar la variable `controlador`.
 
 ### Worlds
 Aquí se encuentra el mundo de Webots en el que se realizaron las pruebas. Este es un archivo .wbt y este fue generado con Webots versión 2021a. Para ejectuar, solo se debe presionar la flecha de play en Webots. 
+
+### Ejemplo
+
+Al abrir el mundo se debería ver como se muestra la siguiente imagen.
+
+![MapaWebots](https://user-images.githubusercontent.com/45132555/143382042-70ed7599-cc68-4e77-a3d9-22683fe76a53.JPG)
+
+Al correr el programa se debería ver el robot moviéndose desde donde está hasta la esquina superior derecha. 
