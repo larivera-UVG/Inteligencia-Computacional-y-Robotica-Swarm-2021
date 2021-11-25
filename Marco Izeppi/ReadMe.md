@@ -20,7 +20,7 @@ Las fases previas se encuentran dentro de la carpeta de Toolbox, en esta se encu
 Dentro de esta carpeta se encuentra todo lo relacionado al toolbox de Eduardo Santizo, incluyendo las pruebas que realizo y las simulaciones con las redes neuronales.
 ### Webots
 Dentro de esta carpeta se encuentra Todo lo relacionado al desarrollo del entorno de Webots, lo que es el mundo en el cual se esta trabajando al igual que el controlador utilizado y todos los objetos que se encuentran dentro del mundo.
-### Documentacion
-En esta carpeta se busca colocar todo lo relacionado a datos de referencia que se hayan utilizado durante el desarrollo de la tesis como la documentación desarrollada para el entendimiento de ROS.
+### Documentación
+En esta carpeta se encuentra cada entrega del protocolo al igual que la version final de la tesis.
 ### ROS
 Dentro de esta carpeta se encuentra todo lo relacionado al entorno de simulación de ROS. En esta carpeta se pueden encontrar simulaciones, documentación y una guía. 
