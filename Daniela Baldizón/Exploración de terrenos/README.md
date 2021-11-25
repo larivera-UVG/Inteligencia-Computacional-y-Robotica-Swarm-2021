@@ -65,3 +65,5 @@ Los resultados obtenidos fueron los siguientes:
 
 La imagen de la izquierda es el mapa con la trayectoria entre los nodos. La imagen de la derecha es el mapa obtenido luego de la exploración.
 
+Si se siguen los pasos antes mencionados y se obtiene un resultado similar al mostrado, el algoritmo está listo para hacer más pruebas.
+
