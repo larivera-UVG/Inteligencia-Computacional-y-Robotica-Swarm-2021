@@ -16,10 +16,10 @@ Para Matlab 2019 se utiliza la función `udp`
 
 La variable `continueRunning` es utilizada como "bandera" para enviar la información, cada vez que sea *true*, se enviara la información. Es necesario escribir directamente en el *command window* de Matlab la palabra *true* para que se envíen los datos.
 
-Para Matlab 2021 se puede utilizar la función `write` para enviar el mensaje.
+Para Matlab 2021: se puede utilizar la función `write` para enviar el mensaje.
 
-Para Matlab 2019 se utiliza la función `fprintf` para el envío de la cadena. 
+Para Matlab 2019: se utiliza la función `fprintf` para el envío de la cadena. 
 
-En Matlab 2021 se pued0ne utilizar las funciones `readline y disp` para la recepción y despliegue de la cadena.
+En Matlab 2021: se pued0ne utilizar las funciones `readline y disp` para la recepción y despliegue de la cadena.
 
-En Matlab 2019 se debe utilizar la función `fscanf` para la recepción de datos. 
+En Matlab 2019: se debe utilizar la función `fscanf` para la recepción de datos. 
