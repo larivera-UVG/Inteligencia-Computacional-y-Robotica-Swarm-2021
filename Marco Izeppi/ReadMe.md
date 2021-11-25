@@ -21,6 +21,6 @@ Dentro de esta carpeta se encuentra todo lo relacionado al toolbox de Eduardo Sa
 ### Webots
 Dentro de esta carpeta se encuentra Todo lo relacionado al desarrollo del entorno de Webots, lo que es el mundo en el cual se esta trabajando al igual que el controlador utilizado y todos los objetos que se encuentran dentro del mundo.
 ### Documentación
-En esta carpeta se encuentra cada entrega del protocolo al igual que la version final de la tesis.
+En esta carpeta se encuentra cada entrega del protocolo al igual que la version final de la tesis y el artículo.
 ### ROS
 Dentro de esta carpeta se encuentra todo lo relacionado al entorno de simulación de ROS. En esta carpeta se pueden encontrar simulaciones, documentación y una guía. 
