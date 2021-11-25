@@ -147,23 +147,22 @@ static double phi_l = 0;                          // Velocidad angular actual de
 static double PhiR_old = 0;                       // Velocidad angular anterior de motor derecho de robot
 static double PhiL_old = 0;                       // Velocidad angular anterior de motor izquierdo de robot
 
-// Variable zero
-static int zero = 0;
+// Numero de iteracion 
 static int numero_iter = 0;
 
 //Inicializacion
 int estado = 0;
-int num_agente = 0;
+int num_agente = 0;				// Numero del agente (se asigna al ejecutar)
 
 // Recepcion de datos de otros robots
 static double recepcion[2];
 static double recepcion2[2];
 
 // Variable de recibir
-char buffer_recibir[MSG_SIZE];  // to store received messages or messages to be sent.
+char buffer_recibir[MSG_SIZE];  			// almacenar mensaje recibido
 char *token;
 char *token2;
-int bandera = 0;
+int bandera = 0;					// indicador si se recibio una nueva pose (sirve para comunicacion con mesa de pruebas)
 
 
 
@@ -187,16 +186,16 @@ double randfrac(void){
 double funcion(double x, double y){
     double f = 0;
     if (funcion_costo == 0){
-        f = pow(x, 2) + pow(y, 2); // Sphere
+        f = pow(x, 2) + pow(y, 2); 				// Sphere
     }
     else if (funcion_costo == 1){
-        f = pow(1 - x, 2) + 100 * pow(y - pow(x, 2), 2); // Rosenbrock
+        f = pow(1 - x, 2) + 100 * pow(y - pow(x, 2), 2); 	// Rosenbrock
     }
     else if (funcion_costo == 2){
-        f = pow(x + 2 * y - 7, 2) + pow(2 * x + y - 5, 2); // Booth
+        f = pow(x + 2 * y - 7, 2) + pow(2 * x + y - 5, 2); 	// Booth
     }
     else if (funcion_costo == 3){
-        f = pow(x * x + y - 11, 2) + pow(x + y * y - 7, 2); // Himmelblau
+        f = pow(x * x + y - 11, 2) + pow(x + y * y - 7, 2); 	// Himmelblau
     }
     return f;
 }
@@ -208,40 +207,38 @@ void error(const char *msg){
 //----------------------------------------------------------------------------------
 
 //------------------------Recepcion Broadcast (comunicacion agentes)--------------------------------------
-// Receiving thr: constantly waits for messages. Whatever is received is displayed.
 void *receiving(void *ptr){
     int *sock, n, ret;
     int i = 0;
-    sock = (int *)ptr;                                // socket identifier
-    unsigned int length = sizeof(struct sockaddr_in); // size of structure
+    sock = (int *)ptr;                                			// identificador del socket
+    unsigned int length = sizeof(struct sockaddr_in); 			// tamaño de la estructura
     struct sockaddr_in from;
 
     while (1){
-        memset(buffer_recibir, 0, MSG_SIZE); // "limpia" el buffer
-        // receive message
+        memset(buffer_recibir, 0, MSG_SIZE); 				// "limpia" el buffer
+        // recibir mensaje
         n = recvfrom(*sock, buffer_recibir, MSG_SIZE, 0, (struct sockaddr *)&from, &length);
         if (n < 0){
             error("Error: recvfrom");
         }
         i = 0;
-		// descomponer buffer_recibir, strtok
-		token = strtok(buffer_recibir, ",");
+	// descomponer buffer_recibir, strtok
+	token = strtok(buffer_recibir, ",");
+	recepcion[i] = atof(token);
+	while ((token = strtok(NULL, ",")) != NULL){
+		i++;
 		recepcion[i] = atof(token);
-		while ((token = strtok(NULL, ",")) != NULL){
-			i++;
-			recepcion[i] = atof(token);
-		}
-		//printf("recepcion %f,%f, %f y %f.\n",recepcion[0],recepcion[1],recepcion[2],fitness_global);
-		// Actualizar global best
-		if (recepcion[2] < fitness_global){ //Local< Global, asigna el valor local al global
-			best_global[0] = recepcion[0];
-			best_global[1] = recepcion[1];
-			fitness_global = recepcion[2];
-			//fitness_local = recepcion[3];
-			//printf("Agente %d actualiza su Best Global a %f.\n", num_agente, fitness_global);
-		}else{
-			//printf("Agente %d no actualiza su Best Global %f.\n", num_agente, fitness_global);
-		}	
+	}
+	//printf("recepcion %f,%f, %f y %f.\n",recepcion[0],recepcion[1],recepcion[2],fitness_global);
+	// Actualizar global best
+	if (recepcion[2] < fitness_global){ 				//Local< Global, asigna el valor local al global
+		best_global[0] = recepcion[0];
+		best_global[1] = recepcion[1];
+		fitness_global = recepcion[2];
+		//printf("Agente %d actualiza su Best Global a %f.\n", num_agente, fitness_global);
+	}else{
+		//printf("Agente %d no actualiza su Best Global %f.\n", num_agente, fitness_global);
+	}	
     }
     pthread_exit(0);
 }
@@ -256,47 +253,42 @@ void *receiving2(void *ptr){
 	struct sockaddr_in from;
 	char buffer[MSG_SIZE];
 
-	sockfd = socket(AF_INET, SOCK_DGRAM, 0); // Creates socket. Connectionless.
+	sockfd = socket(AF_INET, SOCK_DGRAM, 0);		// Creacion del socket
 	if(sockfd < 0)
 		error("Opening socket");
 
-	length = sizeof(server);			// length of structure
-	memset((char *)&server, 0, length); // sets all values to zero.
-	server.sin_family = AF_INET;		// symbol constant for Internet domain
-	server.sin_addr.s_addr = htonl(INADDR_ANY);	// para recibir de cualquier interfaz de red
-	server.sin_port = htons(PUERTO2);	// port number
+	length = sizeof(server);				// largo de la estructura
+	memset((char *)&server, 0, length); 			// establece todos los valores en cero
+	server.sin_family = AF_INET;				// simbolo constante para internet
+	server.sin_addr.s_addr = htonl(INADDR_ANY);		// para recibir de cualquier interfaz de red
+	server.sin_port = htons(PUERTO2);			// Seleccion del puerto
 
-	// binds the socket to the address of the host and the port number
 	if(bind(sockfd, (struct sockaddr *)&server, length) < 0)
        error("binding");
 
-	fromlen = sizeof(struct sockaddr_in);	// size of structure
+	fromlen = sizeof(struct sockaddr_in);			// tamaño de la estructura
 
 	while(1){
-		memset(buffer, 0, MSG_SIZE);	// sets all values to zero.
-		// receive from client
-		// Usamos recvfrom(), indicando de quién esperamos el mensaje. A diferencia
-		// de TCP, acá no se establece la conexión. Necesitamos indicar de quién
-		// recibimos cada vez.
+		memset(buffer, 0, MSG_SIZE);			// limpia el buffer.
+		//  recepción  de informacion
 		n = recvfrom(sockfd, buffer, MSG_SIZE, 0, (struct sockaddr *)&from, &fromlen);
 		if(n < 0)
-            error("recvfrom");
+            		error("recvfrom");
 
 		//printf("Mensaje recibido: %s\n", buffer);
-        bandera = 1;
-        j = 0;
+        	bandera = 1;
+        	j = 0;
 		// descomponer buffer_recibir, strtok
 		token2 = strtok(buffer, ",");
-        recepcion2[j] = atof(token2);
+       		recepcion2[j] = atof(token2);
 		while ((token2 = strtok(NULL, ",")) != NULL){
 			j++;
 			recepcion2[j] = atof(token2);   
 		}
-        posicion_robot_X = recepcion2[0];
-        posicion_robot_Y = recepcion2[1];
-        theta_o = recepcion2[2];
-        //rad = recepcion2[2];
-        printf("Coordenadas agente %d son: %f, %f, %f.\n", num_agente, posicion_robot_X, posicion_robot_Y, theta_o);
+        	posicion_robot_X = recepcion2[0];
+        	posicion_robot_Y = recepcion2[1];
+        	theta_o = recepcion2[2];
+        	printf("Coordenadas agente %d son: %f, %f, %f.\n", num_agente, posicion_robot_X, posicion_robot_Y, theta_o);
     }
     pthread_exit(0);
 }
@@ -308,71 +300,71 @@ void *receiving2(void *ptr){
 int main(int argc, char *argv[]){
     //------------------------------Proceso de Comunicacion -------------------------------
     int sock, n;
-    unsigned int length = sizeof(struct sockaddr_in);           // size of structure
-    char buffer_enviar1[MSG_SIZE];                              // to store received messages or messages to be sent.
-    struct sockaddr_in anybody;                                 // for the socket configuration
-    int boolval = 1;                                            // for a socket option
-    pthread_t thread_rec, thread_rec2; 
+    unsigned int length = sizeof(struct sockaddr_in);           // tamaño de la estructura
+    char buffer_enviar1[MSG_SIZE];                              // almacenar mensaje
+    struct sockaddr_in anybody;                                 // configuracion del socket
+    int boolval = 1;                                           
+    pthread_t thread_rec, thread_rec2; 				// variables para multihilos
     char IP_broadcast[IP_LENGTH];                               // para la dirección de broadcast
     FILE *file;
-    strcpy(IP_broadcast, "10.0.0.255"); // Puede que se deba cambiar. Revisar ifconfig
+    strcpy(IP_broadcast, "10.0.0.255"); 			// Puede que se deba cambiar. Revisar ifconfig
     //strcpy(IP_broadcast, "192.168.0.255");
+	
     printf("La dirección de broadcast Es: %s\n\n", IP_broadcast);
 
-	if (argc == 2){
-		num_agente = atoi(argv[1]);
-	}
+    if (argc == 2){
+	    num_agente = atoi(argv[1]);				// numero colocado al ejecutar
+    }
 
-    anybody.sin_family = AF_INET;                // symbol constant for Internet domain
-    anybody.sin_port = htons(PUERTO1);            // port field
-    anybody.sin_addr.s_addr = htonl(INADDR_ANY); // para recibir de cualquiera
+    anybody.sin_family = AF_INET;                		// simbolo constante para internet
+    anybody.sin_port = htons(PUERTO1);           	 	// puerto seleccionado
+    anybody.sin_addr.s_addr = htonl(INADDR_ANY); 		// para recibir de cualquiera
 
-    sock = socket(AF_INET, SOCK_DGRAM, 0); // Creates socket. Connectionless.
+    sock = socket(AF_INET, SOCK_DGRAM, 0); 			// creacion del socket
     if (sock < 0)
         error("Error: socket");
 
-    // Sin el bind, no se reciben los mensajes
     if (bind(sock, (struct sockaddr *)&anybody, sizeof(struct sockaddr_in)) < 0){
         printf("Error binding socket.\n");
         exit(-1);
     }
-    // change socket permissions to allow broadcast
+    // configuracion para permitir broadcast
     if (setsockopt(sock, SOL_SOCKET, SO_BROADCAST, &boolval, sizeof(boolval)) < 0){
         printf("Error setting socket options.\n");
         exit(-1);
     }
-    anybody.sin_addr.s_addr = inet_addr(IP_broadcast); // broadcast address
+    anybody.sin_addr.s_addr = inet_addr(IP_broadcast); 		// direccion del broadcast 
  
-    pthread_create(&thread_rec, NULL, receiving, (void *)&sock); // para recepcion
-    pthread_create(&thread_rec2, NULL, receiving2, (void *)&sock); // for receiving
+    // Se crean los hilo de recepción.
+    pthread_create(&thread_rec, NULL, receiving, (void *)&sock); 
+    pthread_create(&thread_rec2, NULL, receiving2, (void *)&sock); 
 
- 	printf("Tesis Alex.\n");
-	printf("Agente %d conectado\n", num_agente);
+    printf("Tesis Alex.\n");
+    printf("Agente %d conectado\n", num_agente);
 
     while (1){
         if (bandera == 1){
-            memset(buffer_enviar1, 0, MSG_SIZE); // "limpia" el buffer
-											//fgets(buffer_enviar,MSG_SIZE-1,stdin); // MSG_SIZE-1 'cause a null character is added
+            memset(buffer_enviar1, 0, MSG_SIZE); 		// "limpia" el buffer
+											
             sleep(5);
             // Valores a enviar
             sprintf(buffer_enviar1, "%f,%f,%f", best_local[0], best_local[1], fitness_local);
-
-            if (buffer_enviar1[0] != '!'){
-                // send message to anyone there...
-                n = sendto(sock, buffer_enviar1, strlen(buffer_enviar1), 0,
-                        (const struct sockaddr *)&anybody, length);
-                if (n < 0)
-                    error("Error: sendto");
+	    if (buffer_enviar1[0] != '!'){
+		    // enviar mensaje
+                    n = sendto(sock, buffer_enviar1, strlen(buffer_enviar1), 0,
+                        		(const struct sockaddr *)&anybody, length);
+                    if (n < 0)
+                    	error("Error: sendto");
             }
-            //------ PSO ---------------------------------------
+            //-------------------------- Algoritmo  PSO ---------------------------------------
             numero_iter++;
             printf("Comienza PSO No. de iteracion %d\n",numero_iter);
+		
             // --------------------Configuracion de valores iniciales del PSO-------------------
             if (estado == 0)
             {
-                //posicion_robot = 0;                     //GPS
-                actual_position[0] = posicion_robot_X; // coordenada X
-                actual_position[1] = posicion_robot_Y; // coordenada Y
+                actual_position[0] = posicion_robot_X; 			// coordenada X
+                actual_position[1] = posicion_robot_Y; 			// coordenada Y
                 best_local[0] = actual_position[0];
                 best_local[1] = actual_position[1];
                 best_global[0] = actual_position[0];
@@ -423,7 +415,6 @@ int main(int argc, char *argv[]){
                 best_local[1] = actual_position[1];
                 fitness_local = fitness_actual;
             }
-            // Se deben enviar los valores a otros agentes.
 
             // Actualizar global best (propio no el recibido-enviado)
             if (fitness_local < fitness_global)
@@ -497,10 +488,10 @@ int main(int argc, char *argv[]){
             e_y = new_position[1] - actual_position[1];
             e_p = sqrt(pow(e_y, 2) + pow(e_x, 2));
 
-            // Dimensiones para el Robot, modificarlas (actualmente dimensiones del E-Puck)
-            double l = ROBOT_RADIUS / 1000; // Distancia de centro a llantas en metros
-            double r = WHEEL_RADIUS / 1000; // Radio de llantas en metros
-            double a = ROBOT_RADIUS / 1000; // Distancia entre centro y punto de disomorfismo (E-puck front)
+            // Dimensiones para el Robot (actualmente dimensiones del E-Puck)
+            double l = ROBOT_RADIUS / 1000; 			// Distancia de centro a llantas en metros
+            double r = WHEEL_RADIUS / 1000; 			// Radio de llantas en metros
+            double a = ROBOT_RADIUS / 1000; 			// Distancia entre centro y punto de disomorfismo (E-puck front)
 
             // -------------------- Control de ecuaciones cinematicas ---------------
 
@@ -705,6 +696,6 @@ int main(int argc, char *argv[]){
         }
         usleep(1000);
     }
-    close(sock); // close socket.
+    close(sock); 			// cerrar socket.
     return 0;
 }
