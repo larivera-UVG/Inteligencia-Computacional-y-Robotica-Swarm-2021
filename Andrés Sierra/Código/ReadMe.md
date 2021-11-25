@@ -1,1 +1,1 @@
-Folder contiene todos los programas utilizados en todas las plataformas 
+Folder para todos los programas utilizados en todas las plataformas 
