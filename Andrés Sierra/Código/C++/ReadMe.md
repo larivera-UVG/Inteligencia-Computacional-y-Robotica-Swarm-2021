@@ -1,6 +1,6 @@
 # Archivos en C++
 ## `pruebaACO.cpp`
-Este archivo tiene el código para obtener la mejor ruta entre dos puntos de un grafo, utilizando las ecuaciones del algoritmo Ant System. Este es el código base que será ordenado dentro de una clase. Para inicializar se necesita definir varios parámetros `ITERACIONES`: la cantidad de veces que las hormigas calcularan la ruta. `NUMEROHORMIGAS`: cantidad de agentes que se tienen. `NUMERONODOS`: cantidad de nodos del grafo. Los parámetros `ALPHA, BETA, Q, RO, TAUMAX` son parte de las ecuaciones del algoritmo y tienen el valor asignado con los cuales se obtuvieron mejores resultados. `NODOINICIAL y NODOFINAL`.
+Este archivo tiene el código para obtener la mejor ruta entre dos puntos de un grafo, utilizando las ecuaciones del algoritmo Ant System. Este es el código base que será ordenado dentro de una clase. Para inicializar se necesita definir varios parámetros `ITERACIONES`: la cantidad de veces que las hormigas calcularan la ruta. `NUMEROHORMIGAS`: cantidad de agentes que se tienen. `NUMERONODOS`: cantidad de nodos del grafo. Los parámetros `ALPHA, BETA, Q, RHO, TAUMAX` son parte de las ecuaciones del algoritmo y tienen el valor asignado con los cuales se obtuvieron mejores resultados. `NODOINICIAL y NODOFINAL`.
 ### Variables/punteros globales
 `MEJORLONG`: contiene la mejor longitud de la ruta más corta. <br />
 `numITER`: para cada hormiga guarda el número de iteraciones necesario para ejecutar el programa (funcionalidad, si el código se ejecuta más veces del necesario, el algoritmo puede agarrar memoria que no está definida o números no validos por lo que el algoritmo no funciona). <br />
@@ -31,3 +31,28 @@ Este archivo tiene el código para obtener la mejor ruta entre dos puntos de un 
 |`void imprimirFEROMONAS()`|Despliego el valor de las feromonas en la consola. Tanto este como `imprimirGRAFO` no se recomienda utilizar cuando se tienen muchos nodos ya que la consola no es suficientemente grande para desplegar todos los valores lo cual dificulta la visualización.  |
 |`void imprimirRESULTADOS()`|Imprime el resultado de la mejor ruta en la consola. En la visualización de los nodos seleccionados a la hora de imprimir se le suma 1 para que coincida con la definición del grafo en MATLAB y así poder visualizar de mejor manera la ruta seleccionada. |
 
+
+### `main.cpp, ACO.cpp y ACO.h`
+Estos tres archivos contienen la clase con algoritmo ACO descrito anteriormente.
+
+`ACO.h` es el *header file*, aquí se definen todas las funciones y variables que se utilizar. Este archivo se divide en dos, la parte *public*, aquí se definen tanto variables como funciones que serán accedidos por el usuario (se utilizarán en el `main.cpp`). Y la parte *private* que forman parte de las operaciones internas del algoritmo. 
+
+`ACO.cpp` aquí se define el contenido de todas las funciones tanto públicas como privadas.
+
+`main.cpp` es el código principal, aquí se les asignan los valores a los parámetros se crea el grafo a utilizar con la función `conectarNODOS` y se define las coordenadas de los nodos con la función `setCOORDENADAS`. y se llama a la función `optimizar`.
+| Función        |Descripción                                                  	|
+|----------------|--------------------------------------------------------------|
+|`void optimizar(int ITERACIONES)` | Para la clase se agrega esta función la cual se encarga de correr el proceso del algoritmo (lo que en `pruebaACO.cpp` se corría en el `void main()`. |
+
+       	
+Para compilar la clase se debe ejecutar el siguiente comando, este creara un archivo ejecutable en la carpeta donde está guardada la clase.
+```bash
+g++ main.cpp ACO.cpp -o main
+```
+Una vez con el ejecutable creado se corre utilizando
+```bash
+./main
+```
+
+### `pruebaRecepcion_UDP.cpp`
+Coniente comunicación mediante un protocolo de comunicación UDP. Este cosido funciona en conjunto con y funciona como servidor, donde recibe y despliega la información. La información recibida proviene de Matlab utilizando como pruebas el código `PruebaComunicacion_UDP.m` ubicado en `Código/Matlab`.
