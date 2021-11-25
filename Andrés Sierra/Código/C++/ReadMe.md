@@ -57,5 +57,6 @@ Una vez con el ejecutable creado se corre utilizando
 ### `pruebaRecepcion_UDP.cpp`
 Coniente comunicación mediante un protocolo de comunicación UDP. Este cosido funciona en conjunto con y funciona como servidor, donde recibe y despliega la información. La información recibida proviene de Matlab utilizando como pruebas el código `PruebaComunicacion_UDP.m` ubicado en `Código/Matlab`.
 
-
+### `pruebaACO_Comunicacion_hilos.cpp`
+Contiene las pruebas para la comunicación con la plataforma de rastreo para separar la información que se recibe del buffer, al tener dos indicadores se debe verificar que se este guardando la informacion correcta. 
 Para multihilos colocar -lpthread
