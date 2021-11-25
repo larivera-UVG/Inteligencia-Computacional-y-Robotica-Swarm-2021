@@ -67,8 +67,6 @@ Se tienen 4 conjuntos de parámetros que pueden ser utilizados en el algoritmo. 
 
 El porcentaje de hormigas que se quiere con la misma solución se modifica con la variable `epsilon`. 
 
-Este algoritmo está paralelizado, por lo que es recomendable darle a la opción de start paralel pool de matlab antes de ejecutarlo, para que no se tarde tanto en empezar. Si esto último no se hace no hay problema ya que se activa solo al ejecutar.
-
 #### Ejemplo
 
 En este ejemplo se colocaron los siguientes parámetros:
@@ -77,7 +75,7 @@ En este ejemplo se colocaron los siguientes parámetros:
 - `nodo_init = '1';`
 - `nodo_dest = '100';`
 - `escenario = 1;`
-- `t_max = 150;`
+- `t_max = 50;`
 - `constantes = 4;`
 - `epsilon = 0.95;`
 
