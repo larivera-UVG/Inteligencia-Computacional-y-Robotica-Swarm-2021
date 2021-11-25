@@ -83,7 +83,7 @@ En este ejemplo se colocaron los siguientes parámetros:
 
 Los resultados obtenidos fueron los siguientes:
 
-<img src = "https://user-images.githubusercontent.com/45132555/143379102-e2c57507-140e-4e4e-8709-8fc03cc88319.jpg" width="400" height="400"> <img src = "https://user-images.githubusercontent.com/45132555/143379104-d8198c90-13d8-4f8e-89c3-3f8d7fdc96f9.jpg" width="400" height="400">
+<img src = "https://user-images.githubusercontent.com/45132555/143379104-d8198c90-13d8-4f8e-89c3-3f8d7fdc96f9.jpg" width="400" height="400"> <img src = "https://user-images.githubusercontent.com/45132555/143379102-e2c57507-140e-4e4e-8709-8fc03cc88319.jpg" width="400" height="400">
 
 La imagen de la izquierda es el mapa con la trayectoria entre los nodos. La imagen de la derecha son las gráficas de media y moda de los caminos encontrados.
 
