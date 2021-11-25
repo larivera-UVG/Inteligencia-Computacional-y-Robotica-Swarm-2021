@@ -42,10 +42,10 @@ Alex Maas #17146  */
 // Variables globales
 #define TIME_STEP 32
 #define MAX_SPEED 2
-#define ROBOT_RADIUS 35           //Modificar valores en mm
-#define WHEEL_RADIUS 20.5           //Modificar valores en mm
+#define ROBOT_RADIUS 35           	//Modificar valores en mm
+#define WHEEL_RADIUS 20.5           	//Modificar valores en mm
 
-// Fitness Funcion   (0-Sphere, 1-Rosenbrock, 2- Booth, 3-Himmelblau)
+// Fitness Funcion   			(0-Sphere, 1-Rosenbrock, 2- Booth, 3-Himmelblau)
 #define funcion_costo 0   
 #define TIME_DELTA 0.032
 
@@ -53,7 +53,7 @@ Alex Maas #17146  */
 #define PSO_STEP 1
 #define USE_STANDART_PSO 1
 
-// Parametro de Inercia  (0-cte, 1-linear, 2-chaotic, 3-random, 4-exponential)
+// Parametro de Inercia  		(0-cte, 1-linear, 2-chaotic, 3-random, 4-exponential)
 #define INERTIA_TYPE 4
 
 // Parametros PSO
@@ -74,21 +74,20 @@ Alex Maas #17146  */
 // HARDSTOP Filter Parameters
 #define MAX_CHANGE 1.00
 
-//static const double *posicion_robot; //falta sensor
+// Variables de pose del robot 
 static double posicion_robot_X = 0;
 static double posicion_robot_Y = 0;
 static double rad = 0;
 
-
 // Nuevas posiciones del robot
 static double new_position[] = {0, 0};
 static double new_velocity[] = {0, 0};
-static double theta_g = 0; // Orientacion nueva del robot
+static double theta_g = 0; 			// Orientacion nueva del robot
 
 // Posiciones actuales del robot
 static double actual_position[] = {0, 0};
 static double old_velocity[] = {0, 0};
-static double theta_o = 0; // Orientacion actual del robot
+static double theta_o = 0; 			// Orientacion actual del robot
 static double fitness_actual = 0;
 
 // Posicion Local
@@ -134,13 +133,13 @@ static double K_B = -K_BETA;
 
 // Variables del conntrolador LQI
 static double delta_t = TIME_DELTA;
-static double XI_X = 0; // Error integrativo de X
-static double XI_Y = 0; // Error integrativo de Y
+static double XI_X = 0; 			// Error integrativo de X
+static double XI_Y = 0; 			// Error integrativo de Y
 
 // Error de posicion entre robot-meta
-static double e_x = 0; // Diferencial de posicion horizontal
-static double e_y = 0; // Diferencia de posicion vertical
-static double e_p = 0; // Distacia euclidiana entre robot y meta
+static double e_x = 0; 				// Diferencial de posicion horizontal
+static double e_y = 0; 				// Diferencia de posicion vertical
+static double e_p = 0; 				// Distacia euclidiana entre robot y meta
 
 // Variables de velocidades angulares pasadas de motores para Filtro de Picos
 static double phi_r = 0;                          // Velocidad angular actual de motor derecho de robot
