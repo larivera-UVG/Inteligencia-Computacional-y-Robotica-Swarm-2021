@@ -27,7 +27,7 @@ En esta carpeta se encuentra el código de la implementación. El archivo Planif
 
 - PlanificacionEvasion.m
 
-  Es el archivo principal y el cual debe ejecutarse. Los obstáculos se establecen según el número de nodo, por ejemplo para un grid de 10x10 obstaculos = [5,6,7,15,16]'. Para     cambiar de mapa utlizar la variable escenario, tomar en cuenta que no todos son del mismo tamaño de grid. Para cambiar las constantes, utilizar la variable constantes.           Modificar los nodos de destino e inicio con las variables nodo_dest y nodo_init, respectivamente.
+  Es el archivo principal y el cual debe ejecutarse.
   
 - rouletteWheel.m
 
@@ -50,3 +50,41 @@ En esta carpeta se encuentra el código de la implementación. El archivo Planif
 
 ### Resultados
 En esta carpeta se encuentran los resultados de las pruebas realizadas en los distintos mapas. Estos resultados son las imágenes generadas y los datos generados en la ejecución del algoritmo. Asimismo, se encuentran los resultados de los barridos de parámetros. Los resultados de cada barrido se guardaron en una carpeta con el nombre correspondiente al valor de rho encontrado. El archivo barrido de parámetros contiene los resultados detallados de los barridos y el archivo resutlados contiene el resumen de los resultados por mapa.
+
+### Guía para usar el algoritmo
+
+En esta guía se mencionan los parámetros que se deben cambiar para poder probar el algoritmo.
+
+El primer parámetro a modificar es el tamaño del mapa. La variable que controla esto es `grid_size`. Por ejemplo, si se quiere un mapa de 10x10 establecer esta variable en 10.
+
+Luego, se pueden modificar los nodos de inicio y destino. Esto se hace con las variables `nodo_init` y `nodo_dest`, respectivamente. **El valor a asignar es tipo string y debe estar entre comillas simples ' '**. Es importante que estos valores asignados no excedan a la cantidad de casillas dentro del mapa, o puede tirar errores. 
+
+En el código hay 7 mapas diferentes, en los comentarios está para qué es cada uno. Para cambiar de mapa se utilizó un switch case modificado por la variable `escenario`. Colocar esta variable en un número de 1 a 7 dependiendo el mapa a probar. Los obstáculos se establecen según el número de nodo, por ejemplo para un grid de 10x10, los obstáculos se establecerían de la siguiente manera: `obstaculos = [5,6,7,15,16]'. `
+
+La cantidad máxima de iteraciones se modifica con la variable `t_max`. 
+
+Se tienen 4 conjuntos de parámetros que pueden ser utilizados en el algoritmo. Para modificar cual usar se debe colocar la variable `constantes` en un número entre 1 y 4. 
+
+El porcentaje de hormigas que se quiere con la misma solución se modifica con la variable `epsilon`. 
+
+Este algoritmo está paralelizado, por lo que es recomendable darle a la opción de start paralel pool de matlab antes de ejecutarlo, para que no se tarde tanto en empezar. Si esto último no se hace no hay problema ya que se activa solo al ejecutar.
+
+#### Ejemplo
+
+En este ejemplo se colocaron los siguientes parámetros:
+
+- `grid_size = 10;`
+- `nodo_init = '1';`
+- `nodo_dest = '100';`
+- `escenario = 1;`
+- `t_max = 150;`
+- `constantes = 4;`
+- `epsilon = 0.95;`
+
+Los resultados obtenidos fueron los siguientes:
+
+<img src = "https://user-images.githubusercontent.com/45132555/143379102-e2c57507-140e-4e4e-8709-8fc03cc88319.jpg" width="400" height="400"> <img src = "https://user-images.githubusercontent.com/45132555/143379104-d8198c90-13d8-4f8e-89c3-3f8d7fdc96f9.jpg" width="400" height="400">
+
+La imagen de la izquierda es el mapa con la trayectoria entre los nodos. La imagen de la derecha son las gráficas de media y moda de los caminos encontrados.
+
+Si se siguen los pasos antes mencionados y se obtiene un resultado similar al mostrado, el algoritmo está listo para hacer más pruebas.
