@@ -20,7 +20,7 @@ En esta carpeta se encuenta el código de la implementación y las funciones nec
 
 - RegistroImagenes.m
 
-  Es el archivo principal y el cual debe ejecutarse. Para ejecutar se debe ingresar el nombre de las imágenes de referencia y template en las variables `Ref` y `Temp`, respectivamente. Las imágenes deben estar en la misma carperta que los archivos .m.
+  Es el archivo principal y el cual debe ejecutarse.
   
 - rouletteWheel.m
 
@@ -30,3 +30,15 @@ En esta carpeta se encuenta el código de la implementación y las funciones nec
 ### Resultados
 
 En esta carpeta se encuentran los resultados obtenidos en las pruebas del algoritmo. Aquí se encuentran las imágenes generadas y los archivos .mat con toda la información de las pruebas.
+
+### Guia para usar el algoritmo
+
+Para ejecutar se debe ingresar el nombre de las imágenes de referencia y template en las variables `Ref` y `Temp`, respectivamente. Las imágenes deben estar en la misma carpeta que los archivos .m.
+
+La única variable que se modifica dentro del algoritmo es `tau_0`. Con esta variable se establece la cantidad de feromona inicial en el grafo.
+
+#### Ejemplo
+
+Para verificar si se tiene lo necesario para correr el algoritmo, comentar desde la línea 13 a la 49 y descomentar la sección que dice `Para hacer pruebas rápidas`. Se debería obtener un resultado como el siguiente:
+
+![Im git](https://user-images.githubusercontent.com/45132555/143381110-ce6bfb54-2f01-4065-ad73-3f87e05d77e2.jpg)
