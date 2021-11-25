@@ -16,10 +16,10 @@ Alex Maas #17146  */
 #include <ctype.h>
 
 
-#define MSG_SIZE 40 // message size
+#define MSG_SIZE 40 			// tamaño del mensaje
 #define IP_LENGTH 15
-#define PUERTO 2001
-#define PUERTO2 2010
+#define PUERTO 2001			// puerto para enviar informacion entre agentes (UDP broadcast)
+#define PUERTO2 2010			// puerto para enviar la pose de los agentes (UDP)
 
 // Controladores
 #define TUC_CONTROLLER 0
