@@ -55,8 +55,22 @@ Una vez con el ejecutable creado se corre utilizando
 ```
 
 ### `pruebaRecepcion_UDP.cpp`
-Coniente comunicación mediante un protocolo de comunicación UDP. Este cosido funciona en conjunto con y funciona como servidor, donde recibe y despliega la información. La información recibida proviene de Matlab utilizando como pruebas el código `PruebaComunicacion_UDP.m` ubicado en `Código/Matlab`.
+Coniente comunicación mediante un protocolo de comunicación UDP. Este cosido funciona en conjunto con y funciona como servidor, donde recibe y despliega la información. La información proviene de Matlab utilizando como pruebas el código `PruebaComunicacion_UDP.m` ubicado en `Código/Matlab`.
+
+### `pruebaSeparacionIndicadores.cpp`
+En este código contiene las pruebas realizadas para la implementación del protocolo para separar los indicadores y también para poder separar el mensaje recibido mediante el uso de las funciones `strtok`, `atof. Para esto se le envía una cadena de caracteres separados por comas, con el indicador como primer caracter. Esta cadena es separada por la función strtok y por medio de la función atof convertido a su valor numérico. Para enviar la informacion se utilizó el código de `PruebaComunicacion_UDP.m` ubicado en `Código/Matlab`.
 
 ### `pruebaACO_Comunicacion_hilos.cpp`
-Contiene las pruebas para la comunicación con la plataforma de rastreo para separar la información que se recibe del buffer, al tener dos indicadores se debe verificar que se este guardando la informacion correcta. 
-Para multihilos colocar -lpthread
+Contiene la union de los programas anteriores con la implementación de programación multihilos. Se simula la comunicación con la plataforma de rastreo utilzando el código de `PruebaComunicacion_UDP.m`. Se realizaron las mismas pruebas que en `pruebaSeparacionIndicadores.cpp` con la única diferencia que el proceso se está corriendo en un hilo. Para la separación del mensaje se implementa el protocolo para separar la información utilizado en `pruebaSerparacionIndicadores.cpp`   
+
+Para compilar los programas que incluyan hilos de programacion se le debe agregar el comando -lpthread como se muestra en el siguiente ejemplo:
+```bash
+g++ Ejemplo_Hilos -o hilos -lpthread
+```
+
+### `pruebaBROADCAST_hilos.cpp`
+Contiene el código de las pruebas que se hicieron para comunicar distintos agentes (Raspberry Pi) mediente la implementación de un protocolo UDP por medio de Broadcast. Para esta prueba se necesitan dos Raspi corriendo el código. Cada una enviará las coordenadas definidas y ambas son capaces de diferenciar las coordenadas de las dos y depslegarlo en la consola. 
+
+
+
+
