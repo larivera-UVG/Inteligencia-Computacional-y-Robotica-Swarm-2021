@@ -1,4 +1,4 @@
-%% -- Prueba de comuncaciÛn con Sockets --
+%% -- Prueba de comuncaci√≥n con Sockets --
 %% ----------- Cliente UDP --------------- 
 % --- ENVIO DE COORDENADAS AL AGENTE -----
 % ----------- [x, y, theta] --------------
@@ -31,13 +31,13 @@ string3 = strcat(indicador3, string(coord_nodos(1)), ',');
 string3 = strcat(string3, string(coord_nodos(2)), ',');
 string3 = strcat(string3, string(coord_nodos(3)));
 
-% ------ EN CASO QUE SE TENGAN MAS AGENTES ---------
-% Agregar la cantidad de string necesarios para enviar la informaciÛn a
-% todos los agentes que se tengan. 
+% ------ EN CASO QUE SE TENGAN DATOS QUE ENVIAR ---------
+% Agregar la cantidad de string necesarios para enviar la informaci√≥n. 
 
-% string2 = strcat(indicador, string(pose2(1)), ',');
-% string2 = strcat(string2, string(pose2(2)), ',');
-% string2 = strcat(string2, string(pose2(3)));
+indicadorN ='N,';
+% stringN = strcat(indicadorN, string(pose2(1)), ',');
+% stringN = strcat(stringN, string(pose2(2)), ',');
+% stringN = strcat(stringN, string(pose2(3)));
 
 
 % ----- DIRECCION IP DEL AGENTE PARA EL ENVIO ------
@@ -47,7 +47,7 @@ address1 = '192.168.0.12';
 
 % --------- PUERTO DE COMUNICACION (FIJO) ----------
 port = 2050; 
-% echoudp('on', port);  % Si queremos enviar y recibir aquÌ mismo.
+% echoudp('on', port);  % Si queremos enviar y recibir aqu√≠ mismo.
                         % Comentarlo si queremos intercambiar mensajes con otro 
 
 % -------- VARIABLE PARA SEGUIR ENVIANDO -----------
@@ -64,29 +64,29 @@ u = udp(address1,port,'Timeout', 20);
 
 fopen(u);
 
-% Con esto, se termina la recepciÛn hasta detectar el '\n'
+% Con esto, se termina la recepci√≥n hasta detectar el '\n'
 % u.DatagramTerminateMode = 'off';  
 
 % CICLO PARA ENVIAR LA INFORMACION - Siempre que la variable
-% continueRunning sea igual a true, se enviar· la informaciÛn contenida en
-% el string1 a la direcciÛn address1
+% continueRunning sea igual a true, se enviar√° la informaci√≥n contenida en
+% el string1 a la direcci√≥n address1
 
 while(continueRunning)
 % ------------------ MATLAB 2021 -------------------
 %     write(u,string1,"char",address1,port);
 %     write(u,string2,"char",address2,port);
 %% --------- Enviar y recibir MATLAB 2019 ----------
-    % fwrite(u,65:74)           % EnvÌa como enteros
+    % fwrite(u,65:74)           % Env√≠a como enteros
     % A = fread(u,10)           % Lee como enteros
     
-    fprintf(u, string1);        % EnvÌa como cadenas
-    fprintf(u, string2);        % EnvÌa como cadenas
-    fprintf(u, string3);        % EnvÌa como cadenas
-    fprintf(u, stringPRUEBA);        % EnvÌa como cadenas
+    fprintf(u, string1);        % Env√≠a como cadenas
+    fprintf(u, string2);        % Env√≠a como cadenas
+    fprintf(u, string3);        % Env√≠a como cadenas
+    fprintf(u, stringPRUEBA);        % Env√≠a como cadenas
     
     msg = fscanf(u)             % Lee como cadenas
 
-%     fprintf(u, 'Hasta luego'); % EnvÌa como cadenas
+%     fprintf(u, 'Hasta luego'); % Env√≠a como cadenas
     continueRunning = input('Continue? ');
 end
 %% Desconectar y limpiar
