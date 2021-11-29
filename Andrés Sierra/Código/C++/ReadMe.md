@@ -47,11 +47,11 @@ Estos tres archivos contienen la clase con algoritmo ACO descrito anteriormente.
        	
 Para compilar la clase se debe ejecutar el siguiente comando, este creara un archivo ejecutable en la carpeta donde está guardada la clase.
 ```bash
-g++ main.cpp ACO.cpp -o main
+g++ main.cpp ACO.cpp -o NombreEjecutable
 ```
 Una vez con el ejecutable creado se corre utilizando
 ```bash
-./main
+./NombreEjecutable
 ```
 
 ### `pruebaRecepcion_UDP.cpp`
