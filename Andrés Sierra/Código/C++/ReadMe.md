@@ -32,7 +32,7 @@ Este archivo tiene el código para obtener la mejor ruta entre dos puntos de un 
 |`void imprimirRESULTADOS()`|Imprime el resultado de la mejor ruta en la consola. En la visualización de los nodos seleccionados a la hora de imprimir se le suma 1 para que coincida con la definición del grafo en MATLAB y así poder visualizar de mejor manera la ruta seleccionada. |
 
 
-### `main.cpp, ACO.cpp y ACO.h`
+## `main.cpp, ACO.cpp y ACO.h`
 Estos tres archivos contienen la clase con algoritmo ACO descrito anteriormente.
 
 `ACO.h` es el *header file*, aquí se definen todas las funciones y variables que se utilizar. Este archivo se divide en dos, la parte *public*, aquí se definen tanto variables como funciones que serán accedidos por el usuario (se utilizarán en el `main.cpp`). Y la parte *private* que forman parte de las operaciones internas del algoritmo. 
