@@ -65,7 +65,7 @@ Contiene la union de los programas anteriores con la implementación de programa
 
 Para compilar los programas que incluyan hilos de programacion se le debe agregar el comando -lpthread como se muestra en el siguiente ejemplo:
 ```bash
-g++ Ejemplo_Hilos -o hilos -lpthread
+g++ pruebaACO_Comunicacion_hilos.cpp -o hilos -lpthread
 ```
 
 ### `pruebaBROADCAST_hilos.cpp`
