@@ -50,7 +50,7 @@ using namespace std;
 
 // Nodo inicial y final
 #define NODOINICIAL (int)0
-#define NODOFINAL (int)72
+#define NODOFINAL (int)5
 
 
 #define MSG_SIZE 60			// message size
