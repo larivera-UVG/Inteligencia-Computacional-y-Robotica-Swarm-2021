@@ -72,5 +72,9 @@ g++ pruebaACO_Comunicacion_hilos.cpp -o hilos -lpthread
 Contiene el código de las pruebas que se hicieron para comunicar distintos agentes (Raspberry Pi) mediente la implementación de un protocolo UDP por medio de Broadcast. Para esta prueba se necesitan dos Raspi corriendo el código. Cada una enviará las coordenadas definidas y ambas son capaces de diferenciar las coordenadas de las dos y depslegarlo en la consola. 
 
 ### `ACO_hilos.cpp`
-Contiene el código con la integración final de todas las pruebas realizadas. Se implementa el código `pruebaACO_Comunicacion_hilos.cpp` y la clase del ACO creada (`main.cpp, ACO.cpp y ACO.h`). Se ejecutan los hilos de programación donde se reciben la información enviada desde Matlab, se identifica y se separa el mensaje recibido, con la información recibida se llaman a las funciones de la clase necesarias utilizando unas banderas para poder utilizar las funciones solo cuando sean necesario. Por último se emplea el uso de los controladores de posición y velocidad. 
+Contiene el código con la integración final de todas las pruebas realizadas. Se implementa el código `pruebaACO_Comunicacion_hilos.cpp` y la clase del ACO creada (`main.cpp, ACO.cpp y ACO.h`). Se ejecutan los hilos de programación donde se reciben la información enviada desde Matlab, se identifica y se separa el mensaje recibido, con la información recibida se llaman a las funciones de la clase necesarias utilizando unas banderas para poder utilizar las funciones solo cuando sean necesario. Por último se emplea el uso de los controladores de posición y velocidad. Para poder compilar este código es necesario compilar tambien `ACO.cpp` que contiene las funciones del algorimto y agregar el comando para compilar los hilos de programación. 
+```bash
+g++ ACO_hilos.cpp ACO.cpp -o aco -lpthread
+```
+
 
