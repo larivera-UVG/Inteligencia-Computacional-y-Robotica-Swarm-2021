@@ -55,7 +55,7 @@ Una vez con el ejecutable creado se corre utilizando
 ```
 
 ### `pruebaRecepcion_UDP.cpp`
-Coniente comunicación mediante un protocolo de comunicación UDP. Este cosido funciona en conjunto con y funciona como servidor, donde recibe y despliega la información. La información proviene de Matlab utilizando como pruebas el código `PruebaComunicacion_UDP.m` ubicado en `Código/Matlab`.
+Coniente comunicación mediante un protocolo de comunicación UDP. Este hace la función de servidor del protocolo UDP. La función de este código es recibir y despliegar la información. La información proviene de Matlab utilizando como pruebas el código `PruebaComunicacion_UDP.m` ubicado en `Código/Matlab`.
 
 ### `pruebaSeparacionIndicadores.cpp`
 En este código contiene las pruebas realizadas para la implementación del protocolo para separar los indicadores y también para poder separar el mensaje recibido mediante el uso de las funciones `strtok`, `atof. Para esto se le envía una cadena de caracteres separados por comas, con el indicador como primer caracter. Esta cadena es separada por la función strtok y por medio de la función atof convertido a su valor numérico. Para enviar la informacion se utilizó el código de `PruebaComunicacion_UDP.m` ubicado en `Código/Matlab`.
