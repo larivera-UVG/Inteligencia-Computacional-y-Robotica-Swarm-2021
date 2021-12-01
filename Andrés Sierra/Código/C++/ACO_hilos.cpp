@@ -38,7 +38,7 @@ using namespace std;
 // ====================================================================
 #define ITERACIONES (int)5
 #define NUMEROHORMIGAS (int)5
-#define NUMERONODOS (int)10
+#define NUMERONODOS (int)16
 
 // Le da más peso a la feromona en la probabilidad
 #define ALPHA (double)1
@@ -53,7 +53,7 @@ using namespace std;
 
 // Nodo inicial y final
 #define NODOINICIAL (int)0
-#define NODOFINAL (int)5
+#define NODOFINAL (int)15
 // ====================================================================
 // ========= PUERTO Y LONGITUD DEL MENSAJE RECIBIDO POR UDP ===========
 // ====================================================================
@@ -89,6 +89,14 @@ using namespace std;
 #define K_ALPHA 0.5
 #define K_BETA 0.05
 
+// ======================= Lectura del txt =========================
+#define MAX_LETRAS 100
+#define MAX_CADENAS 100
+
+// ====================================================================
+// =========================== VARIABLES ==============================
+// ====================================================================
+
 // Error de posicion entre robot-meta
 static double e_x = 0; // Diferencial de posicion horizontal
 static double e_y = 0; // Diferencia de posicion vertical
@@ -96,8 +104,8 @@ static double e_p = 0; // Distacia euclidiana entre robot y meta
 
 // Nuevas posiciones del robot
 static double new_position[] = {0, 0};
-static double new_velocity[] = {0, 0};
-static double theta_g = 0; // Orientacion nueva del robot
+// static double new_velocity[] = {0, 0};
+// static double theta_g = 0; 						// Orientacion nueva del robot
 
 // Variables del controlador NKC
 static double alpha = 0;
@@ -125,10 +133,11 @@ static double PhiL_old = 0; // Velocidad angular anterior de motor izquierdo de 
 // =====================================================================
 // Variable de recibir
 char buffer_recibir[MSG_SIZE]; // almacenar mensaje recibido
-char *token;
+char *token, *token2;
 
 // Variable para separar la informacion
 double recepcion[2];
+double separar[2];
 
 // Variables para guardar la pose del robot
 double posicion_robot_X = 0.0;
@@ -148,6 +157,8 @@ int nodo_2 = 2;
 int bandera_coord = 0;
 int bandera_robot = 0;
 int bandera_conexion = 0;
+// Bandera correr el algoritmo
+int bandera_aco = 0;
 
 //------------------------------Comunicacion -------------------------------
 void error(const char *msg)
@@ -196,7 +207,8 @@ void *receiving(void *ptr)
 			}
 			nodo_1 = recepcion[1];
 			nodo_2 = recepcion[2];
-			printf("Nodos a conectar: %d, %d. \n\n", nodo_1, nodo_2);
+            cout << "Nodos a conectar: " << nodo_1 << "," << nodo_2 << endl <<endl;
+			//printf("Nodos a conectar: %d, %d. \n\n", nodo_1, nodo_2);
 			bandera_conexion = 1;
 		}
 		// --------------- COORDENADAS DEL ROBOT -----------------
@@ -214,8 +226,8 @@ void *receiving(void *ptr)
 			posicion_robot_X = recepcion[1];
 			posicion_robot_Y = recepcion[2];
 			rad = recepcion[3];
-
-			printf("Coordenadas recibidas del robot: %f, %f, %f. \n\n", posicion_robot_X, posicion_robot_Y, rad);
+            cout << "Coordenadas recibidas del robot: " << posicion_robot_X << "," << posicion_robot_Y << "," << rad << endl <<endl;
+			
 			bandera_robot = 1;
 		}
 		// -------------- COORDENADAS NODOS ------------------
@@ -233,7 +245,8 @@ void *receiving(void *ptr)
 			nodo = recepcion[1];
 			nodo_cx = recepcion[2];
 			nodo_cy = recepcion[3];
-			printf("Coordenadas recibidas del nodo %d: coordenada X: %f, coordenada Y: %f. \n\n", nodo, nodo_cx, nodo_cy);
+            cout << "Coordenadas recibidas del nodo " << nodo << ": " << "coordenada X: " << nodo_cx << "Coordenada Y: " << nodo_cy << endl <<endl;
+			
 			bandera_coord = 1;
 		}
 		else
@@ -293,30 +306,66 @@ int main(int argc, char *argv[])
 		{
 			cout << "Conectando nodos ..." << endl;
 			AS->conectarNODOS(nodo_1, nodo_2);
-			cout << "Nodos conectados !." << endl;
+			cout << "Nodos conectados !" << endl;
+			cout << " " << endl;
 
 			bandera_conexion = 0;
 		}
 		if (bandera_coord == 1)
 		{
 			cout << "Definiendo coordenadas del mapa ..." << endl;
+            cout << nodo <<" "<< nodo_cx <<" "<< nodo_cy << endl;
 			AS->setCOORDENADAS(nodo, nodo_cx, nodo_cy);
-			cout << "Coordenadas establecidas !." << endl;
+			cout << "Coordenadas establecidas !" << endl;
+			cout << " " << endl;
+
 			bandera_coord = 0;
 		}
 		if (bandera_robot == 1)
 		{
-			cout << "Mapa recibido: " << endl;
-			// ------------------------- Desplegar el grafo a trabajar ---------------------------------
-			AS->imprimirGRAFO();
-			// ----------------- Correr el algoritmo y calcular la mejor ruta --------------------------
-			AS->optimizar(ITERACIONES);
+			if (bandera_aco == 0)
+			{
+				cout << "Mapa recibido: " << endl;
+				// --------------------------- Desplegar el grafo a trabajar ---------------------------
+				AS->imprimirGRAFO();
+				// ----------------- Correr el algoritmo y calcular la mejor ruta ----------------------
+				AS->optimizar(ITERACIONES);
+				char Cadena[MAX_LETRAS + 1];                   // string (cadena de caracteres).
+                char StringArray[MAX_CADENAS][MAX_LETRAS + 1]; // arreglo de cadenas
+                int ii, cont = 0;
 
+                FILE *fp_original; // para los archivos
+                // ifstream fe("/home/pi/Desktop/Ant Colony/rutaCLASE.txt");
+
+                fp_original = fopen("rutaCLASE.txt", "r"); // abrir para lectura
+                while (fgets(Cadena, MAX_LETRAS, fp_original) != NULL)
+                    {
+                        strcpy(StringArray[cont], Cadena); // strcpy = "string copy"
+                        printf(StringArray[cont]);	                    // muestra la cadena copiada en la terminal
+                        fflush(stdout);
+                        cont++;
+                    }
+                fclose(fp_original); // cierra el archivo original.
+                //fe.close();
+
+                token2 = strtok(StringArray[0], " ");
+                // error aqui en separar 
+                separar[ii] = atof(token2);
+                while ((token2 = strtok(NULL, ",")) != NULL)
+                {
+                    ii++;
+                    separar[ii] = atof(token2);
+                }
+                new_position[0] = separar[0];
+                new_position[1] = separar[1];
+
+				bandera_aco = 1;
+			}
 			// ---------------------------- VARIABLES DE CONTROLADORES ---------------------------------
 			// ----------- Posicion del robot -----------
 			actual_position[0] = posicion_robot_X;
 			actual_position[1] = posicion_robot_Y;
-
+            theta_o = rad;
 			// Inicializacion de velocidad lineal y angular
 			double v = 0; // Velocidad lineal de robot
 			double w = 0; // Velocidad angular de robot
