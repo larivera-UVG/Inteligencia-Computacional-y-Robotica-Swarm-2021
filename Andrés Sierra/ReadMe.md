@@ -5,6 +5,9 @@ Folder para el trabajo de tesis de Andres Sierra.
 En este trabajo se migrará el algoritmo desarrollado en Matlab (**Ant System**) a un lenguaje de programación c++ que se usarán en los sistemas físicos. Se realizarán pruebas simples en mesa de pruebas. Finalmente, se compararán los resultados obtenidos en los sistemas físicos con los obtenidos en las simulaciones.
 
 **Tabla de contenido**
+1. [Prerrequisitos](#Prerrequisitos)
+
+
 
 ## Prerrequisitos 
 ### Raspberry 
