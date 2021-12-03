@@ -6,10 +6,12 @@ pose1 = [8.8, 8.8, 88.8];
 
 % ------- ENVIO DEL GRAFO AL AGENTE ------
 % ---------- [nodo 1, nodo 2] ------------
+
+% Pruebas individuales 
 conectar  = [0, 1];
 conectar2 = [1, 2];
 conectar3 = [3, 4];
-
+% Mapa 4x4 creado en la mesa de pruebas (Para simular la data recibida)
 conectar4  = [0,1;
               0,4;
               0,5;
@@ -53,9 +55,11 @@ conectar4  = [0,1;
               13,14;
               14,15];
 
-
 % -- [nodo, coordenada x ,coordenada y] --
+% Pruebas individuales 
 coord_nodos = [1, 20, 20];
+
+% Simulacion de los nodos del mapa 4x4 
 coord_nodos2 = [0, 0, 0;
                 1,10,0;
                 2,20,0;
@@ -72,7 +76,6 @@ coord_nodos2 = [0, 0, 0;
                 13,10,30;
                 14,20,30;
                 15,30,30];
-
 % ------- CONCATENAR EN UN STRING --------
 % Pruebas de mensajes
 stringPRUEBA = "String no aceptado";
@@ -105,9 +108,9 @@ string_coord = strcat(string_coord, string(coord_nodos(3)));
 % Agregar la cantidad de string necesarios para enviar la información a
 % todos los agentes que se tengan. 
 
-% string2 = strcat(indicador, string(pose2(1)), ',');
-% string2 = strcat(string2, string(pose2(2)), ',');
-% string2 = strcat(string2, string(pose2(3)));
+% stringN = strcat(indicador, string(pose2(1)), ',');
+% stringN = strcat(stringN, string(pose2(2)), ',');
+% stringN = strcat(stringN, string(pose2(3)));
 
 
 % ----- DIRECCION IP DEL AGENTE PARA EL ENVIO ------
@@ -148,6 +151,10 @@ while(continueRunning)
 %% --------- Enviar y recibir MATLAB 2019 ----------
     % fwrite(u,65:74)           % Envía como enteros
     % A = fread(u,10)           % Lee como enteros
+    
+% Caso 1 - Envia la información del mapa (conexiones y coordenadas de los
+% nodos)
+% Caso 2 - Envia la información sobre la pose del robot 
     caso = 2;
     switch caso
         case 1 
@@ -169,14 +176,16 @@ while(continueRunning)
         case 2       
             fprintf(u, string_robot);             % Envía como cadenas  
     end
+    
+% Envio de informacion individual 
+    
 %     fprintf(u, string_conexion);            % Envía como cadenas
 %     fprintf(u, string_conexion2);           % Envía como cadenas
 %     fprintf(u, string_conexion3);           % Envía como cadenas
 %     fprintf(u, string_coord);               % Envía como cadenas
 %     
 %     fprintf(u, string_robot);             % Envía como cadenas
-    
-    
+      
 %     fprintf(u, stringPRUEBA);             % Envía como cadenas
     
     msg = fscanf(u)             % Lee como cadenas
@@ -185,7 +194,7 @@ while(continueRunning)
     continueRunning = input('Continue? ');
 end
 %% Desconectar y limpiar
-% ---- FUNCIONA UNICAMENTE MATLAB 2021 -------
+% -------- FUNCIONA PARA MATLAB 2021 ---------
 % data = readline(u);
 % disp(data)
 % --------- FUNCIONA PARA MATLAB 2019 --------
