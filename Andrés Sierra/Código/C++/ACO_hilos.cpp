@@ -36,8 +36,8 @@ using namespace std;
 // ====================================================================
 // ====================== PARAMETROS DEL ACO ==========================
 // ====================================================================
-#define ITERACIONES (int)5
-#define NUMEROHORMIGAS (int)5
+#define ITERACIONES (int)100
+#define NUMEROHORMIGAS (int)90
 #define NUMERONODOS (int)16
 
 // Le da más peso a la feromona en la probabilidad
@@ -68,8 +68,8 @@ using namespace std;
 // Controladores
 //#define TUC_CONTROLLER 0
 //#define PID_CONTROLLER 0
-#define NKC_CONTROLLER_1 1
-#define NKC_CONTROLLER_2 0
+#define NKC_CONTROLLER_1 0
+#define NKC_CONTROLLER_2 1
 //#define NKC_CONTROLLER_3 0
 //#define LQR_CONTROLLER 0
 //#define LQI_CONTROLLER 0
@@ -133,11 +133,14 @@ static double PhiL_old = 0; // Velocidad angular anterior de motor izquierdo de 
 // =====================================================================
 // Variable de recibir
 char buffer_recibir[MSG_SIZE]; // almacenar mensaje recibido
-char *token, *token2;
+char *token, *token2, *token3;
+char cadena_temp[MSG_SIZE];
+char cadena_temp2[MSG_SIZE];
 
 // Variable para separar la informacion
 double recepcion[2];
 double separar[2];
+double separar2[2];
 
 // Variables para guardar la pose del robot
 double posicion_robot_X = 0.0;
@@ -159,6 +162,9 @@ int bandera_robot = 0;
 int bandera_conexion = 0;
 // Bandera correr el algoritmo
 int bandera_aco = 0;
+
+char Cadena[MAX_LETRAS + 1];				   // string (cadena de caracteres).
+char StringArray[MAX_CADENAS][MAX_LETRAS + 1]; // arreglo de cadenas
 
 //------------------------------Comunicacion -------------------------------
 void error(const char *msg)
@@ -207,7 +213,8 @@ void *receiving(void *ptr)
 			}
 			nodo_1 = recepcion[1];
 			nodo_2 = recepcion[2];
-            cout << "Nodos a conectar: " << nodo_1 << "," << nodo_2 << endl <<endl;
+			cout << "Nodos a conectar: " << nodo_1 << "," << nodo_2 << endl
+				 << endl;
 			//printf("Nodos a conectar: %d, %d. \n\n", nodo_1, nodo_2);
 			bandera_conexion = 1;
 		}
@@ -226,8 +233,9 @@ void *receiving(void *ptr)
 			posicion_robot_X = recepcion[1];
 			posicion_robot_Y = recepcion[2];
 			rad = recepcion[3];
-            cout << "Coordenadas recibidas del robot: " << posicion_robot_X << "," << posicion_robot_Y << "," << rad << endl <<endl;
-			
+			cout << "Coordenadas recibidas del robot: " << posicion_robot_X << "," << posicion_robot_Y << "," << rad << endl
+				 << endl;
+
 			bandera_robot = 1;
 		}
 		// -------------- COORDENADAS NODOS ------------------
@@ -245,8 +253,10 @@ void *receiving(void *ptr)
 			nodo = recepcion[1];
 			nodo_cx = recepcion[2];
 			nodo_cy = recepcion[3];
-            cout << "Coordenadas recibidas del nodo " << nodo << ": " << "coordenada X: " << nodo_cx << "Coordenada Y: " << nodo_cy << endl <<endl;
-			
+			cout << "Coordenadas recibidas del nodo " << nodo << ": "
+				 << "coordenada X: " << nodo_cx << "Coordenada Y: " << nodo_cy << endl
+				 << endl;
+
 			bandera_coord = 1;
 		}
 		else
@@ -299,6 +309,7 @@ int main(int argc, char *argv[])
 	pthread_create(&thread_rec, NULL, receiving, (void *)&sock);
 
 	printf("PLANIFICADOR DE TRAYECTORIAS - ANT SYSTEM.\n");
+	int j = 1, cont = 0;
 
 	while (1)
 	{
@@ -314,7 +325,7 @@ int main(int argc, char *argv[])
 		if (bandera_coord == 1)
 		{
 			cout << "Definiendo coordenadas del mapa ..." << endl;
-            cout << nodo <<" "<< nodo_cx <<" "<< nodo_cy << endl;
+			cout << nodo << " " << nodo_cx << " " << nodo_cy << endl;
 			AS->setCOORDENADAS(nodo, nodo_cx, nodo_cy);
 			cout << "Coordenadas establecidas !" << endl;
 			cout << " " << endl;
@@ -330,34 +341,36 @@ int main(int argc, char *argv[])
 				AS->imprimirGRAFO();
 				// ----------------- Correr el algoritmo y calcular la mejor ruta ----------------------
 				AS->optimizar(ITERACIONES);
-				char Cadena[MAX_LETRAS + 1];                   // string (cadena de caracteres).
-                char StringArray[MAX_CADENAS][MAX_LETRAS + 1]; // arreglo de cadenas
-                int ii, cont = 0;
 
-                FILE *fp_original; // para los archivos
-                // ifstream fe("/home/pi/Desktop/Ant Colony/rutaCLASE.txt");
+				int ii = 0;
 
-                fp_original = fopen("rutaCLASE.txt", "r"); // abrir para lectura
-                while (fgets(Cadena, MAX_LETRAS, fp_original) != NULL)
-                    {
-                        strcpy(StringArray[cont], Cadena); // strcpy = "string copy"
-                        printf(StringArray[cont]);	                    // muestra la cadena copiada en la terminal
-                        fflush(stdout);
-                        cont++;
-                    }
-                fclose(fp_original); // cierra el archivo original.
-                //fe.close();
+				FILE *fp_original; // para los archivos
+				// ifstream fe("/home/pi/Desktop/Ant Colony/rutaCLASE.txt");
 
-                token2 = strtok(StringArray[0], " ");
-                // error aqui en separar 
-                separar[ii] = atof(token2);
-                while ((token2 = strtok(NULL, ",")) != NULL)
-                {
-                    ii++;
-                    separar[ii] = atof(token2);
-                }
-                new_position[0] = separar[0];
-                new_position[1] = separar[1];
+				fp_original = fopen("rutaCLASE.txt", "r"); // abrir para lectura
+				while (fgets(Cadena, MAX_LETRAS, fp_original) != NULL)
+				{
+					strcpy(StringArray[cont], Cadena); // strcpy = "string copy"
+					//printf(StringArray[cont]);	                    // muestra la cadena copiada en la terminal
+					fflush(stdout);
+					cont++;
+				}
+				fclose(fp_original); // cierra el archivo original.
+									 //fe.close();
+
+				strcpy(cadena_temp, StringArray[0]); //
+													 //cout << cadena_temp << endl;
+				token2 = strtok(cadena_temp, " ");
+				// error aqui en separar
+
+				separar[ii] = atof(token2);
+				while ((token2 = strtok(NULL, ",")) != NULL)
+				{
+					ii++;
+					separar[ii] = atof(token2);
+				}
+				new_position[0] = separar[0];
+				new_position[1] = separar[1];
 
 				bandera_aco = 1;
 			}
@@ -365,7 +378,12 @@ int main(int argc, char *argv[])
 			// ----------- Posicion del robot -----------
 			actual_position[0] = posicion_robot_X;
 			actual_position[1] = posicion_robot_Y;
-            theta_o = rad;
+			theta_o = rad;
+			cout << "Posicion Actual:" << endl;
+			cout << actual_position[0] << ", " << actual_position[1] << endl;
+			cout << "Posicion Siguiente:" << endl;
+			cout << new_position[0] << ", " << new_position[1] << endl;
+
 			// Inicializacion de velocidad lineal y angular
 			double v = 0; // Velocidad lineal de robot
 			double w = 0; // Velocidad angular de robot
@@ -429,15 +447,51 @@ int main(int argc, char *argv[])
 				}
 			}
 
-			// Terminacion del movimiento cerca de la meta
-			if (fabs(e_p) < 0.005)
+			if ((fabs(e_p) < 1) && (j >= cont))
 			{
+				phi_l = 0;
+				phi_r = 0;
+				cout << "META ALCANZADA !" << endl 
+					 << endl;
+			
+				cout << "Velocidad del motor izquierdo: " << phi_l << endl;
+				cout << "Velocidad del motor derecho: " << phi_r << endl
+					 << endl;
+				break;
+			}
+
+			// Terminacion del movimiento cerca de la meta
+			if ((fabs(e_p) < 1) && (j < cont))
+			{
+
+				int jj = 0;
+				strcpy(cadena_temp2, StringArray[j]); //
+													  //cout << cadena_temp2 << endl;
+				token3 = strtok(cadena_temp2, " ");
+				// error aqui en separar
+				//cout << token3 << endl;
+				separar2[jj] = atof(token3);
+				while ((token3 = strtok(NULL, ",")) != NULL)
+				{
+					jj++;
+					separar2[jj] = atof(token3);
+				}
+				//usleep(2000);
+				new_position[0] = separar2[0];
+				new_position[1] = separar2[1];
+				cout << "Posicion Siguiente cambia a:" << endl;
+				cout << new_position[0] << ", " << new_position[1] << endl
+					 << endl;
+
+				j += 1;
 				v = 0;
 				w = 0;
 			}
+
 			// ---------------- Transformacion de velocidades con modelo diferencial -------------------------------
 			phi_r = (v + w * l) / r;
 			phi_l = (v - w * l) / r;
+			// cout << phi_r << " " << phi_l << endl;
 
 			if (phi_r > 0)
 			{
@@ -445,7 +499,9 @@ int main(int argc, char *argv[])
 				{
 					phi_r = MAX_SPEED;
 				}
+
 			}
+			
 			else
 			{
 				if (phi_r < -MAX_SPEED)
@@ -453,7 +509,7 @@ int main(int argc, char *argv[])
 					phi_r = -MAX_SPEED;
 				}
 			}
-
+			// cout << phi_r << " " << phi_l << endl;
 			// Truncar velocidades de rotacion de motor izquierdo a [-6.28, 6.28]
 			if (phi_l > 0)
 			{
@@ -469,7 +525,7 @@ int main(int argc, char *argv[])
 					phi_l = -MAX_SPEED;
 				}
 			}
-
+			// cout << phi_r << " " << phi_l << endl;
 			/*
             // Limpieza de Picos
             if (HARDSTOP_FILTER)
@@ -487,7 +543,8 @@ int main(int argc, char *argv[])
             }
 			*/
 			cout << "Velocidad del motor izquierdo: " << phi_l << endl;
-			cout << "Velocidad del motor derecho: " << phi_r << endl;
+			cout << "Velocidad del motor derecho: " << phi_r << endl
+				 << endl;
 
 			bandera_robot = 0;
 		}
