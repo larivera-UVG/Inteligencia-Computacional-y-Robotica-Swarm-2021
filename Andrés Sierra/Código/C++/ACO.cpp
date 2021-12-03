@@ -7,8 +7,6 @@
     ANDRES SIERRA
     CARNET 17025 
 
-	Copyright:	Diogo A. B. Fernandes -	diogoabfernandes@gmail.com
-	Modified by Andres Sierra  - sie17025@uvg.edu.gt
 */
 
 
