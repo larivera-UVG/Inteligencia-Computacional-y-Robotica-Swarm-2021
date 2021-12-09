@@ -41,6 +41,7 @@ pBest_position =  np.array([float('inf'),float('inf')])
 gBest_value = float('inf')
 gBest_position =  np.array([float('inf'),float('inf')])
 new_pos = np.array([float('inf'),float('inf')])
+contador = 0
 
 
 
@@ -103,11 +104,9 @@ def update_particles(velocity,posicion,funcion = 0):                            
     return new_velocity
 '''
 
-def callback_2(msg):
+def callback_2(data):
     global gBest_value
-    gBest_value = msg.data
-    print("best_global_value")
-    print(g_best_value)
+    gBest_value = data.data
 
 
 def callback(msg):
@@ -159,6 +158,9 @@ def callback(msg):
     rot_q = msg.pose.pose.orientation
     (roll, pitch, theta) = euler_from_quaternion([rot_q.x, rot_q.y, rot_q.z, rot_q.w])
 
+    print("best_global_value")
+    print(gBest_value)
+'''
     print('\n')
     print(ns)
     print("nueva posicion")
@@ -172,15 +174,15 @@ def callback(msg):
     print("mejor global")
     print(gBest_value)
     print('\n')
-
+'''
 
 
 ns = rospy.get_namespace()
 rospy.init_node('mejor_global_p')
 
 
-bg_sub = rospy.Subscriber('mejor_global', Float32, callback_2)
-#odom_sub = rospy.Subscriber('odom', Odometry, callback)
+od_sub = rospy.Subscriber('/mejor_global', Float32, callback_2)
+odom_sub = rospy.Subscriber('odom', Odometry, callback)
 odom_pub = rospy.Publisher('mejor_global_p', Float32,queue_size = 1)
 pub = rospy.Publisher("cmd_vel", Twist, queue_size = 1)
 
@@ -191,13 +193,19 @@ r = rospy.Rate(4)
 speed = Twist()
 
 goal = Point()
-goal.x = 5
-goal.y = 5
+goal.x = 0
+goal.y = 0
 
 while not rospy.is_shutdown():
     msg = gBest_value
-    goal.x = new_pos[0]
-    goal.y = new_pos[1]
+    if contador < 10:
+        goal.x = new_pos[0]
+        goal.y = new_pos[1]
+        contador = contador +1
+    else:
+        goal.x = 0
+        goal.y = 0
+
     inc_x = goal.x -x
     inc_y = goal.y -y
 

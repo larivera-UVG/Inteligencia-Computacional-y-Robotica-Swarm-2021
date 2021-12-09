@@ -1,5 +1,13 @@
 #!/usr/bin/env python
 
+"""
+ROS service server node for Dijkstra's algorithm path planning exercise solution
+Author: Roberto Zegers R.
+Copyright: Copyright (c) 2021, Roberto Zegers R.
+License: BSD-3-Clause
+Date: March 2021
+"""
+
 import rospy
 from pp_msgs.srv import PathPlanningPlugin, PathPlanningPluginResponse
 from geometry_msgs.msg import Twist
@@ -7,25 +15,29 @@ from gridviz import GridViz
 from Dijkstra import dijkstra
 
 def make_plan(req):
-
+  ''' 
+  Callback function used by the service server to process
+  requests from clients. It returns a msg of type PathPlanningPluginResponse
+  ''' 
+  # costmap as 1-D array representation
   costmap = req.costmap_ros
-
+  # number of columns in the occupancy grid
   width = req.width
- 
+  # number of rows in the occupancy grid
   height = req.height
   start_index = req.start
   goal_index = req.goal
-
+  # side of each grid map square in meters
   resolution = 0.2
-
+  # origin of grid map
   origin = [-7.4, -7.4, 0]
 
   viz = GridViz(costmap, resolution, origin, start_index, goal_index, width)
 
-
+  # time statistics
   start_time = rospy.Time.now()
 
-
+  # calculate the shortes path using Dijkstra
   path = dijkstra(start_index, goal_index, width, height, costmap, resolution, origin, viz)
 
   if not path:

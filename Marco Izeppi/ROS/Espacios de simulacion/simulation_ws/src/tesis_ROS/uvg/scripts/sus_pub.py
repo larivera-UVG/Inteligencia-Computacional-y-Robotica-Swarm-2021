@@ -11,12 +11,9 @@ def Callback(msg):
     global best_global
 
     best_prev_global = msg.data
-    print(best_prev_global)
 
     if(best_prev_global < best_global):
         best_global =  best_prev_global
-        print('dentro')
-        print(best_global)
         
 
     
@@ -30,6 +27,7 @@ rospy.init_node('mejor_global')
 #
 odom_sub = rospy.Subscriber('robot1/mejor_global_p', Float32, Callback)
 odom_sub2 = rospy.Subscriber('robot2/mejor_global_p', Float32, Callback)
+odom_sub3 = rospy.Subscriber('robot3/mejor_global_p', Float32, Callback)
 odom_pub = rospy.Publisher('mejor_global', Float32,queue_size = 1)
 odom_pub2 = rospy.Publisher('mejor_posicion', Odometry,queue_size = 10)
 
