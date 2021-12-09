@@ -7,8 +7,6 @@
     ANDRES SIERRA
     CARNET 17025 
 
-	Copyright:	Diogo A. B. Fernandes -	diogoabfernandes@gmail.com
-	Modified by Andres Sierra  - sie17025@uvg.edu.gt
 */
 
 
@@ -473,6 +471,12 @@ void ACO::optimizar(int ITERACIONES)
     imprimirRESULTADOS();
 
     std::ofstream outfile("rutaCLASE.txt");                          // INICIAMOS UN TXT PARA GUARDAR LA RUTA 
+    //outfile << (double)COORDS[MEJORRUTA[0]][0] << " " << (double)COORDS[MEJORRUTA[0]][1] << std::endl;
+    for (int i = 0; i < numITER[NUMEROHORMIGAS]; i++)
+    {
+        outfile << (double)COORDS[MEJORRUTA[i]][0] << " " << (double)COORDS[MEJORRUTA[i]][1] << std::endl;
+    }
+    /*
     for (int i = 0; i < numITER[NUMEROHORMIGAS]; i++)
     {
         double cordX = (double)COORDS[MEJORRUTA[i]][0];
@@ -486,45 +490,46 @@ void ACO::optimizar(int ITERACIONES)
         }
         double x = cordX;
         double y = cordY;
+        
         if ((cordX != cordXnext) && ((cordY != cordYnext)))
         {
-            for (int j = 0; j < 10; j++)
+            for (int j = 0; j < 2; j++)
             {
-                x += 1;
-                y += 1;
+                x += 5;
+                y += 5;
                 outfile << x << " " << y << std::endl;
                 //cout << x << " " << y << endl;
             }
         }
         if ((cordX == cordXnext) && ((cordY == cordYnext)) && (i < numITER[NUMEROHORMIGAS] -1))
         {
-            for (int j = 0; j < 10; j++)
+            for (int j = 0; j < 2; j++)
             {
-                x += 1;
-                y += 1;
+                x += 5;
+                y += 5;
                 outfile << x << " " << y << std::endl;
                 //cout << x << " " << y << endl;
             }
         }
         if ((cordX == cordXnext) && ((cordY != cordYnext)))
         {
-            for (int j = 0; j < 10; j++)
+            for (int j = 0; j < 2; j++)
             {
-                y += 1;
+                y += 5;
                 outfile << x << " " << y << std::endl;
                 //cout << x << " " << y << endl;
             }
         }
         if ((cordX != cordXnext) && ((cordY == cordYnext)))
         {
-            for (int j = 0; j < 10; j++)
+            for (int j = 0; j < 2; j++)
             {
-                x += 1;
+                x += 5;
                 outfile << x << " " << y << std::endl;
                 //cout << x << " " << y << endl;
             }
         }
-    }
+    }*/
     outfile.close();                                                        // CERRAMOS EL TXT 
 
     // -

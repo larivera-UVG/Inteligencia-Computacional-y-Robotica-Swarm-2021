@@ -32,7 +32,7 @@ Este archivo tiene el código para obtener la mejor ruta entre dos puntos de un 
 |`void imprimirRESULTADOS()`|Imprime el resultado de la mejor ruta en la consola. En la visualización de los nodos seleccionados a la hora de imprimir se le suma 1 para que coincida con la definición del grafo en MATLAB y así poder visualizar de mejor manera la ruta seleccionada. |
 
 
-### `main.cpp, ACO.cpp y ACO.h`
+## `main.cpp, ACO.cpp y ACO.h`
 Estos tres archivos contienen la clase con algoritmo ACO descrito anteriormente.
 
 `ACO.h` es el *header file*, aquí se definen todas las funciones y variables que se utilizar. Este archivo se divide en dos, la parte *public*, aquí se definen tanto variables como funciones que serán accedidos por el usuario (se utilizarán en el `main.cpp`). Y la parte *private* que forman parte de las operaciones internas del algoritmo. 
@@ -47,16 +47,34 @@ Estos tres archivos contienen la clase con algoritmo ACO descrito anteriormente.
        	
 Para compilar la clase se debe ejecutar el siguiente comando, este creara un archivo ejecutable en la carpeta donde está guardada la clase.
 ```bash
-g++ main.cpp ACO.cpp -o main
+g++ main.cpp ACO.cpp -o NombreEjecutable
 ```
 Una vez con el ejecutable creado se corre utilizando
 ```bash
-./main
+./NombreEjecutable
 ```
 
 ### `pruebaRecepcion_UDP.cpp`
-Coniente comunicación mediante un protocolo de comunicación UDP. Este cosido funciona en conjunto con y funciona como servidor, donde recibe y despliega la información. La información recibida proviene de Matlab utilizando como pruebas el código `PruebaComunicacion_UDP.m` ubicado en `Código/Matlab`.
+Coniente comunicación mediante un protocolo de comunicación UDP. Este hace la función de servidor del protocolo UDP. La función de este código es recibir y despliegar la información. La información proviene de Matlab utilizando como pruebas el código `PruebaComunicacion_UDP.m` ubicado en el directorio `Código/Matlab`.
+
+### `pruebaSeparacionIndicadores.cpp`
+En este código contiene las pruebas realizadas para la implementación del protocolo para separar los indicadores y también para poder separar el mensaje recibido mediante el uso de las funciones `strtok`, `atof`. Para esto se le envía una cadena de caracteres separados por comas, con el indicador como primer caracter. Esta cadena es separada por la función strtok y por medio de la función atof convertido a su valor numérico. Para enviar la informacion se utilizó el código de `PruebaComunicacion_UDP.m` ubicado en el directorio `Código/Matlab`.
 
 ### `pruebaACO_Comunicacion_hilos.cpp`
-Contiene las pruebas para la comunicación con la plataforma de rastreo para separar la información que se recibe del buffer, al tener dos indicadores se debe verificar que se este guardando la informacion correcta. 
-Para multihilos colocar -lpthread
+Contiene la union de los programas anteriores con la implementación de programación multihilos. Se simula la comunicación con la plataforma de rastreo utilzando el código de `PruebaComunicacion_UDP.m`. Se realizaron las mismas pruebas que en `pruebaSeparacionIndicadores.cpp` con la única diferencia que el proceso se está corriendo en un hilo. Para la separación del mensaje se implementa el protocolo para separar la información utilizado en `pruebaSerparacionIndicadores.cpp`   
+
+Para compilar los programas que incluyan hilos de programacion se le debe agregar el comando -lpthread como se muestra en el siguiente ejemplo:
+```bash
+g++ pruebaACO_Comunicacion_hilos.cpp -o hilos -lpthread
+```
+
+### `pruebaBROADCAST_hilos.cpp`
+Contiene el código de las pruebas que se hicieron para comunicar distintos agentes (Raspberry Pi) mediente la implementación de un protocolo UDP por medio de Broadcast. Para esta prueba se necesitan dos Raspi corriendo el código. Cada una enviará las coordenadas definidas y ambas son capaces de diferenciar las coordenadas de las dos y depslegarlo en la consola. 
+
+### `ACO_hilos.cpp`
+Contiene el código con la integración final de todas las pruebas realizadas. Se implementa el código `pruebaACO_Comunicacion_hilos.cpp` y la clase del ACO creada (`main.cpp, ACO.cpp y ACO.h`). Se ejecutan los hilos de programación donde se reciben la información enviada desde la plataforma de rastreo con visión por computadora, se identifica y se separa el mensaje recibido, con la información recibida se llaman a las funciones de la clase necesarias utilizando unas banderas para poder utilizar las funciones solo cuando sean necesario. Por último se emplea el uso de los controladores de posición y velocidad. Para poder compilar este código es necesario compilar tambien `ACO.cpp` que contiene las funciones del algorimto y agregar el comando para compilar los hilos de programación. 
+```bash
+g++ ACO_hilos.cpp ACO.cpp -o aco -lpthread
+```
+
+

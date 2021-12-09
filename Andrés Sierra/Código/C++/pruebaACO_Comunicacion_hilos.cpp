@@ -24,9 +24,9 @@
 
 using namespace std;
 
-#define ITERACIONES (int)75
-#define NUMEROHORMIGAS (int)40
-#define NUMERONODOS (int)100
+#define ITERACIONES (int)5
+#define NUMEROHORMIGAS (int)5
+#define NUMERONODOS (int)5
 
 // Le da más peso a la feromona en la probabilidad -
 #define ALPHA (double)1
@@ -50,7 +50,7 @@ using namespace std;
 
 // Nodo inicial y final
 #define NODOINICIAL (int)0
-#define NODOFINAL (int)72
+#define NODOFINAL (int)5
 
 
 #define MSG_SIZE 60			// message size
@@ -65,10 +65,19 @@ char *token;
 // Recepcion de datos de otros robots
 double recepcion[2];
 
-int num_agente = 0;
+// COORDENADAS DEL ROBOT
 double posicion_robot_X = 10.0;
 double posicion_robot_Y = 10.0;
 double rad = 10.0;
+// COORDENADAS DEL NODO
+int nodo = 0;
+double nodo_cx = 0;
+double nodo_cy = 0;
+// NODOS A CONECTAR
+int nodo1 = 1;
+int nodo2 = 2;
+// BANDERA INDICA SI RECIBE COORDENADAS DEL NODO
+int bandera_coord = 0; 
 
 //------------------------------Comunicacion -------------------------------
 void error(const char *msg){
@@ -78,14 +87,14 @@ void error(const char *msg){
 // ------------------------------------------------------------------------
 
 void *receiving(void *ptr){
-	int *sock, n, ret, ret2;
+	int *sock, n, ret, ret2, ret3;
 	int i = 0;
-	sock = (int *)ptr;								  	// identificador del socket
+	sock = (int *)ptr;								  					// identificador del socket
 	unsigned int length = sizeof(struct sockaddr_in); 					// tamaño de la estructura
 	struct sockaddr_in from;
 		
 	while (1){
-		memset(buffer_recibir, 0, MSG_SIZE); 						// "limpia" el buffer
+		memset(buffer_recibir, 0, MSG_SIZE); 							// "limpia" el buffer
 		// recibir mensaje
 		n = recvfrom(*sock, buffer_recibir, MSG_SIZE, 0, (struct sockaddr *)&from, &length);
 		if (n < 0){
@@ -93,10 +102,14 @@ void *receiving(void *ptr){
 		}
 		
 		i = 0;
-		ret=strncmp(buffer_recibir,"G",2);
-		ret=strncmp(buffer_recibir,"P",2);
+		ret=strncmp(buffer_recibir,"P",1);
+		ret2=strncmp(buffer_recibir,"G",1);
+		ret3=strncmp(buffer_recibir,"C",1);
+        //cout <<"ret: " <<ret << endl;
+        //cout <<"ret2: " <<ret2 << endl;
+		printf("Mensaje recibido: %s\n", buffer_recibir);
 
-		if(ret == 0){
+		if(ret2 == 0){
 			// descomponer buffer_recibir, strtok
 			token = strtok(buffer_recibir, ",");
 			recepcion[i] = atof(token);
@@ -104,10 +117,13 @@ void *receiving(void *ptr){
 				i++;
 				recepcion[i] = atof(token);
 			}
-			printf("recepcion %f,%f, %f.\n",recepcion[1],recepcion[2],recepcion[3]);
+			nodo1 = recepcion[1];
+			nodo2 = recepcion[2];
+			printf("Nodos a conectar: %d, %d. \n\n",nodo1,nodo2);
 			
 		}
-		else if (ret2==0){
+		else if (ret==0)
+		{
 			// descomponer buffer_recibir, strtok
 			token = strtok(buffer_recibir, ",");
 			recepcion[i] = atof(token);
@@ -115,22 +131,50 @@ void *receiving(void *ptr){
 				i++;
 				recepcion[i] = atof(token);
 			}
-			printf("recepcion %f, %f, %f.\n",recepcion[1],recepcion[2],recepcion[3]);
+			//printf("recepcion %f, %f, %f.\n",recepcion[1],recepcion[2],recepcion[3]);
 			posicion_robot_X = recepcion[1];
             posicion_robot_Y = recepcion[2];
             rad = recepcion[3];
-            printf("Coordenadas recibidas del agente %d son: %f, %f, %f.\n", num_agente, posicion_robot_X, posicion_robot_Y, rad);
+
+            printf("Coordenadas recibidas del robot: %f, %f, %f. \n\n", posicion_robot_X, posicion_robot_Y, rad);
 		}
-		else {
-			cout << "No entro" << endl;
+		else if (ret3==0)
+		{
+			// descomponer buffer_recibir, strtok
+			token = strtok(buffer_recibir, ",");
+			recepcion[i] = atof(token);
+			while ((token = strtok(NULL, ",")) != NULL){
+				i++;
+				recepcion[i] = atof(token);
+			}
+			//printf("recepcion %f, %f, %f.\n",recepcion[1],recepcion[2],recepcion[3]);
+			nodo= recepcion[1];
+            nodo_cx = recepcion[2];
+            nodo_cy = recepcion[3];
+            printf("Coordenadas recibidas del nodo %d: coordenada X: %f, coordenada Y: %f. \n\n", nodo, nodo_cx, nodo_cy);
+		}
+		else 
+		{
+			cout << "No fue posible identificar el mensaje" << endl;
+			cout << " " << endl;
 		}	
+
+		// Se envia un mensaje de recibido luego de cada mensaje. 
+		n = sendto(*sock, "Got your message\n", MSG_SIZE, 0, (struct sockaddr *)&from, length);
+		if(n < 0)
+        {
+            error("sendto");
+        }
+
 	}
 	pthread_exit(0);
 }
 
 
 // Main function
-int main(int argc, char *argv[]){
+int main(int argc, char *argv[])
+{
+
 	int sock, n;
 	unsigned int length = sizeof(struct sockaddr_in); 		// tamaño de la estructura
 	char buffer_enviar1[MSG_SIZE];							// almacenar mensaje
@@ -159,17 +203,20 @@ int main(int argc, char *argv[]){
    		
 
 	printf("Este programa despliega lo que sea que reciba.\n");
-	printf("Agente %d conectado\n", num_agente);
+	//printf("Agente %d conectado\n", num_agente);
 	
 	while (1)
 	{
+		if (bandera_coord == 1 )
+		{
+
+			bandera_coord = 0;
+		}
 		/* PARA QUE NO SE CIERRE EL SOCKET*/
 	}
 	
 
 	close(sock); 										// cerrar el socket.
-    //------------------------------Comunicacion -------------------------------
-
-	//ANTS->ImprimirGRAFO();
+    
     return 0;  
 }   
