@@ -16,16 +16,16 @@ Alex Maas #17146  */
 #include <ctype.h>
 
 
-#define MSG_SIZE 40 			// tamaño del mensaje
+#define MSG_SIZE 80 			// tamaño del mensaje
 #define IP_LENGTH 15
 #define PUERTO1 2001			// puerto para enviar informacion entre agentes (UDP broadcast)
 #define PUERTO2 2010			// puerto para enviar la pose de los agentes (UDP)
 
 // Controladores
 #define TUC_CONTROLLER 0
-#define PID_CONTROLLER 1
+#define PID_CONTROLLER 0
 #define NKC_CONTROLLER_1 0
-#define NKC_CONTROLLER_2 0
+#define NKC_CONTROLLER_2 1
 #define NKC_CONTROLLER_3 0
 #define LQR_CONTROLLER 0
 #define LQI_CONTROLLER 0
@@ -222,23 +222,23 @@ void *receiving(void *ptr){
             error("Error: recvfrom");
         }
         i = 0;
-	// descomponer buffer_recibir, strtok
-	token = strtok(buffer_recibir, ",");
-	recepcion[i] = atof(token);
-	while ((token = strtok(NULL, ",")) != NULL){
-		i++;
-		recepcion[i] = atof(token);
-	}
-	//printf("recepcion %f,%f, %f y %f.\n",recepcion[0],recepcion[1],recepcion[2],fitness_global);
-	// Actualizar global best
-	if (recepcion[2] < fitness_global){ 				//Local< Global, asigna el valor local al global
-		best_global[0] = recepcion[0];
-		best_global[1] = recepcion[1];
-		fitness_global = recepcion[2];
-		//printf("Agente %d actualiza su Best Global a %f.\n", num_agente, fitness_global);
-	}else{
+	    // descomponer buffer_recibir, strtok
+	    token = strtok(buffer_recibir, ",");
+	    recepcion[i] = atof(token);
+	    while ((token = strtok(NULL, ",")) != NULL){
+		    i++;
+		    recepcion[i] = atof(token);
+	    }
+	    //printf("recepcion %f,%f, %f y %f.\n",recepcion[0],recepcion[1],recepcion[2],fitness_global);
+	    // Actualizar global best
+	    if (recepcion[2] < fitness_global){ 				//Local< Global, asigna el valor local al global
+		    best_global[0] = recepcion[0];
+		    best_global[1] = recepcion[1];
+		    fitness_global = recepcion[2];
+		    //printf("Agente %d actualiza su Best Global a %f.\n", num_agente, fitness_global);
+	    }else{
 		//printf("Agente %d no actualiza su Best Global %f.\n", num_agente, fitness_global);
-	}	
+	    }	
     }
     pthread_exit(0);
 }
@@ -276,19 +276,19 @@ void *receiving2(void *ptr){
             		error("recvfrom");
 
 		//printf("Mensaje recibido: %s\n", buffer);
-        	bandera = 1;
-        	j = 0;
+        bandera = 1;
+        j = 0;
 		// descomponer buffer_recibir, strtok
 		token2 = strtok(buffer, ",");
-       		recepcion2[j] = atof(token2);
+       	recepcion2[j] = atof(token2);
 		while ((token2 = strtok(NULL, ",")) != NULL){
 			j++;
 			recepcion2[j] = atof(token2);   
 		}
-        	posicion_robot_X = recepcion2[0];
-        	posicion_robot_Y = recepcion2[1];
-        	theta_o = recepcion2[2];
-        	printf("Coordenadas agente %d son: %f, %f, %f.\n", num_agente, posicion_robot_X, posicion_robot_Y, theta_o);
+        posicion_robot_X = recepcion2[0];
+        posicion_robot_Y = recepcion2[1];
+        theta_o = recepcion2[2];
+        printf("Coordenadas agente %d son: %f, %f, %f.\n", num_agente, posicion_robot_X, posicion_robot_Y, theta_o);
     }
     pthread_exit(0);
 }
@@ -349,13 +349,13 @@ int main(int argc, char *argv[]){
             sleep(5);
             // Valores a enviar
             sprintf(buffer_enviar1, "%f,%f,%f", best_local[0], best_local[1], fitness_local);
-	    if (buffer_enviar1[0] != '!'){
-		    // enviar mensaje
-                    n = sendto(sock, buffer_enviar1, strlen(buffer_enviar1), 0,
-                        		(const struct sockaddr *)&anybody, length);
-                    if (n < 0)
-                    	error("Error: sendto");
-            }
+	        if (buffer_enviar1[0] != '!'){
+                // enviar mensaje
+                n = sendto(sock, buffer_enviar1, strlen(buffer_enviar1), 0,
+                    (const struct sockaddr *)&anybody, length);
+                if (n < 0)
+                    error("Error: sendto");
+            }       
             //-------------------------- Algoritmo  PSO ---------------------------------------
             numero_iter++;
             printf("Comienza PSO No. de iteracion %d\n",numero_iter);
