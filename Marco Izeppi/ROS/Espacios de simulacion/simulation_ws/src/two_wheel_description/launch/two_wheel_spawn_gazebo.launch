@@ -1,9 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>
 
+  <env name="GAZEBO_MODEL_PATH" value="$(find uvg)/models/" />
+
+  <arg name="use_gui" default="true"/>
+
+  <arg name="world_name" default="$(find uvg)/worlds/empty_arena.world"/>
+
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+      <arg name="world_name" value="$(arg world_name)"/> 
+      <arg name="paused" value="false"/>
+      <arg name="use_sim_time" value="true"/>
+      <arg name="gui" value="$(arg use_gui)"/>
+      <arg name="headless" value="true"/>
+      <arg name="debug" value="false"/>
+  </include>
+
+
     <param name="robot_description" command="$(find xacro)/xacro '$(find two_wheel_description)/urdf/two_wheel.xacro'" />
 
-    <arg name="x" default="0"/>
+    <arg name="x" default="1.5"/>
     <arg name="y" default="0"/>
     <arg name="z" default="0.5"/>
 

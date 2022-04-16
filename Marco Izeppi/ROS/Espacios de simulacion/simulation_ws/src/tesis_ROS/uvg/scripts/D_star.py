@@ -60,18 +60,9 @@ def find_neighbors(index, width, height, costmap, orthogonal_step_cost):
   return neighbors
 
 def indexar_al_mundo(flatmap_index, map_width, map_resolution, map_origin = [0,0]):
-    """
-    Converts a flatmap index value to world coordinates (meters)
-    flatmap_index: a linear index value, specifying a cell/pixel in an 1-D array
-    map_width: number of columns in the occupancy grid
-    map_resolution: side lenght of each grid map cell in meters
-    map_origin: the x,y position in grid cell coordinates of the world's coordinate origin
-    Returns a list containing x,y coordinates in the world frame of reference
-    """
-    # convert to x,y grid cell/pixel coordinates
+
     grid_cell_map_x = flatmap_index % map_width
     grid_cell_map_y = flatmap_index // map_width
-    # convert to world coordinates
     x = map_resolution * grid_cell_map_x + map_origin[0]
     y = map_resolution * grid_cell_map_y + map_origin[1]
 

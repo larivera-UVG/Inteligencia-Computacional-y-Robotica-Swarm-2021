@@ -4,10 +4,6 @@
   <version>0.2.2</version>
   <description>The uvg_ROS package</description>
 
-  <author>Marco Izeppi</author>
-  <maintainer email="marco@todo.todo">marco</maintainer>
-  <license>TODO</license>
-
   <!-- The *depend tags are used to specify dependencies -->
   <!-- Dependencies can be catkin packages or system dependencies -->
   <buildtool_depend>catkin</buildtool_depend>

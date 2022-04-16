@@ -19,12 +19,6 @@ def Callback(msg):
     
 rospy.init_node('mejor_global')
 
-
-# Para mas de 1 robot en uso, habilitar estas lineas
-#ns = rospy.get_namespace()
-#odom_sub = rospy.Subscriber('odom', Odometry, Callback)
-#
-#
 odom_sub = rospy.Subscriber('robot1/mejor_global_p', Float32, Callback)
 odom_sub2 = rospy.Subscriber('robot2/mejor_global_p', Float32, Callback)
 odom_sub3 = rospy.Subscriber('robot3/mejor_global_p', Float32, Callback)

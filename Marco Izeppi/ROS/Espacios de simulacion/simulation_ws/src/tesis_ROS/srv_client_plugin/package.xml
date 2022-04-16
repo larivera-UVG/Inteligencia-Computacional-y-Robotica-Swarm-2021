@@ -4,9 +4,6 @@
   <version>0.1.0</version>
   <description>The srv_client_plugin package</description>
 
-  <author>Roberto Zegers</author>
-  <maintainer email="roberto@todo.todo">Roberto Zegers</maintainer>
-  <license>BSD-3-Clause</license>
 
   <!-- The *depend tags are used to specify dependencies -->
   <!-- Dependencies can be catkin packages or system dependencies -->

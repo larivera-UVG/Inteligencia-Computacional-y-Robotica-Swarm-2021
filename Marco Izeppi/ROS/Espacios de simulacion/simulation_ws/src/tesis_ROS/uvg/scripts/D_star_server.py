@@ -7,25 +7,19 @@ from gridviz import GridViz
 from D_star import D_star
 
 def make_plan(req):
-  # costmap as 1-D array representation
   costmap = req.costmap_ros
-  # number of columns in the occupancy grid
   width = req.width
-  # number of rows in the occupancy grid
   height = req.height
   start_index = req.start
   goal_index = req.goal
-  # size of each grid map square in meters
   resolution = 0.2
-  # origin of grid map
   origin = [-7.4, -7.4, 0]
 
   viz = GridViz(costmap, resolution, origin, start_index, goal_index, width)
 
-  # time statistics
   start_time = rospy.Time.now()
 
-  # calculate the shortes path using Dijkstra
+  # calcula el camino mas corto con Dijkstra
   path = D_star(start_index, goal_index, width, height, costmap, resolution, origin, viz)
 
   if not path:
@@ -53,18 +47,10 @@ def make_plan(req):
   return resp
 
 def indexar_al_mundo(flatmap_index, map_width, map_resolution, map_origin = [0,0]):
-    """
-    Converts a flatmap index value to world coordinates (meters)
-    flatmap_index: a linear index value, specifying a cell/pixel in an 1-D array
-    map_width: number of columns in the occupancy grid
-    map_resolution: side lenght of each grid map cell in meters
-    map_origin: the x,y position in grid cell coordinates of the world's coordinate origin
-    Returns a list containing x,y coordinates in the world frame of reference
-    """
-    # convert to x,y grid cell/pixel coordinates
+
     grid_cell_map_x = flatmap_index % map_width
     grid_cell_map_y = flatmap_index // map_width
-    # convert to world coordinates
+    # conversion a coordenadas en el mundo
     x = map_resolution * grid_cell_map_x + map_origin[0]
     y = map_resolution * grid_cell_map_y + map_origin[1]
 
