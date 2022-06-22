@@ -11,8 +11,8 @@ from http import server
 
 camera = PiCamera()
 camera.resolution = (640, 480)
-camera.vflip = True
-camera.awb_mode = 'auto'
+#camera.vflip = True
+
 
 #Encabezado Stream 
 PAGE="""\
@@ -91,20 +91,21 @@ def Stream():
     #output = StreamingOutput()
     camera.start_recording(output, format='mjpeg')
     try:
-        address = ('', 8000)
+        address = ('0.0.0.0', 8000)
         server = StreamingServer(address, StreamingHandler)
         server.serve_forever()
     finally:
         camera.stop_recording()
         
 def Foto():
-    camera.capture("test.jpg")
+    camera.capture("test2.jpg")
     
 def Video(delay):
     camera.start_recording("video1.h264")
     time.sleep(delay)
     camera.stop_recording()
-
+    
+camera.awb_mode = 'sunlight'
 numero = int(input("Seleccione una opcion: "))
 
 while True:

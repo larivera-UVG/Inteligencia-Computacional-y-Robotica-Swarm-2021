@@ -3,6 +3,9 @@ import time
 import threading
 from threading import Condition
 import RPi.GPIO as GPIO
+import os
+import socket
+import struct
 
 # Use BCM GPIO references
 # instead of physical pin numbers
@@ -68,20 +71,19 @@ def measure1():
         distance = (elapsed * 34300)/2.0
         time.sleep(0.1)
         return distance
-try:
 
-    #while True:
-    for i in range(20):
-        distance = measure()
-        distance1 = measure1()
-        print (distance[0:4])
-        #print ("  Distance of PWM1 : %.1f cm" % distance)
-        #print ("  Distance of PWM2 : %.1f cm" % distance1)
-        time.sleep(1)
 
-except KeyboardInterrupt:
-    print("Stop")
-    GPIO.cleanup()
-
+with socket.create_connection(("192.168.0.3", 6190)) as conn:
+    print("Conectado al servidor.")
+    print("Enviando archivo...")
+    distance = str(measure())
+    distance1 = str(measure1())
+    print ("  Distance of PWM1 : " + distance + "cm")
+    print ("  Distance of PWM2 : " + distance1 + "cm")
+    mensaje = "Hola"
+    conn.send(distance.encode("utf-8"))
+    conn.send(distance1.encode("utf-8"))
+    print("Enviado.")
+print("Conexión cerrada.")
 
 
