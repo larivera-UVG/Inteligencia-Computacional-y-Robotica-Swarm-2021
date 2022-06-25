@@ -18,8 +18,12 @@ En este se encuentran todos los modelos, partes creadas y ensamblajes hechos par
 ### Documentos 
 
 En esta sección se tienen los CAD dimensionados, presupuesto, archivos para la cortadora laser y documentos de tesis.
+La carpeta Documentos para manufactura contiene los documentos necesarios para poder replicar la placa PCB o la base en mdf para futuros proyectos.
 
-### Programas iniciales
+### Programación 
 
-En esta sección se tiene los pogramas de inicio para cada módulo por separado, tambien se tiene la unión de estos programas, adempas de programas de prueba para diferentes tipos de experimentos. 
-
+Se divide en 3 partes: 
+-Codigos definitivos: codigos de los demos realizados utilizando todos los modulos y comunicación tcp y udp
+-Codigos iniciales: distintos apoyos para cada uno de los modulos de la plataforma probado individualmente
+-Comunicación inalambrica: distintos metodos para poder realizar una comunicación exitosa tanto en TCP como en UDP
+(En el envio de datos, se incluye una versión para enviarlos en Python 3,8 que es más eficiente, esta no se llego a utilizar debido a que se trabajo todo el proyecto con python 3.7)
